@@ -1,12 +1,14 @@
-import { ref, computed } from 'vue'
-import { defineStore } from 'pinia'
+import { ref } from 'vue'
+import { defineStore,acceptHMRUpdate } from 'pinia'
 
-export const useCounterStore = defineStore('counter', () => {
-  const count = ref(0)
-  const doubleCount = computed(() => count.value * 2)
-  function increment() {
-    count.value++
-  }
+export const webMode = defineStore('webMode', () => {
+  const mode = ref(false)
+  const setMode = () => mode.value = !mode.value
+  const getMode = () => mode.value
 
-  return { count, doubleCount, increment }
+  return { getMode, setMode}
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(webMode, import.meta.hot))
+}
