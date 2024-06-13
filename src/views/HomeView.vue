@@ -13,31 +13,21 @@ function onOff(){
 <template>
 <div class="w-screen h-screen">
 
-  <div class="flex-col justify-center m-2">
-    
-  <div class="w-full">
-    <!-- v-html แสดงค่าตัวแปรเป็น html-->
-    <p v-html="footer"></p>
-    <!-- v-text แสดงค่าตัวแปรเป็น text ธรรมดา-->
-    <p v-text="footer"></p>
-  </div>
+  <div class="m-10 p-10">
 
-  <div class="w-full flex space-x-5 items-center justify-center">
-    <!-- v-bind ทำให้ attribute เป็นแบบ dynamic สามารถเปลี่ยนแปลงค่าได้-->
-    <button :disabled="counter<1" @click="counter--" class="btn bg-red-500 text-white text-xl">-</button>
-    <h1>Counter: {{ counter }}</h1>
-    <button :disabled="counter>9" @click="counter++" class="btn bg-green-500 text-white text-xl">+</button>
-  </div>
-
-  <div>
-    <button class="btn" @click="onOff">ทักทาย</button>
-    <p v-show="isOn">สวัสดีจ้าา</p>
-  </div>
-
-
+      <div class="card w-96 bg-base-100 shadow-xl">
+        <figure><img src="https://cdn.pixabay.com/photo/2019/05/06/23/35/vat-4184607_1280.jpg" alt="Shoes" /></figure>
+        <div class="card-body">
+          <h2 class="card-title">คำนวณ VAT</h2>
+          <p>คำนวณภาษีหัก ณ ที่จ่าย และ ภาษีมูลค่าเพิ่ม (VAT)</p>
+          <div class="card-actions justify-end">
+            <button class="btn btn-primary">เริ่มคำนวณ</button>
+          </div>
+        </div>
+      </div>
 
   </div>
-  
+
   
 </div>
 </template>
