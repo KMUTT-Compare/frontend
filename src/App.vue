@@ -6,8 +6,10 @@ import { RouterView } from 'vue-router';
 </script>
  
 <template>
-<Navbar/>
-<router-view></router-view>
+<div class="font-itim-regular">
+    <Navbar/>
+    <router-view></router-view>
+</div>
 </template>
  
 <style scoped>

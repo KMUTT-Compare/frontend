@@ -1,0 +1,325 @@
+{
+    "dormitories": [
+      {
+        "id": 1,
+        "name": "Dorm A",
+        "location": "123 Main Street, City Center",
+        "rooms": [
+          {
+            "room_number": "101",
+            "type": "Single",
+            "price_per_month": 3000,
+            "facilities": [
+              "Air Conditioning",
+              "Wi-Fi",
+              "Private Bathroom"
+            ]
+          },
+          {
+            "room_number": "102",
+            "type": "Double",
+            "price_per_month": 5000,
+            "facilities": [
+              "Air Conditioning",
+              "Wi-Fi",
+              "Shared Bathroom"
+            ]
+          }
+        ],
+        "amenities": [
+          "Laundry Service",
+          "Common Room",
+          "24/7 Security"
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Dorm B",
+        "location": "456 Elm Street, Suburbia",
+        "rooms": [
+          {
+            "room_number": "201",
+            "type": "Single",
+            "price_per_month": 3500,
+            "facilities": [
+              "Air Conditioning",
+              "Wi-Fi",
+              "Private Bathroom",
+              "Mini Fridge"
+            ]
+          },
+          {
+            "room_number": "202",
+            "type": "Triple",
+            "price_per_month": 6000,
+            "facilities": [
+              "Air Conditioning",
+              "Wi-Fi",
+              "Shared Bathroom",
+              "Mini Fridge"
+            ]
+          }
+        ],
+        "amenities": [
+          "Gym",
+          "Study Room",
+          "Parking"
+        ]
+      },
+      {
+        "id": 3,
+        "name": "Dorm C",
+        "location": "789 Maple Avenue, Downtown",
+        "rooms": [
+          {
+            "room_number": "301",
+            "type": "Single",
+            "price_per_month": 2800,
+            "facilities": [
+              "Wi-Fi",
+              "Shared Bathroom"
+            ]
+          },
+          {
+            "room_number": "302",
+            "type": "Double",
+            "price_per_month": 4500,
+            "facilities": [
+              "Wi-Fi",
+              "Shared Bathroom",
+              "Mini Fridge"
+            ]
+          }
+        ],
+        "amenities": [
+          "24/7 Security",
+          "Common Area",
+          "Cafeteria"
+        ]
+      },
+      {
+        "id": 4,
+        "name": "Dorm D",
+        "location": "101 Oak Road, Westside",
+        "rooms": [
+          {
+            "room_number": "401",
+            "type": "Single",
+            "price_per_month": 3200,
+            "facilities": [
+              "Air Conditioning",
+              "Wi-Fi",
+              "Private Bathroom"
+            ]
+          },
+          {
+            "room_number": "402",
+            "type": "Double",
+            "price_per_month": 5500,
+            "facilities": [
+              "Air Conditioning",
+              "Wi-Fi",
+              "Shared Bathroom",
+              "Balcony"
+            ]
+          }
+        ],
+        "amenities": [
+          "Swimming Pool",
+          "Gym",
+          "Study Lounge"
+        ]
+      },
+      {
+        "id": 5,
+        "name": "Dorm E",
+        "location": "202 Birch Street, Northside",
+        "rooms": [
+          {
+            "room_number": "501",
+            "type": "Single",
+            "price_per_month": 2900,
+            "facilities": [
+              "Wi-Fi",
+              "Shared Bathroom"
+            ]
+          },
+          {
+            "room_number": "502",
+            "type": "Double",
+            "price_per_month": 4700,
+            "facilities": [
+              "Wi-Fi",
+              "Shared Bathroom",
+              "Mini Fridge"
+            ]
+          }
+        ],
+        "amenities": [
+          "Laundry Service",
+          "24/7 Security",
+          "Study Room"
+        ]
+      },
+      {
+        "id": 6,
+        "name": "Dorm F",
+        "location": "303 Pine Lane, Eastside",
+        "rooms": [
+          {
+            "room_number": "601",
+            "type": "Single",
+            "price_per_month": 3100,
+            "facilities": [
+              "Air Conditioning",
+              "Wi-Fi",
+              "Private Bathroom"
+            ]
+          },
+          {
+            "room_number": "602",
+            "type": "Triple",
+            "price_per_month": 6200,
+            "facilities": [
+              "Air Conditioning",
+              "Wi-Fi",
+              "Shared Bathroom"
+            ]
+          }
+        ],
+        "amenities": [
+          "Gym",
+          "Cafeteria",
+          "Parking"
+        ]
+      },
+      {
+        "id": 7,
+        "name": "Dorm G",
+        "location": "404 Cedar Drive, Southside",
+        "rooms": [
+          {
+            "room_number": "701",
+            "type": "Single",
+            "price_per_month": 3000,
+            "facilities": [
+              "Wi-Fi",
+              "Shared Bathroom"
+            ]
+          },
+          {
+            "room_number": "702",
+            "type": "Double",
+            "price_per_month": 5000,
+            "facilities": [
+              "Wi-Fi",
+              "Shared Bathroom",
+              "Mini Fridge"
+            ]
+          }
+        ],
+        "amenities": [
+          "Study Room",
+          "Laundry Service",
+          "24/7 Security"
+        ]
+      },
+      {
+        "id": 8,
+        "name": "Dorm H",
+        "location": "505 Spruce Street, Central",
+        "rooms": [
+          {
+            "room_number": "801",
+            "type": "Single",
+            "price_per_month": 3400,
+            "facilities": [
+              "Air Conditioning",
+              "Wi-Fi",
+              "Private Bathroom"
+            ]
+          },
+          {
+            "room_number": "802",
+            "type": "Double",
+            "price_per_month": 5200,
+            "facilities": [
+              "Air Conditioning",
+              "Wi-Fi",
+              "Shared Bathroom",
+              "Mini Fridge"
+            ]
+          }
+        ],
+        "amenities": [
+          "Swimming Pool",
+          "Gym",
+          "Common Room"
+        ]
+      },
+      {
+        "id": 9,
+        "name": "Dorm I",
+        "location": "606 Willow Way, Eastside",
+        "rooms": [
+          {
+            "room_number": "901",
+            "type": "Single",
+            "price_per_month": 3200,
+            "facilities": [
+              "Wi-Fi",
+              "Private Bathroom"
+            ]
+          },
+          {
+            "room_number": "902",
+            "type": "Triple",
+            "price_per_month": 5800,
+            "facilities": [
+              "Wi-Fi",
+              "Shared Bathroom"
+            ]
+          }
+        ],
+        "amenities": [
+          "Laundry Service",
+          "Cafeteria",
+          "24/7 Security"
+        ]
+      },
+      {
+        "id": 10,
+        "name": "Dorm J",
+        "location": "707 Maple Road, Southside",
+        "rooms": [
+          {
+            "room_number": "1001",
+            "type": "Single",
+            "price_per_month": 3100,
+            "facilities": [
+              "Air Conditioning",
+              "Wi-Fi",
+              "Private Bathroom"
+            ]
+          },
+          {
+            "room_number": "1002",
+            "type": "Double",
+            "price_per_month": 5300,
+            "facilities": [
+              "Air Conditioning",
+              "Wi-Fi",
+              "Shared Bathroom",
+              "Mini Fridge"
+            ]
+          }
+        ],
+        "amenities": [
+          "Study Room",
+          "Gym",
+          "Common Area"
+        ]
+      }
+    ]
+  }
+  
