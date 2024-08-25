@@ -7,22 +7,22 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView
+      component: () => import('../views/HomeView.vue')
     },
     {
-      path: '/knowledge',
-      name: 'knowledge',
+      path: '/about',
+      name: 'about',
       component: () => import('../views/AboutView.vue')
     },
     {
-      path: '/kb',
-      name: 'kb',
-      component: () => import('../views/AboutView.vue')
+      path: '/dormitory/:id',
+      name: 'dormitoryDetail',
+      component: () => import('../views/DormitoryDetail.vue')
     },
     {
-      path: '/history',
-      name: 'history',
-      component: () => import('../views/AboutView.vue')
+      path: '/login',
+      name: 'login',
+      component: () => import('../components/LoginPopup.vue')
     },
     {
       path: '/Q&A',

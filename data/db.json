@@ -4,6 +4,9 @@
         "id": 1,
         "name": "Dorm A",
         "location": "123 Main Street, City Center",
+        "status": "verify",
+        "date":"20/08/2025",
+        "staffName": "Jeng",
         "rooms": [
           {
             "room_number": "101",

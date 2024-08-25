@@ -1,69 +1,107 @@
 <script setup>
-import { ref } from 'vue';
-const statusMode = ref(false);
+import { ref,watch } from 'vue';
+import { useSearchStore } from '../stores/searchStore';
 
-const mode = () => {
-  statusMode.value = !statusMode.value;
+const store = useSearchStore();
+const searchQuery = ref('');
+
+// Watch for changes in searchQuery and update the store
+watch(searchQuery, (newQuery) => {
+  store.setSearchQuery(newQuery);
+});
+
+const isMenuOpen = ref(false);
+
+
+import { useUIStore } from '@/stores/uiStore';
+import LoginPopup from '@/components/LoginPopup.vue';
+import RegisterPopup from './RegisterPopup.vue';
+
+const uiStore = useUIStore();
+
+const openLoginPopup = () => {
+  uiStore.openLoginPopup();
 };
 
-const loginStatus = ref(true)
-const isLogin = ()=>{
-  loginStatus.value = !loginStatus.value
-}
+const openRegisPopup = () => {
+  uiStore.openRegisPopup();
+};
+
+
+
 </script>
 
-
 <template>
+<nav class="bg-white dark:bg-gray-900 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
+  <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+    
+    <a href="#"><img src="./icons/kmutt_icon.png" class="icon" alt="icon"></a>
+    
+    <div class="flex md:order-2 space-x-3 md:space-x-4 rtl:space-x-reverse">
+      <button type="button" @click="openLoginPopup" class="text-gray-900 dark:text-white bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 font-medium rounded-lg text-sm px-4 py-2 text-center">เข้าสู่ระบบ</button>
+      <button type="button" @click="openRegisPopup" class="text-white bg-orange-500 hover:bg-orange-600 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-800">ลงประกาศฟรี</button>
+      <button @click="isMenuOpen = !isMenuOpen" data-collapse-toggle="navbar-sticky" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-sticky" aria-expanded="false">
+        <span class="sr-only">Open main menu</span>
+        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
+        </svg>
+      </button>
+    </div>
 
-  <div>
-    <nav class="bg-white border-gray-200 dark:bg-gray-900">
-      <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-        <a href="https://flowbite.com/" class="flex items-center space-x-3 rtl:space-x-reverse">
-          <img src="./icons/kmutt.png" class="h-24" alt="Flowbite Logo" />
-        </a>
+    <!-- Items bar -->
+    <div :class="isMenuOpen ? 'block' : 'hidden'" class="items-center justify-between w-full md:flex md:w-auto md:order-1">
+      <ul class="flex flex-col pt-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+        <li>
+          <a href="/" class="hover:bg-gray-100 active:bg-gray-200">Home</a>
+        </li>
+        <li>
+          <a href="about" class="hover:bg-gray-100 active:bg-gray-200">About</a>
+        </li>
+        <li>
+          <a href="service" class="hover:bg-gray-100 active:bg-gray-200">Service</a>
+        </li>
+        <li>
+          <a href="contact" class="hover:bg-gray-100 active:bg-gray-200">Contact</a>
+        </li>
+      </ul>
+    </div>
 
-        
-        <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-user">
-          <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-            <li>
-              <a href="/" :class="{ 'text-sky-500': $route.path === '/','text-red-500 :hover:text-sky-500': $route.path !== '/' }">โปรโมชั่น</a>
-            </li>
-            <li>
-              <a href="knowledge" :class="{ 'text-sky-500': $route.path === '/knowledge'}">หอใน</a>
-            </li>
-            <li>
-              <a href="kb" :class="{ 'text-sky-500': $route.path === '/kb' }">หอนอก</a>
-            </li>
-            <li>
-              <a href="history" :class="{ 'text-sky-500': $route.path === '/history' }">ติดต่อเว็บไซต์</a>
-            </li>
-            <li>
-              <a href="Q&A" :class="{ 'text-sky-500': $route.path === '/Q&A' }">ร้านค้ายอดนิยม</a>
-            </li>
-          </ul>
+    <!-- Search Area -->
+    <div class="max-w-md space-x-3 hidden md:block">
+      <label for="default-search" class="mb-3 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+      <div class="relative">
+        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+          <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+          </svg>
         </div>
-
-        
-        <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-         
-          <div class="relative inline-block text-left">
-              <button class="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg text-white bg-orange-600 hover:bg-orange-700 font-medium rounded-lg text-center mb-2">ลงประกาศฟรี!</button>
-          </div>
-
-        </div>
-
-
-
+        <input v-model="searchQuery" type="search" id="default-search" class="block w-full p-3 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50" placeholder="ค้นหา" required />
       </div>
-    </nav>
+    </div>
   </div>
-
-
+  <LoginPopup v-if="uiStore.isLoginPopupOpen"/>
+  <RegisterPopup v-if="uiStore.isRegisPopupOpen"/>
+</nav>
 
 </template>
 
-
-
 <style scoped>
 /* Add any custom styles here */
+@media(min-width: 50px){
+  .icon{
+    height: 40px;
+  }
+}
+
+@media(min-width: 640px){
+  .icon{
+    height: 50px;
+  }
+}
+
+@media(min-width: 1280px){
+  .icon{
+    height: 50px;
+  }
+}
 </style>
