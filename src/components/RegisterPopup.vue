@@ -1,9 +1,35 @@
 <script setup>
 import { useUIStore } from '@/stores/uiStore';
+import {ref} from 'vue'
+
 const uiStore = useUIStore();
-const closeRegisPopup = () => {
-  uiStore.closeRegisPopup();
-};
+
+const switchPopup = () =>{
+    uiStore.closeRegisPopup()
+    uiStore.openLoginPopup()
+}
+
+const name = ref('')
+const email = ref('')
+const password = ref('')
+const confirmPassword = ref('')
+const phone = ref('')
+const isAccept = ref(null)
+
+const register = async() =>{
+
+//    const response = await axios.post('users',{
+//         name: name.value,
+//         email: email.value,
+//         password: password.value,
+//         confirmPassword: confirmPassword.value,
+//         phone: phone.value,
+//         isAccept: isAccept.value
+//     })
+//     console.log(response)
+//     this.$router.push('/login')
+  
+}
 
 </script>
  
@@ -15,7 +41,7 @@ const closeRegisPopup = () => {
         <div class="relative bg-white rounded-lg shadow">
             
             <button type="button"
-                @click="closeRegisPopup"
+                @click="uiStore.closeRegisPopup()"
                 class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center popup-close"><svg
                     aria-hidden="true" class="w-5 h-5" fill="#c6c7c7" viewBox="0 0 20 20"
                     xmlns="http://www.w3.org/2000/svg">
@@ -40,50 +66,55 @@ const closeRegisPopup = () => {
                 </div>
 
 
-                <form class="w-full mt-7">
+                <form class="w-full mt-7" @submit.prevent="register">
 
                     <label for="name" class="pl-1">ชื่อ-นามสกุล</label>
-                    <input name="email" type="Name" autocomplete="email" required=""
+                    <input v-model="name" name="name" type="name" autocomplete="name" required=""
                         class="mt-2 mb-2 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-black focus:ring-offset-1"
                         placeholder="Name" value="">
 
                     <label for="email" class="pl-1">อีเมล</label>
-                    <input name="email" type="email" autocomplete="email" required=""
+                    <input v-model="email" name="email" type="email" autocomplete="email" required=""
                         class="mt-2 mb-2 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-black focus:ring-offset-1"
                         placeholder="Email Address" value="">
 
                     <label for="password" class="pl-1">รหัสผ่าน</label>
-                    <input name="password" type="password" autocomplete="current-password" required=""
+                    <input v-model="password" name="password" type="password" autocomplete="password" required=""
                         class="mt-2 mb-2 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-black focus:ring-offset-1"
                         placeholder="Password" value="">
                         
 
-                    <label for="confirm-password" class="pl-1">ยืนยัน Password</label>
-                    <input name="confirm-password" type="password" autocomplete="current-password" required=""
+                    <label for="confirmPassword" class="pl-1">ยืนยัน Password</label>
+                    <input v-model="confirmPassword" name="confirmPassword" type="password" autocomplete="current-password" required=""
                         class="mt-2 mb-2 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-black focus:ring-offset-1"
                         placeholder="Confirm Password" value="">
 
                     <label for="phone" class="pl-1">เบอร์โทรศัพท์</label>
-                    <input name="phone" type="password" autocomplete="current-password" required=""
+                    <input v-model="phone" name="phone" type="phone" autocomplete="phone" required=""
                         class="mt-2 mb-2 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-black focus:ring-offset-1"
                         placeholder="Phone" value="">
 
 
                     <div class="flex items-center mt-6 mb-6">
-                        <input id="link-checkbox" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                        <input v-model="isAccept" id="link-checkbox" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
                         <label for="link-checkbox" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">ยอมรับเงื่อนไข<a href="#" class="text-blue-600 dark:text-blue-500 hover:underline"> ข้อตกลงการใช้งาน</a> และ <a href="#" class="text-blue-600 dark:text-blue-500 hover:underline">นโยบายความเป็นส่วนตัว</a></label>
                     </div>
 
                     <button type="submit"
                         class="inline-flex w-full items-center justify-center rounded-lg bg-black p-2 py-3 text-sm font-medium text-white outline-none focus:ring-2 focus:ring-black focus:ring-offset-1 disabled:bg-gray-400">
-                        Continue
+                        สมัคร
                     </button>
                 </form>
 
                 <div class="mt-6 text-center text-sm text-slate-600">
                     Already have an account?
-                    <a href="/signup" class="font-medium text-[#4285f4]">Sign in</a>
+                    <button @click="switchPopup" class="font-medium text-blue-600 hover:text-blue-400">
+                        Sign in
+                  </button>
                 </div>
+                
+                 
+                
             </div>
         </div>
     </div>

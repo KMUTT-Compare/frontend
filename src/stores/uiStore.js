@@ -23,6 +23,7 @@ export const useUIStore = defineStore('ui', () => {
   const closeRegisPopup = () => {
     isRegisPopupOpen.value = false;
   };
+  
 
 
 

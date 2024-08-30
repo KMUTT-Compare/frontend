@@ -13,7 +13,7 @@ onMounted(async()=>{
 
 const getDormitoryDetail = async () => {
   try {
-    const res = await fetch(`${API_ROOT}/${params.id}`); // ตรวจสอบให้แน่ใจว่า URL ถูกต้อง
+    const res = await fetch(`${API_ROOT}/dormitories/${params.id}`); // ตรวจสอบให้แน่ใจว่า URL ถูกต้อง
     if (res.ok) {
         dormitoryDetaill.value = await res.json();
     }
