@@ -1,5 +1,6 @@
 <script setup>
 import Navbar from './components/Navbar.vue';
+import FooterBar from './components/FooterBar.vue';
 import { RouterView } from 'vue-router';
 
 
@@ -9,6 +10,7 @@ import { RouterView } from 'vue-router';
 <div class="font-itim-regular">
     <Navbar/>
     <router-view></router-view>
+    <FooterBar/>
 </div>
 </template>
  

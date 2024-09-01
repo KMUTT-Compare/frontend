@@ -81,15 +81,14 @@ const showDetail = (dormitoryId) =>{
           </div> 
         </div>
 
+        <div v-if="dormitories.length === 0" class="text-2xl text-red-600 text-center">No Dormitory</div>
+
         <!-- ส่วนที่ 2 -->
-
-
 
       </div>
     </section>
-    
 
-    <div v-if="dormitories.length === 0" class="text-2xl text-red-600 text-center">No Dormitory</div>
+    
  
 
   
