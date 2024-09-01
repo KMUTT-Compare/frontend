@@ -6,28 +6,33 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: () => import('../views/HomeView.vue')
+      component: () => import('../views/UserView/HomeView.vue')
     },
     {
       path: '/about',
       name: 'about',
-      component: () => import('../views/AboutView.vue')
+      component: () => import('../views/UserView/AboutView.vue')
     },
     {
-      path: '/dormitory/:id',
-      name: 'dormitoryDetail',
-      component: () => import('../views/DormitoryDetail.vue')
+      path: '/service',
+      name: 'service',
+      component: () => import('../views/UserView/AboutView.vue')
     },
     {
       path: '/contact',
       name: 'contact',
-      component: () => import('../views/Contact.vue')
+      component: () => import('../views/UserView/Contact.vue')
     },
     {
-      path: '/Q&A',
-      name: 'Q&A',
-      component: () => import('../views/AboutView.vue')
-    }
+      path: '/*',
+      name: '404',
+      component: () => import('../views/Notfound.vue')
+    },
+    {
+      path: '/dormitory/:id',
+      name: 'dormitoryDetail',
+      component: () => import('../views/UserView/DormitoryDetail.vue')
+    },
   ]
 })
 

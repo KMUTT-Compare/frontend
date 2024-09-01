@@ -52,31 +52,18 @@ const openRegisPopup = () => {
     <div :class="isMenuOpen ? 'block' : 'hidden'" class="items-center justify-between w-full md:flex md:w-auto md:order-1">
       <ul class="flex flex-col pt-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
         <li>
-          <a href="/" class="hover:bg-gray-100 active:bg-gray-200">Home</a>
+          <a href="/" class="hover:bg-gray-100 active:bg-gray-200">หน้าหลัก</a>
         </li>
         <li>
-          <a href="about" class="hover:bg-gray-100 active:bg-gray-200">About</a>
+          <a href="about" class="hover:bg-gray-100 active:bg-gray-200">ร้านค้าแนะนำ</a>
         </li>
         <li>
-          <a href="service" class="hover:bg-gray-100 active:bg-gray-200">Service</a>
+          <a href="service" class="hover:bg-gray-100 active:bg-gray-200">ช่วยเหลือ</a>
         </li>
         <li>
-          <a href="contact" class="hover:bg-gray-100 active:bg-gray-200">Contact</a>
+          <a href="contact" class="hover:bg-gray-100 active:bg-gray-200">ติดต่อเว็บ</a>
         </li>
       </ul>
-    </div>
-
-    <!-- Search Area -->
-    <div class="max-w-md space-x-3 hidden md:block">
-      <label for="default-search" class="mb-3 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
-      <div class="relative">
-        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-          <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-          </svg>
-        </div>
-        <input v-model="searchQuery" type="search" id="default-search" class="block w-full p-3 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50" placeholder="ค้นหา" required />
-      </div>
     </div>
   </div>
   <LoginPopup v-if="uiStore.isLoginPopupOpen"/>
