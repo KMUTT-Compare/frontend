@@ -1,14 +1,11 @@
 <script setup>
 import { ref,watch } from 'vue';
 import { useSearchStore } from '../stores/searchStore';
+import { useAuthStore } from '@/stores/authorize';
 
 const store = useSearchStore();
-const searchQuery = ref('');
+const authStore = useAuthStore();
 
-// Watch for changes in searchQuery and update the store
-watch(searchQuery, (newQuery) => {
-  store.setSearchQuery(newQuery);
-});
 
 const isMenuOpen = ref(false);
 
@@ -38,7 +35,8 @@ const openRegisPopup = () => {
     <a href="#"><img src="./icons/kmutt_icon.png" class="icon" alt="icon"></a>
     
     <div class="flex md:order-2 space-x-3 md:space-x-4 rtl:space-x-reverse">
-      <button type="button" @click="openLoginPopup" class="text-gray-900 dark:text-white bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 font-medium rounded-lg text-sm px-4 py-2 text-center">เข้าสู่ระบบ</button>
+      <div v-if="authStore.role=='guest'"><button type="button" @click="openLoginPopup" class="text-gray-900 dark:text-white bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 font-medium rounded-lg text-sm px-4 py-2 text-center">เข้าสู่ระบบ</button></div>
+      <div v-if="authStore.isAuthenticated"><button type="button" @click="authStore.logout" class="text-gray-900 dark:text-white bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 font-medium rounded-lg text-sm px-4 py-2 text-center">ออกจากระบบ</button></div>
       <button type="button" @click="openRegisPopup" class="text-white bg-orange-500 hover:bg-orange-600 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-800">ลงประกาศฟรี</button>
       <button @click="isMenuOpen = !isMenuOpen" data-collapse-toggle="navbar-sticky" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-sticky" aria-expanded="false">
         <span class="sr-only">Open main menu</span>
@@ -58,7 +56,7 @@ const openRegisPopup = () => {
           <a href="about" class="hover:bg-gray-100 active:bg-gray-200">ร้านค้าแนะนำ</a>
         </li>
         <li>
-          <a href="service" class="hover:bg-gray-100 active:bg-gray-200">ช่วยเหลือ</a>
+          <a href="faq" class="hover:bg-gray-100 active:bg-gray-200">ช่วยเหลือ</a>
         </li>
         <li>
           <a href="contact" class="hover:bg-gray-100 active:bg-gray-200">ติดต่อเว็บ</a>

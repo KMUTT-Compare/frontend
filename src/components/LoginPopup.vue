@@ -1,65 +1,33 @@
 <script setup>
 import { useUIStore } from '@/stores/uiStore';
+import { useAuthStore } from '@/stores/authorize';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-const router = useRouter();
 const uiStore = useUIStore();
-const API_ROOT = import.meta.env.VITE_API_ROOT;  // URL ของ fake backend
 
+const router = useRouter();
+const authStore = useAuthStore();
 
+const email = ref('');
+const password = ref('')
 
 const switchPopup = () =>{
   uiStore.closeLoginPopup();
   uiStore.openRegisPopup()
 }
 
-const email = ref('');
-const password = ref('');
-const userToken = ref('');
-
 const login = async () => {
-  let user = {
-    email: email.value.trim(),
-    password: password.value.trim()
-  };
+  const {success, error} = await authStore.login(email.value, password.value);
 
-  try {
-    const res = await fetch(`${API_ROOT}/users`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json"
-      }
-    });
-
-    if (res.ok) {
-      const users = await res.json();
-      const userFromDB = users.find(u => u.password === user.password);
-      
-      if (userFromDB) {
-        userToken.value = {
-          token: userFromDB.token,
-          refreshToken: userFromDB.refreshToken
-        };
-        localStorage.setItem('token', userToken.value.token);
-        localStorage.setItem('refreshToken', userToken.value.refreshToken);
-        console.log('Login Successfully');
-        closeLoginPopup()
-        router.push({name:'home'});
-      } else {
-        console.log('Password Incorrect');
-      }
-    } else if (res.status === 404) {
-      console.log('User not found');
-    } else {
-      console.log('An error occurred');
-    }
-  } catch (error) {
-    console.error('Error:', error);
+  if(success) {
+    uiStore.closeLoginPopup();
+    alert('login successfully')
+    router.push('/')
+  }else{
+    alert(error);
   }
-};
-
-
+}
 
 </script>
  

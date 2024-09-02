@@ -24,6 +24,11 @@ const router = createRouter({
       component: () => import('../views/UserView/Contact.vue')
     },
     {
+      path: '/faq',
+      name: 'faq',
+      component: () => import('../views/UserView/FAQ.vue')
+    },
+    {
       path: '/*',
       name: '404',
       component: () => import('../views/Notfound.vue')
@@ -33,6 +38,11 @@ const router = createRouter({
       name: 'dormitoryDetail',
       component: () => import('../views/UserView/DormitoryDetail.vue')
     },
+    {
+      path: '/dormManagement',
+      name: 'dormManagement',
+      component: () => import('../views/AdminView/DormManagement.vue')
+    }
   ]
 })
 

@@ -5,12 +5,12 @@ import { useRouter } from 'vue-router'
 import WhiteButton from '@/components/WhiteButton.vue';
 const router = useRouter()
 
-
 // ใช้การตั้งค่า API_ROOT
 const API_ROOT = import.meta.env.VITE_API_ROOT
 
 const dormitories = ref([])
 const store = useSearchStore();
+
 const filteredDormitories = computed(() => store.filteredDormitories(dormitories.value));
 
 onMounted(async () => {
