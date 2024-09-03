@@ -29,7 +29,13 @@
         "ลิฟต์": true
       },
       "allow_pets": true,
-      "allow_smoking_in_room": false
+      "allow_smoking_in_room": false,
+      "promotion": {
+        "active": false,
+        "description": "",
+        "discount_price": null,
+        "promotion_end_date": null
+      }
     },
     {
       "id": "2",
@@ -60,7 +66,13 @@
         "ลิฟต์": true
       },
       "allow_pets": false,
-      "allow_smoking_in_room": false
+      "allow_smoking_in_room": false,
+      "promotion": {
+        "active": true,
+        "description": "โปรโมชั่นพิเศษสำหรับการจองล่วงหน้า 3 เดือน",
+        "discount_price": 3150,
+        "promotion_end_date": "2025-12-31"
+      }
     },
     {
       "id": "6",
@@ -91,7 +103,13 @@
         "ลิฟต์": true
       },
       "allow_pets": false,
-      "allow_smoking_in_room": false
+      "allow_smoking_in_room": false,
+      "promotion": {
+        "active": false,
+        "description": "",
+        "discount_price": null,
+        "promotion_end_date": null
+      }
     },
     {
       "id": "7",
@@ -122,7 +140,13 @@
         "ลิฟต์": true
       },
       "allow_pets": true,
-      "allow_smoking_in_room": true
+      "allow_smoking_in_room": true,
+      "promotion": {
+        "active": true,
+        "description": "ลดราคาพิเศษช่วงเทศกาลปีใหม่",
+        "discount_price": 2635,
+        "promotion_end_date": "2025-12-31"
+      }
     },
     {
       "id": "10",
@@ -152,113 +176,100 @@
         "สระว่ายน้ำ": true,
         "ลิฟต์": true
       },
-      "allow_pets": true,
-      "allow_smoking_in_room": true
-    },
-    {
-      "id": "11",
-      "name": "Dorm K",
-      "location": "808 Willow Lane, West Side",
-      "status": "verify",
-      "staffName": "Beer",
-      "min_price": 3900,
-      "max_price": 5700,
-      "annouce_date": "2026-01-15",
-      "update_date": "2025-01-15",
-      "type": "ชาย",
-      "room_facilities": {
-        "เครื่องทำน้ำอุ่น": true,
-        "เครื่องซักผ้า": true,
-        "เครื่องปรับอากาศ": true,
-        "ทีวี": true,
-        "ตู้เย็น": true,
-        "อินเทอร์เน็ต/Wi-Fi ในห้อง": true
-      },
-      "building_facilities": {
-        "มีประตูระบบ Keycard": true,
-        "ยามรักษาความปลอดภัย": true,
-        "กล้องวงจรปิด (CCTV)": true,
-        "ที่จอดรถมอเตอร์ไซด์/จักรยาน": true,
-        "ที่จอดรถยนต์": true,
-        "สระว่ายน้ำ": true,
-        "ลิฟต์": true
-      },
       "allow_pets": false,
-      "allow_smoking_in_room": true
+      "allow_smoking_in_room": false,
+      "promotion": {
+        "active": false,
+        "description": "",
+        "discount_price": null,
+        "promotion_end_date": null
+      }
     },
     {
-      "id": "12",
-      "name": "Dorm L",
-      "location": "909 Pine Road, Downtown",
-      "status": "verify",
-      "staffName": "Kik",
-      "min_price": 3200,
-      "max_price": 5000,
-      "annouce_date": "2026-02-01",
-      "update_date": "2025-02-01",
-      "type": "หญิง",
-      "room_facilities": {
-        "เครื่องทำน้ำอุ่น": true,
-        "เครื่องซักผ้า": true,
-        "เครื่องปรับอากาศ": true,
-        "ทีวี": false,
-        "ตู้เย็น": true,
-        "อินเทอร์เน็ต/Wi-Fi ในห้อง": true
-      },
-      "building_facilities": {
-        "มีประตูระบบ Keycard": true,
-        "ยามรักษาความปลอดภัย": true,
-        "กล้องวงจรปิด (CCTV)": true,
-        "ที่จอดรถมอเตอร์ไซด์/จักรยาน": true,
-        "ที่จอดรถยนต์": true,
-        "สระว่ายน้ำ": false,
-        "ลิฟต์": true
-      },
-      "allow_pets": false,
-      "allow_smoking_in_room": false
-    },
-    {
-      "id": "13",
-      "name": "Dorm M",
-      "location": "123 Oak Street, East Side",
-      "status": "verify",
-      "staffName": "Fon",
-      "min_price": 3100,
-      "max_price": 4900,
-      "annouce_date": "2026-03-01",
-      "update_date": "2025-03-01",
-      "type": "รวม",
-      "room_facilities": {
-        "เครื่องทำน้ำอุ่น": true,
-        "เครื่องซักผ้า": true,
-        "เครื่องปรับอากาศ": true,
-        "ทีวี": true,
-        "ตู้เย็น": true,
-        "อินเทอร์เน็ต/Wi-Fi ในห้อง": true
-      },
-      "building_facilities": {
-        "มีประตูระบบ Keycard": true,
-        "ยามรักษาความปลอดภัย": true,
-        "กล้องวงจรปิด (CCTV)": true,
-        "ที่จอดรถมอเตอร์ไซด์/จักรยาน": true,
-        "ที่จอดรถยนต์": true,
-        "สระว่ายน้ำ": true,
-        "ลิฟต์": true
-      },
-      "allow_pets": true,
-      "allow_smoking_in_room": false
-    },
-    {
-      "id": "14",
-      "name": "Dorm N",
-      "location": "456 Maple Avenue, North End",
+      "id": "28",
+      "name": "Dorm H",
+      "location": "808 Pine Street, Old Town",
       "status": "verify",
       "staffName": "Nok",
-      "min_price": 3600,
-      "max_price": 5200,
-      "annouce_date": "2026-04-01",
-      "update_date": "2025-04-01",
-      "type": "หญิง",
+      "min_price": 900,
+      "max_price": 950,
+      "annouce_date": "2025-06-15",
+      "update_date": "2024-06-15",
+      "type": "รวม",
+      "room_facilities": {
+        "เครื่องทำน้ำอุ่น": false,
+        "เครื่องซักผ้า": false,
+        "เครื่องปรับอากาศ": false,
+        "ทีวี": false,
+        "ตู้เย็น": false,
+        "อินเทอร์เน็ต/Wi-Fi ในห้อง": true
+      },
+      "building_facilities": {
+        "มีประตูระบบ Keycard": false,
+        "ยามรักษาความปลอดภัย": false,
+        "กล้องวงจรปิด (CCTV)": false,
+        "ที่จอดรถมอเตอร์ไซด์/จักรยาน": true,
+        "ที่จอดรถยนต์": false,
+        "สระว่ายน้ำ": false,
+        "ลิฟต์": false
+      },
+      "allow_pets": true,
+      "allow_smoking_in_room": true,
+      "promotion": {
+        "active": true,
+        "description": "ลดราคาพิเศษสำหรับนักเรียนใหม่",
+        "discount_price": 800,
+        "promotion_end_date": "2025-09-30"
+      }
+    },
+    {
+      "id": "29",
+      "name": "Dorm I",
+      "location": "909 Maple Avenue, High-End Area",
+      "status": "verify",
+      "staffName": "Som",
+      "min_price": 5500,
+      "max_price": 6000,
+      "annouce_date": "2025-05-01",
+      "update_date": "2024-05-01",
+      "type": "รวม",
+      "room_facilities": {
+        "เครื่องทำน้ำอุ่น": true,
+        "เครื่องซักผ้า": true,
+        "เครื่องปรับอากาศ": true,
+        "ทีวี": true,
+        "ตู้เย็น": true,
+        "อินเทอร์เน็ต/Wi-Fi ในห้อง": true
+      },
+      "building_facilities": {
+        "มีประตูระบบ Keycard": true,
+        "ยามรักษาความปลอดภัย": true,
+        "กล้องวงจรปิด (CCTV)": true,
+        "ที่จอดรถมอเตอร์ไซด์/จักรยาน": true,
+        "ที่จอดรถยนต์": true,
+        "สระว่ายน้ำ": true,
+        "ลิฟต์": true
+      },
+      "allow_pets": false,
+      "allow_smoking_in_room": false,
+      "promotion": {
+        "active": true,
+        "description": "โปรโมชั่นสุดหรู ลดราคาช่วงฤดูร้อน",
+        "discount_price": 4900,
+        "promotion_end_date": "2025-08-31"
+      }
+    },
+    {
+      "id": "23",
+      "name": "Dorm C",
+      "location": "111 Maple Street, Downtown",
+      "status": "verify",
+      "staffName": "Somchai",
+      "min_price": 2500,
+      "max_price": 3000,
+      "annouce_date": "2025-07-15",
+      "update_date": "2024-07-15",
+      "type": "รวม",
       "room_facilities": {
         "เครื่องทำน้ำอุ่น": true,
         "เครื่องซักผ้า": false,
@@ -269,185 +280,73 @@
       },
       "building_facilities": {
         "มีประตูระบบ Keycard": true,
-        "ยามรักษาความปลอดภัย": true,
-        "กล้องวงจรปิด (CCTV)": true,
+        "ยามรักษาความปลอดภัย": false,
+        "กล้องวงจรปิด (CCTV)": false,
         "ที่จอดรถมอเตอร์ไซด์/จักรยาน": true,
-        "ที่จอดรถยนต์": true,
+        "ที่จอดรถยนต์": false,
         "สระว่ายน้ำ": false,
-        "ลิฟต์": true
-      },
-      "allow_pets": false,
-      "allow_smoking_in_room": false
-    },
-    {
-      "id": "15",
-      "name": "Dorm O",
-      "location": "789 Pine Lane, South End",
-      "status": "verify",
-      "staffName": "Tle",
-      "min_price": 3700,
-      "max_price": 5300,
-      "annouce_date": "2026-05-01",
-      "update_date": "2025-05-01",
-      "type": "รวม",
-      "room_facilities": {
-        "เครื่องทำน้ำอุ่น": true,
-        "เครื่องซักผ้า": true,
-        "เครื่องปรับอากาศ": true,
-        "ทีวี": true,
-        "ตู้เย็น": true,
-        "อินเทอร์เน็ต/Wi-Fi ในห้อง": true
-      },
-      "building_facilities": {
-        "มีประตูระบบ Keycard": true,
-        "ยามรักษาความปลอดภัย": true,
-        "กล้องวงจรปิด (CCTV)": true,
-        "ที่จอดรถมอเตอร์ไซด์/จักรยาน": true,
-        "ที่จอดรถยนต์": true,
-        "สระว่ายน้ำ": true,
-        "ลิฟต์": true
+        "ลิฟต์": false
       },
       "allow_pets": true,
-      "allow_smoking_in_room": true
+      "allow_smoking_in_room": true,
+      "promotion": {
+        "active": false,
+        "description": "",
+        "discount_price": 0,
+        "promotion_end_date": ""
+      }
     },
     {
-      "id": "16",
-      "name": "Dorm P",
-      "location": "321 Birch Street, Downtown",
+      "id": "24",
+      "name": "Dorm D",
+      "location": "222 Oak Street, Central Area",
       "status": "verify",
-      "staffName": "Pa",
-      "min_price": 3000,
-      "max_price": 4800,
-      "annouce_date": "2026-06-01",
-      "update_date": "2025-06-01",
-      "type": "ชาย",
-      "room_facilities": {
-        "เครื่องทำน้ำอุ่น": true,
-        "เครื่องซักผ้า": false,
-        "เครื่องปรับอากาศ": true,
-        "ทีวี": false,
-        "ตู้เย็น": true,
-        "อินเทอร์เน็ต/Wi-Fi ในห้อง": true
-      },
-      "building_facilities": {
-        "มีประตูระบบ Keycard": true,
-        "ยามรักษาความปลอดภัย": true,
-        "กล้องวงจรปิด (CCTV)": true,
-        "ที่จอดรถมอเตอร์ไซด์/จักรยาน": true,
-        "ที่จอดรถยนต์": true,
-        "สระว่ายน้ำ": false,
-        "ลิฟต์": true
-      },
-      "allow_pets": false,
-      "allow_smoking_in_room": true
-    },
-    {
-      "id": "17",
-      "name": "Dorm Q",
-      "location": "654 Cedar Road, East Side",
-      "status": "verify",
-      "staffName": "Nai",
-      "min_price": 3400,
-      "max_price": 5000,
-      "annouce_date": "2026-07-01",
-      "update_date": "2025-07-01",
-      "type": "รวม",
-      "room_facilities": {
-        "เครื่องทำน้ำอุ่น": true,
-        "เครื่องซักผ้า": true,
-        "เครื่องปรับอากาศ": true,
-        "ทีวี": true,
-        "ตู้เย็น": true,
-        "อินเทอร์เน็ต/Wi-Fi ในห้อง": true
-      },
-      "building_facilities": {
-        "มีประตูระบบ Keycard": true,
-        "ยามรักษาความปลอดภัย": true,
-        "กล้องวงจรปิด (CCTV)": true,
-        "ที่จอดรถมอเตอร์ไซด์/จักรยาน": true,
-        "ที่จอดรถยนต์": true,
-        "สระว่ายน้ำ": true,
-        "ลิฟต์": true
-      },
-      "allow_pets": true,
-      "allow_smoking_in_room": false
-    },
-    {
-      "id": "18",
-      "name": "Dorm R",
-      "location": "987 Oak Lane, North Side",
-      "status": "verify",
-      "staffName": "Ying",
-      "min_price": 3300,
-      "max_price": 4900,
-      "annouce_date": "2026-08-01",
-      "update_date": "2025-08-01",
+      "staffName": "Chai",
+      "min_price": 1900,
+      "max_price": 2500,
+      "annouce_date": "2025-08-01",
+      "update_date": "2024-08-01",
       "type": "หญิง",
       "room_facilities": {
         "เครื่องทำน้ำอุ่น": true,
         "เครื่องซักผ้า": true,
-        "เครื่องปรับอากาศ": true,
+        "เครื่องปรับอากาศ": false,
         "ทีวี": true,
         "ตู้เย็น": true,
         "อินเทอร์เน็ต/Wi-Fi ในห้อง": true
       },
       "building_facilities": {
-        "มีประตูระบบ Keycard": true,
+        "มีประตูระบบ Keycard": false,
         "ยามรักษาความปลอดภัย": true,
         "กล้องวงจรปิด (CCTV)": true,
         "ที่จอดรถมอเตอร์ไซด์/จักรยาน": true,
-        "ที่จอดรถยนต์": true,
+        "ที่จอดรถยนต์": false,
         "สระว่ายน้ำ": false,
-        "ลิฟต์": true
+        "ลิฟต์": false
       },
       "allow_pets": false,
-      "allow_smoking_in_room": false
-    },
-    {
-      "id": "19",
-      "name": "Dorm S",
-      "location": "543 Willow Street, South End",
-      "status": "verify",
-      "staffName": "Joy",
-      "min_price": 3200,
-      "max_price": 4800,
-      "annouce_date": "2026-09-01",
-      "update_date": "2025-09-01",
-      "type": "รวม",
-      "room_facilities": {
-        "เครื่องทำน้ำอุ่น": true,
-        "เครื่องซักผ้า": true,
-        "เครื่องปรับอากาศ": true,
-        "ทีวี": false,
-        "ตู้เย็น": true,
-        "อินเทอร์เน็ต/Wi-Fi ในห้อง": true
-      },
-      "building_facilities": {
-        "มีประตูระบบ Keycard": true,
-        "ยามรักษาความปลอดภัย": true,
-        "กล้องวงจรปิด (CCTV)": true,
-        "ที่จอดรถมอเตอร์ไซด์/จักรยาน": true,
-        "ที่จอดรถยนต์": true,
-        "สระว่ายน้ำ": true,
-        "ลิฟต์": true
-      },
-      "allow_pets": true,
-      "allow_smoking_in_room": true
+      "allow_smoking_in_room": false,
+      "promotion": {
+        "active": true,
+        "description": "โปรโมชั่นลดราคาฤดูฝน",
+        "discount_price": 1800,
+        "promotion_end_date": "2025-12-31"
+      }
     },
     {
       "id": "20",
-      "name": "Dorm T",
-      "location": "678 Cedar Lane, West Side",
+      "name": "Dorm E",
+      "location": "333 Pine Avenue, Old Town",
       "status": "verify",
-      "staffName": "Pae",
-      "min_price": 3500,
-      "max_price": 5100,
-      "annouce_date": "2026-10-01",
-      "update_date": "2025-10-01",
+      "staffName": "Nok",
+      "min_price": 2800,
+      "max_price": 3000,
+      "annouce_date": "2025-06-15",
+      "update_date": "2024-06-15",
       "type": "ชาย",
       "room_facilities": {
         "เครื่องทำน้ำอุ่น": true,
-        "เครื่องซักผ้า": false,
+        "เครื่องซักผ้า": true,
         "เครื่องปรับอากาศ": true,
         "ทีวี": true,
         "ตู้เย็น": true,
@@ -463,8 +362,15 @@
         "ลิฟต์": true
       },
       "allow_pets": true,
-      "allow_smoking_in_room": true
+      "allow_smoking_in_room": true,
+      "promotion": {
+        "active": false,
+        "description": "",
+        "discount_price": 0,
+        "promotion_end_date": ""
+      }
     }
+
   ],
   "users": [
     {
@@ -545,6 +451,31 @@
     },
     {
       "id": "f4dd",
+      "email": "testuser1@example.com",
+      "password": "password123"
+    },
+    {
+      "id": "b9a5",
+      "email": "testuser1@example.com",
+      "password": "password123"
+    },
+    {
+      "id": "a5f0",
+      "email": "testuser1@example.com",
+      "password": "password123"
+    },
+    {
+      "id": "0a97",
+      "email": "testuser1@example.com",
+      "password": "password123"
+    },
+    {
+      "id": "e8d9",
+      "email": "testuser1@example.com",
+      "password": "password123"
+    },
+    {
+      "id": "7af2",
       "email": "testuser1@example.com",
       "password": "password123"
     }

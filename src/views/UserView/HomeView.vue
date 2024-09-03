@@ -1,17 +1,12 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { useSearchStore } from '@/stores/searchStore';
 import { useRouter } from 'vue-router'
-import WhiteButton from '@/components/WhiteButton.vue';
 const router = useRouter()
 
 // ใช้การตั้งค่า API_ROOT
 const API_ROOT = import.meta.env.VITE_API_ROOT
 
 const dormitories = ref([])
-const store = useSearchStore();
-
-const filteredDormitories = computed(() => store.filteredDormitories(dormitories.value));
 
 onMounted(async () => {
    await getDormitories();
@@ -29,6 +24,73 @@ const getDormitories = async () => {
     throw error;
   }
 }
+
+
+
+//ตัวแปร Filter
+const searchInput = ref('')
+
+const selectTypes = ref('รวม')
+
+const selectedRoom = ref({
+  hotWater: false,
+  washer: false,
+  airConditioner: false,
+  tv: false,
+  fridge: false,
+  wifi: false
+});
+
+const selectedBuilding = ref({
+  keycard: false,
+  security: false,
+  cctv: false,
+  bikeParking: false,
+  carParking: false,
+  pool: false,
+  elevator: false
+});
+
+const selectedOther = ref({
+  petsAllowed: false,
+  smokingAllowed: false
+});
+
+const selectPriceRange = ref('');
+
+const filteredDormitories = computed(() => {
+  let minPrice = 0
+  let maxPrice = Infinity
+
+  switch (selectPriceRange.value) {
+    case 'below-1000':
+      maxPrice = 1000
+      break
+    case '1000-3000':
+      minPrice = 1000
+      maxPrice = 3000
+      break
+    case '3000-5000':
+      minPrice = 3000
+      maxPrice = 5000
+      break
+    case 'above-5000':
+      minPrice = 5000
+      break
+  }
+
+  return dormitories.value.filter(dorm => {
+    // กรองตามช่วงราคา
+    const inPriceRange = dorm.min_price >= minPrice && dorm.max_price <= maxPrice
+
+    // กรองตามประเภทหอพัก
+    const typeMatches = dorm.type === selectTypes.value
+
+     const nameMatches = dorm.name.toLowerCase().includes(searchInput.value.toLowerCase())
+
+    return inPriceRange && typeMatches && nameMatches
+  })
+})
 
 const showDetail = (dormitoryId) =>{
   router.push({
@@ -49,122 +111,127 @@ const showDetail = (dormitoryId) =>{
         </div>
     </header>
 
-
-
           <div class="filter">
-
+            <!-------------------------------- 1 --------------------------------->
             <div class="price">
               <h2 class="my-4">ช่วงราคา</h2>
               <div class="relative">
-                <select class="price-select">
+                <select class="price-select" v-model="selectPriceRange">
                   <option value="">เลือกช่วงราคา</option>
-                  <option value="below-5000">ต่ำกว่า 1,000 บาท</option>
-                  <option value="5000-10000">1,000 - 3,000 บาท</option>
-                  <option value="10000-20000">3,000 - 5,000 บาท</option>
-                  <option value="above-20000">มากกว่า 5,000 บาท</option>
+                  <option value="below-1000">ต่ำกว่า 1,000 บาท</option>
+                  <option value="1000-3000">1,000 - 3,000 บาท</option>
+                  <option value="3000-5000">3,000 - 5,000 บาท</option>
+                  <option value="above-5000">มากกว่า 5,000 บาท</option>
                 </select>
               </div>
             </div>
 
             <div class="mt-10 max-w-72"><hr></div>
-
+            <!-------------------------------- 2 --------------------------------->
             <div class="type">
-              <h2 for="type" class="my-4">ประเภทหอพัก</h2>
+              <h2 class="my-4">ประเภทหอพัก</h2>
               <div class="flex flex-col space-y-2">
+                <!-- ตัวเลือก "ชาย" -->
                 <div class="flex flex-row space-x-2">
-                    <input type="checkbox" class="checkbox" id="men"/>
-                    <p>ชาย</p>
+                  <input v-model="selectTypes" name="default-radio" type="radio" value="ชาย" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
+                  <p>ชาย</p>
                 </div>
+                
+                <!-- ตัวเลือก "หญิง" -->
                 <div class="flex flex-row space-x-2">
-                    <input type="checkbox" class="checkbox" id="men"/>
-                    <p>หญิง</p>
+                  <input v-model="selectTypes" name="default-radio" type="radio" value="หญิง" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
+                  <p>หญิง</p>
                 </div>
+                
+                <!-- ตัวเลือก "รวม" -->
                 <div class="flex flex-row space-x-2">
-                    <input type="checkbox" class="checkbox" id="men"/>
-                    <p>รวม</p>
+                  <input v-model="selectTypes" checked name="default-radio" type="radio" value="รวม" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
+                  <p>รวม</p>
                 </div>
               </div>
             </div>
 
-            <div class="mt-10 max-w-72"><hr></div>
 
-            <div class="type">
-              <h2 for="type" class="my-4">สิ่งอำนวยความสะดวก ภายในห้อง</h2>
+
+            <div class="mt-10 max-w-72"><hr></div>
+            <!-------------------------------- 3 --------------------------------->
+            <div class="inside">
+              <h2 class="my-4">สิ่งอำนวยความสะดวก ภายในห้อง</h2>
               <div class="flex flex-col space-y-2">
                 <div class="flex flex-row space-x-2">
-                    <input type="checkbox" class="checkbox" id="men"/>
+                    <input v-model="selectedRoom.hotWater" type="checkbox" class="checkbox"/>
                     <p>เครื่องทำน้ำอุ่น</p>
                 </div>
                 <div class="flex flex-row space-x-2">
-                    <input type="checkbox" class="checkbox" id="men"/>
+                    <input v-model="selectedRoom.washer" type="checkbox" class="checkbox"/>
                     <p>เครื่องซักผ้า</p>
                 </div>
                 <div class="flex flex-row space-x-2">
-                    <input type="checkbox" class="checkbox" id="men"/>
+                    <input v-model="selectedRoom.airConditioner" type="checkbox" class="checkbox"/>
                     <p>เครื่องปรับอากาศ</p>
                 </div>
                 <div class="flex flex-row space-x-2">
-                    <input type="checkbox" class="checkbox" id="men"/>
+                    <input v-model="selectedRoom.tv" type="checkbox" class="checkbox"/>
                     <p>ทีวี</p>
                 </div>
                 <div class="flex flex-row space-x-2">
-                    <input type="checkbox" class="checkbox" id="men"/>
+                    <input v-model="selectedRoom.fridge"  type="checkbox" class="checkbox"/>
                     <p>ตู้เย็น</p>
                 </div>
                 <div class="flex flex-row space-x-2">
-                    <input type="checkbox" class="checkbox" id="men"/>
+                    <input v-model="selectedRoom.wifi" type="checkbox" class="checkbox"/>
                     <p>อินเทอร์เน็ต/Wi-Fi ในห้อง</p>
                 </div>
               </div>
             </div>
 
             <div class="mt-10 max-w-72"><hr></div>
-
-            <div class="type">
-              <h2 for="type" class="my-4">สิ่งอำนวยความสะดวก ในอาคาร</h2>
+            <!-------------------------------- 4 --------------------------------->
+            <div class="outside">
+              <h2 class="my-4">สิ่งอำนวยความสะดวก ในอาคาร</h2>
               <div class="flex flex-col space-y-2">
                 <div class="flex flex-row space-x-2">
-                    <input type="checkbox" class="checkbox" id="men"/>
+                    <input v-model="selectedBuilding.keycard" type="checkbox" class="checkbox"/>
                     <p>มีประตูระบบ Keycard</p>
                 </div>
                 <div class="flex flex-row space-x-2">
-                    <input type="checkbox" class="checkbox" id="men"/>
+                    <input v-model="selectedBuilding.security" type="checkbox" class="checkbox"/>
                     <p>ยามรักษาความปลอดภัย</p>
                 </div>
                 <div class="flex flex-row space-x-2">
-                    <input type="checkbox" class="checkbox" id="men"/>
+                    <input v-model="selectedBuilding.cctv" type="checkbox" class="checkbox"/>
                     <p>กล้องวงจรปิด (CCTV)</p>
                 </div>
                 <div class="flex flex-row space-x-2">
-                    <input type="checkbox" class="checkbox" id="men"/>
+                    <input v-model="selectedBuilding.bikeParking" type="checkbox" class="checkbox"/>
                     <p>ที่จอดรถมอเตอร์ไซด์/จักรยาน</p>
                 </div>
                 <div class="flex flex-row space-x-2">
-                    <input type="checkbox" class="checkbox" id="men"/>
+                    <input v-model="selectedBuilding.carParking" type="checkbox" class="checkbox"/>
                     <p>ที่จอดรถยนต์</p>
                 </div>
                 <div class="flex flex-row space-x-2">
-                    <input type="checkbox" class="checkbox" id="men"/>
+                    <input v-model="selectedBuilding.pool" type="checkbox" class="checkbox"/>
                     <p>สระว่ายน้ำ</p>
                 </div>
                 <div class="flex flex-row space-x-2">
-                    <input type="checkbox" class="checkbox" id="men"/>
+                    <input v-model="selectedBuilding.elevator" type="checkbox" class="checkbox"/>
                     <p>ลิฟต์</p>
                 </div>
             </div>
             </div>
 
             <div class="mt-10 max-w-72"><hr></div>
-
-            <div class="type">
-              <h2 for="type" class="my-4">อื่นๆ</h2>
+            <!-------------------------------- 5 --------------------------------->
+            <div class="other">
+              <h2 class="my-4">อื่นๆ</h2>
               <div class="flex flex-col space-y-2">
                 <div class="flex flex-row space-x-2">
-                    <input type="checkbox" class="checkbox" id="men"/>
+                    <input v-model="selectedOther.petsAllowed" type="checkbox" class="checkbox"/>
                     <p>อนุญาตให้เลี้ยงสัตว์</p>
                 </div>
                 <div class="flex flex-row space-x-2">
-                    <input type="checkbox" class="checkbox" id="men"/>
+                    <input v-model="selectedOther.smokingAllowed" type="checkbox" class="checkbox"/>
                     <p>อนุญาตให้สูบบุหรี่ในห้องพัก</p>
                 </div>
               </div>
@@ -182,8 +249,7 @@ const showDetail = (dormitoryId) =>{
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                         </svg>
                     </div>
-                    <input type="search" id="default-search" class="block w-full p-4 ps-10 text-lg text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ค้นหาด้วยชื่อ..." required />
-                    <button type="submit" class="text-white absolute end-2.5 bottom-2.5 bg-black hover:bg-gray-800 font-medium rounded-lg text-lg px-4 py-2 dark:bg-black dark:hover:bg-gray-800 dark:focus:ring-gray-800">ค้นหา</button>
+                    <input v-model="searchInput" type="search" id="default-search" class="block w-full p-4 ps-10 text-lg text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ค้นหาด้วยชื่อ..." required />
                 </div>
             </form>
 
@@ -196,7 +262,6 @@ const showDetail = (dormitoryId) =>{
           <!-- ส่วนหัวเรื่อง -->
           <div class="title">
             <h1>Promotion</h1>
-            <WhiteButton context="SEE ALL"/>
           </div>
 
           <!-- ส่วนไอเทม -->
@@ -248,30 +313,11 @@ const showDetail = (dormitoryId) =>{
 
 .searchButton{
   margin-top: 20px;
-  width: 840px;
-}
-
-.filter {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  left: 40px;
-  padding: 10px; /* เพิ่ม padding ถ้าต้องการ */
-  font-size:medium;
-  color: rgb(54, 54, 54);
-  width: 100%;
-  padding: 20px 50px;
-  margin: 30px;
-  background-color: rgb(255, 255, 255);
-  width: 350px;
-}
-
-.filter h2{
-  font-size: larger;
+  width: 900px;
 }
 
 .promotion {
-  width: 840px;
+  width: 900px;
   margin-top: 10px;
 }
 
@@ -282,18 +328,32 @@ const showDetail = (dormitoryId) =>{
   justify-content: space-between;
 }
 
-.title h1{
+.title h1 {
   font-size: 60px;
 }
 
+
 .items{
   display: grid;
-  grid-template-columns: repeat(4,1fr);
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));;
   grid-template-rows: auto;
   column-gap: 30px;
   row-gap: 20px;
   justify-items: center;
   
+}
+
+.item-img {
+  width: 100%;
+  height: 200px; /* ปรับความสูง */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.item-img img {
+  max-width: 100%;
+  height: auto;
 }
 
 .two-items:hover {
@@ -355,5 +415,25 @@ const showDetail = (dormitoryId) =>{
 hr{
   width: 250px;
 }
+
+.filter {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  left: 40px;
+  padding: 10px; /* เพิ่ม padding ถ้าต้องการ */
+  font-size:medium;
+  color: rgb(54, 54, 54);
+  width: 100%;
+  padding: 20px 50px;
+  margin: 30px;
+  background-color: rgb(255, 255, 255);
+  width: 350px;
+}
+
+.filter h2{
+  font-size: larger;
+}
+
 
 </style>
