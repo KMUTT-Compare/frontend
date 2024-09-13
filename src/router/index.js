@@ -9,14 +9,14 @@ const router = createRouter({
       component: () => import('../views/UserView/HomeView.vue')
     },
     {
-      path: '/about',
-      name: 'about',
-      component: () => import('../views/UserView/AboutView.vue')
+      path: '/favorites',
+      name: 'favorites',
+      component: () => import('../views/UserView/FavoritesView.vue')
     },
     {
       path: '/service',
       name: 'service',
-      component: () => import('../views/UserView/AboutView.vue')
+      component: () => import('../views/UserView/FavoritesView.vue')
     },
     {
       path: '/contact',

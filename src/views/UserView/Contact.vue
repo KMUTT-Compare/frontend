@@ -3,7 +3,7 @@
 </script>
  
 <template>
-<section class="bg-white dark:bg-gray-900 mt-24">
+<section class="bg-white dark:bg-gray-900 mt-20">
     <div class="container px-6 py-12 mx-auto">
         <div>
             <p class="font-medium text-blue-500 dark:text-blue-400">Contact us</p>

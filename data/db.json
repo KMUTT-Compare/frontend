@@ -11,6 +11,7 @@
       "annouce_date": "2025-08-20",
       "update_date": "2024-08-30",
       "type": "รวม",
+      "size":20,
       "room_facilities": {
         "เครื่องทำน้ำอุ่น": true,
         "เครื่องซักผ้า": true,
@@ -35,7 +36,9 @@
         "description": "",
         "discount_price": null,
         "promotion_end_date": null
-      }
+      },
+      "score":10,
+      "favorite": true
     },
     {
       "id": "2",
@@ -48,6 +51,7 @@
       "annouce_date": "2025-09-01",
       "update_date": "2024-09-01",
       "type": "หญิง",
+      "size":30,
       "room_facilities": {
         "เครื่องทำน้ำอุ่น": true,
         "เครื่องซักผ้า": false,
@@ -72,7 +76,9 @@
         "description": "โปรโมชั่นพิเศษสำหรับการจองล่วงหน้า 3 เดือน",
         "discount_price": 3150,
         "promotion_end_date": "2025-12-31"
-      }
+      },
+      "score":9,
+      "favorite": true
     },
     {
       "id": "6",
@@ -85,6 +91,7 @@
       "annouce_date": "2025-11-01",
       "update_date": "2024-11-01",
       "type": "รวม",
+      "size":20,
       "room_facilities": {
         "เครื่องทำน้ำอุ่น": true,
         "เครื่องซักผ้า": true,
@@ -109,7 +116,9 @@
         "description": "",
         "discount_price": null,
         "promotion_end_date": null
-      }
+      },
+      "score":8,
+      "favorite": true
     },
     {
       "id": "7",
@@ -122,6 +131,7 @@
       "annouce_date": "2025-11-15",
       "update_date": "2024-11-15",
       "type": "ชาย",
+      "size":20,
       "room_facilities": {
         "เครื่องทำน้ำอุ่น": true,
         "เครื่องซักผ้า": true,
@@ -146,7 +156,9 @@
         "description": "ลดราคาพิเศษช่วงเทศกาลปีใหม่",
         "discount_price": 2635,
         "promotion_end_date": "2025-12-31"
-      }
+      },
+      "score":7,
+      "favorite": true
     },
     {
       "id": "10",
@@ -159,6 +171,7 @@
       "annouce_date": "2026-01-01",
       "update_date": "2025-01-01",
       "type": "รวม",
+      "size":40,
       "room_facilities": {
         "เครื่องทำน้ำอุ่น": true,
         "เครื่องซักผ้า": true,
@@ -183,7 +196,9 @@
         "description": "",
         "discount_price": null,
         "promotion_end_date": null
-      }
+      },
+      "score":6,
+      "favorite": true
     },
     {
       "id": "28",
@@ -196,6 +211,7 @@
       "annouce_date": "2025-06-15",
       "update_date": "2024-06-15",
       "type": "รวม",
+      "size":60,
       "room_facilities": {
         "เครื่องทำน้ำอุ่น": false,
         "เครื่องซักผ้า": false,
@@ -220,7 +236,9 @@
         "description": "ลดราคาพิเศษสำหรับนักเรียนใหม่",
         "discount_price": 800,
         "promotion_end_date": "2025-09-30"
-      }
+      },
+      "score":5,
+      "favorite": false
     },
     {
       "id": "29",
@@ -257,7 +275,9 @@
         "description": "โปรโมชั่นสุดหรู ลดราคาช่วงฤดูร้อน",
         "discount_price": 4900,
         "promotion_end_date": "2025-08-31"
-      }
+      },
+      "score":5,
+      "favorite": true
     },
     {
       "id": "23",
@@ -270,6 +290,7 @@
       "annouce_date": "2025-07-15",
       "update_date": "2024-07-15",
       "type": "รวม",
+      "size":70,
       "room_facilities": {
         "เครื่องทำน้ำอุ่น": true,
         "เครื่องซักผ้า": false,
@@ -294,7 +315,9 @@
         "description": "",
         "discount_price": 0,
         "promotion_end_date": ""
-      }
+      },
+      "score":7,
+      "favorite": true
     },
     {
       "id": "24",
@@ -307,6 +330,7 @@
       "annouce_date": "2025-08-01",
       "update_date": "2024-08-01",
       "type": "หญิง",
+      "size":90,
       "room_facilities": {
         "เครื่องทำน้ำอุ่น": true,
         "เครื่องซักผ้า": true,
@@ -331,7 +355,9 @@
         "description": "โปรโมชั่นลดราคาฤดูฝน",
         "discount_price": 1800,
         "promotion_end_date": "2025-12-31"
-      }
+      },
+      "score":4,
+      "favorite": true
     },
     {
       "id": "20",
@@ -368,9 +394,10 @@
         "description": "",
         "discount_price": 0,
         "promotion_end_date": ""
-      }
+      },
+      "score":10,
+      "favorite": true
     }
-
   ],
   "users": [
     {

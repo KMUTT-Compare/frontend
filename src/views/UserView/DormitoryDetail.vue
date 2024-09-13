@@ -27,7 +27,7 @@ const getDormitoryDetail = async () => {
 </script>
  
 <template>
-<div class="w-full h-full flex justify-center mt-24">
+<div class="w-full h-full flex justify-center mt-20">
 
 
     <div class="flex flex-col border border-xl h-full bg-gray-5oo p-2 w-2/5">

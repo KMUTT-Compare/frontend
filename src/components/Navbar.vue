@@ -29,12 +29,12 @@ const openRegisPopup = () => {
 <nav class="bg-white dark:bg-gray-900 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
   <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
     
-    <a href="#"><img src="./icons/kmutt_icon.png" class="icon" alt="icon"></a>
+    <a href="#"><img src="./icons/logoKmutt.png" class="icon" alt="icon"></a>
     
     <div class="flex md:order-2 space-x-3 md:space-x-4 rtl:space-x-reverse">
-      <div v-if="authStore.role==''"><button type="button" @click="openLoginPopup" class="text-gray-900 dark:text-white bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 font-medium rounded-lg text-sm px-4 py-2 text-center">เข้าสู่ระบบ</button></div>
-      <div v-if="authStore.isAuthenticated"><button type="button" @click="authStore.logout" class="text-gray-900 dark:text-white bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 font-medium rounded-lg text-sm px-4 py-2 text-center">ออกจากระบบ</button></div>
-      <button type="button" @click="openRegisPopup" class="text-white bg-orange-500 hover:bg-orange-600 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-800">ลงประกาศฟรี</button>
+      <div><button type="button" @click="openLoginPopup" class="text-gray-900 dark:text-white bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 font-medium rounded-lg text-sm px-4 py-2 text-center">เข้าสู่ระบบ</button></div>
+      <div v-if="authStore.role==''"><button type="button" @click="authStore.logout" class="text-gray-900 dark:text-white bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 font-medium rounded-lg text-sm px-4 py-2 text-center">ออกจากระบบ</button></div>
+      <button type="button" @click="openRegisPopup" class="text-white bg-orange-500 hover:bg-orange-600 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-800">สมัครสมาชิก</button>
       <button @click="isMenuOpen = !isMenuOpen" data-collapse-toggle="navbar-sticky" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-sticky" aria-expanded="false">
         <span class="sr-only">Open main menu</span>
         <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
@@ -50,7 +50,7 @@ const openRegisPopup = () => {
           <a href="/" class="hover:bg-gray-100 active:bg-gray-200">หน้าหลัก</a>
         </li>
         <li>
-          <a href="about" class="hover:bg-gray-100 active:bg-gray-200">ร้านค้าแนะนำ</a>
+          <a href="favorites" class="hover:bg-gray-100 active:bg-gray-200">รายการโปรด</a>
         </li>
         <li>
           <a href="faq" class="hover:bg-gray-100 active:bg-gray-200">ช่วยเหลือ</a>
