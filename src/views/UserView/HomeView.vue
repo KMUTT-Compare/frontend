@@ -3,81 +3,8 @@ import { ref, onMounted, computed } from 'vue'
 import { useFavoriteItem } from '@/stores/favoriteItem'
 import router from '@/router';
 
-// ใช้การตั้งค่า API_ROOT
 const API_ROOT = import.meta.env.VITE_API_ROOT
 const dormitories = ref([])
-
-// สถานะของหอพักหลักและรอง
-const mainDormitory = ref(null);
-const secondaryDormitory = ref(null);
-
-const setMainDormitory = (dormId) => {
-  if (secondaryDormitory.value === dormId) {
-    secondaryDormitory.value = null; // ลบหอพักรองถ้ามันตรงกับหอพักหลัก
-  }
-  mainDormitory.value = dormId;
-};
-
-const setSecondaryDormitory = (dormId) => {
-  if (mainDormitory.value === dormId) {
-    mainDormitory.value = null; // ลบหอพักหลักถ้ามันตรงกับหอพักรอง
-  }
-  secondaryDormitory.value = dormId;
-};
-
-
-// const compareDormitories = computed(() => {
-//   const mainDorm = mainDormitory.value
-//   const secondaryDorm = secondaryDormitory.value
-
-//   if (!mainDorm || !secondaryDorm) return null;
-
-//   return {
-//     price: {
-//       main: mainDorm.max_price,
-//       secondary: secondaryDorm.max_price,
-//       better: mainDorm.max_price < secondaryDorm.max_price ? mainDorm.max_price : secondaryDorm.max_price
-//     }
-//   };
-// });
-
-const getFacilitiesDisplay = (mainFacilities, secondaryFacilities) => {
-  const allFacilities = new Set([...Object.keys(mainFacilities), ...Object.keys(secondaryFacilities)]);
-  const display = {};
-
-  allFacilities.forEach(facility => {
-    display[facility] = {
-      main: mainFacilities[facility] ? '✔️' : '❌',
-      secondary: secondaryFacilities[facility] ? '✔️' : '❌'
-    };
-  });
-
-  return display;
-};
-
-const compareDormitories = computed(() => {
-  const mainDorm = dormitories.value.find(dorm => dorm.id === mainDormitory.value);
-  const secondaryDorm = dormitories.value.find(dorm => dorm.id === secondaryDormitory.value);
-
-  if (!mainDorm || !secondaryDorm) return null;
-
-  const facilitiesDisplay = getFacilitiesDisplay(mainDorm.room_facilities || {}, secondaryDorm.room_facilities || {});
-
-  return {
-    price: {
-      main: mainDorm.max_price,
-      secondary: secondaryDorm.max_price,
-      better: mainDorm.max_price < secondaryDorm.max_price ? mainDorm : secondaryDorm
-    },
-    size: {
-      main: mainDorm.size || 'ไม่ระบุ',
-      secondary: secondaryDorm.size || 'ไม่ระบุ'
-    },
-    facilities: facilitiesDisplay
-  };
-});
-
-
 
 onMounted(async () => {
    await getDormitories();
@@ -97,8 +24,17 @@ const getDormitories = async () => {
 }
 
 
+// ดูรายละเอียดหอพัก
+const showDetail = (dormitoryId) =>{
+  router.push({
+    name : 'dormitoryDetail',
+    params : {id : dormitoryId}
+  })
+}
 
-//ตัวแปร Filter
+
+
+//---------------------------------- Filter ----------------------------------
 const searchInput = ref('')
 
 const selectTypes = ref('รวม')
@@ -159,24 +95,90 @@ const filteredDormitories = computed(() => {
 
      const nameMatches = dorm.name.toLowerCase().includes(searchInput.value.toLowerCase())
 
+
+
     return inPriceRange && typeMatches && nameMatches
   })
 })
 
 
-const favorite = useFavoriteItem()
-const switchFavorite = (id) =>{
-  favorite.toggleFavorite(id)
-}
+
+// ---------------------------------- เปรียบเทียบหอพัก ----------------------------------
+const mainDormitory = ref(null);
+const secondaryDormitory = ref(null);
+
+const setMainDormitory = (dormId) => {
+  if (secondaryDormitory.value === dormId) {
+    secondaryDormitory.value = null; // ลบหอพักรองถ้ามันตรงกับหอพักหลัก
+  }
+  mainDormitory.value = dormId;
+};
+
+const setSecondaryDormitory = (dormId) => {
+  if (mainDormitory.value === dormId) {
+    mainDormitory.value = null; // ลบหอพักหลักถ้ามันตรงกับหอพักรอง
+  }
+  secondaryDormitory.value = dormId;
+};
+
+const getFacilitiesDisplay = (mainFacilities, secondaryFacilities) => {
+  const allFacilities = new Set([...Object.keys(mainFacilities), ...Object.keys(secondaryFacilities)]);
+  const display = {};
+
+  allFacilities.forEach(facility => {
+    display[facility] = {
+      main: mainFacilities[facility] ? '✔️' : '❌',
+      secondary: secondaryFacilities[facility] ? '✔️' : '❌'
+    };
+  });
+
+  return display;
+};
+
+const compareDormitories = computed(() => {
+  const mainDorm = dormitories.value.find(dorm => dorm.id === mainDormitory.value);
+  const secondaryDorm = dormitories.value.find(dorm => dorm.id === secondaryDormitory.value);
+
+  if (!mainDorm || !secondaryDorm) return null;
+
+  const facilitiesDisplay = getFacilitiesDisplay(mainDorm.room_facilities || {}, secondaryDorm.room_facilities || {});
+
+  return {
+    price: {
+      main: mainDorm.max_price,
+      secondary: secondaryDorm.max_price,
+      better: mainDorm.max_price < secondaryDorm.max_price ? mainDorm : secondaryDorm
+    },
+    size: {
+      main: mainDorm.size || 'ไม่ระบุ',
+      secondary: secondaryDorm.size || 'ไม่ระบุ'
+    },
+    facilities: facilitiesDisplay
+  };
+});
 
 
 
-const showDetail = (dormitoryId) =>{
-  router.push({
-    name : 'dormitoryDetail',
-    params : {id : dormitoryId}
-  })
-}
+//---------------------------------- pagination ----------------------------------
+const currentPage = ref(1);
+const itemsPerPage = ref(5); // Adjust the number of items per page as needed
+
+// Calculate total pages
+const totalPages = computed(() => Math.ceil(filteredDormitories.value.length / itemsPerPage.value));
+
+// Paginated dormitories
+const paginatedDormitories = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredDormitories.value.slice(start, end);
+});
+
+// Function to change pages
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+  }
+};
 
 
 </script>
@@ -190,7 +192,7 @@ const showDetail = (dormitoryId) =>{
         </div>
     </header>
 
-    <div class="flex flex-row">
+    <div class="flex flex-row w-full h-full">
 
 <!----------------------------------------------------------------->
       <!-- ส่วนซ้าย filter -->
@@ -326,24 +328,88 @@ const showDetail = (dormitoryId) =>{
 
 
 
+<!--------------------------- ส่วนกลาง Items -------------------------------------->
+
+    <div class="container">
+        <form class="px-10 w-full py-3">   
+          <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+          <div class="relative">
+          <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+              <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+              </svg>
+            </div>
+            <input v-model="searchInput" type="search" id="default-search" class="block w-full p-4 ps-10 text-lg text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ค้นหาหอพัก..." required />
+          </div>
+        </form>
+  
+     <!-- ส่วนไอเทม -->
+
+        <div class="flex flex-row">
+          <div v-if="dormitories !== null && dormitories.length !== 0" class="py-2 mx-8 p-2 space-y-3">
+            <div v-for="dorm in paginatedDormitories" :key="dorm.id" class="bg-white shadow-lg rounded-lg overflow-hidden w-full shadow-3xl">
+              <div class="flex flex-row w-full">
+                <div class="bg-red-600 w-72 items-center flex">
+                  <img src="@/components/photos/new.svg"  class="object-cover w-full h-full" alt="Dormitory Image" />
+                </div> 
+                <div class="flex flex-col w-full">
+                      <div class="flex w-full items-center cursor-pointer" @click="showDetail(dorm.id)">
+                        <div class="item pl-3">
+                          <h1>{{ dorm.name }}</h1>
+                          <h2>{{ dorm.min_price }} - {{ dorm.max_price }} <span>บาท/เดือน</span></h2>
+                          <p>Location: {{ dorm.location }}</p>
+                        </div>
+                      </div>
+              
+                  <!-- Button -->
+                      <div class="flex w-full justify-center items-center mt-2">
+                        <button @click="setMainDormitory(dorm.id)" class="btn btn-sm bg-black text-white hover:bg-zinc-600 text-sm">
+                          ตั้งเป็นหอพักหลัก
+                        </button>
+                        <button @click="setSecondaryDormitory(dorm.id)" class="btn btn-sm bg-white border-2 border-black hover:bg-zinc-300 hover:border-black">
+                          ตั้งเป็นหอพักรอง
+                        </button>
+                      </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+              <div v-if="dormitories.length === 0" class="text-2xl text-red-600 text-center">No Dormitory</div>
+          </div>
+
+                <!-- Pagination Controls -->
+            <div class="pagination-controls flex justify-center mt-4 space-x-2">
+              <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" class="px-3 py-1 border rounded bg-gray-200 hover:bg-gray-300">
+                Previous
+              </button>
+
+              <span>Page {{ currentPage }} of {{ totalPages }}</span>
+
+              <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages" class="px-3 py-1 border rounded bg-gray-200 hover:bg-gray-300">
+                Next
+              </button>
+            </div>
+
+        </div>
+
+  
+
 <!----------------------------------------------------------------->
+    <div class="right-area w-full h-full">
+      
+      <!-- ส่วนหัวเรื่อง -->
+      <div class="text-center py-5 mt-5">
+          <h2>เลือกเพื่อเปรียบเทียบ</h2>
+      </div>
 
-    <!-- ส่วนกลาง Items -->
-      <div class="container">
+      <div class="flex flex-row justify-center py-5 space-x-10">
+          <div class="main-item">หอพักหลัก: <div>{{ mainDormitory ? dormitories.find(dorm => dorm.id === mainDormitory).name : 'ยังไม่ได้เลือก' }}</div></div>
+          <div class="main-item">หอพักรอง: <div>{{ secondaryDormitory ? dormitories.find(dorm => dorm.id === secondaryDormitory).name : 'ยังไม่ได้เลือก' }}</div></div>
+      </div>
 
-          <!-- ส่วนหัวเรื่อง -->
-          <div class="text-4xl text-center py-5 mt-5 font-semibold">
-            <h1>เลือกเพื่อเปรียบเทียบ</h1>
-          </div>
-
-          <div class="compare py-5 space-x-32 text-2xl">
-            <div class="main-item">หอพักหลัก: <div>{{ mainDormitory ? dormitories.find(dorm => dorm.id === mainDormitory).name : 'ยังไม่ได้เลือก' }}</div></div>
-            <div class="main-item">หอพักรอง: <div>{{ secondaryDormitory ? dormitories.find(dorm => dorm.id === secondaryDormitory).name : 'ยังไม่ได้เลือก' }}</div></div>
-          </div>
-
-          <div class="comparison-results">
-          <h2 class="text-2xl font-semibold m-5">ผลลัพธ์การเปรียบเทียบ</h2>
-          <table class="w-full border-collapse text-xl">
+      <div class="flex flex-col items-center">
+          <h2 class="m-5">ผลลัพธ์การเปรียบเทียบ</h2>
+          <table class="w-full border-collapse">
             <thead>
               <tr class="bg-gray-200">
                 <th class="border px-4 py-2">คุณสมบัติ</th>
@@ -381,70 +447,10 @@ const showDetail = (dormitoryId) =>{
               </tr>
             </tbody>
           </table>
-       </div>
-
-          <!-- ส่วนที่ 1 -->
-
-        </div>
-
-  
-
-<!----------------------------------------------------------------->
-<div class="right-area w-full h-full">
-  
-  <form class="px-8 w-full py-3">   
-      <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
-        <div class="relative">
-         <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-            </svg>
-          </div>
-          <input v-model="searchInput" type="search" id="default-search" class="block w-full p-4 ps-10 text-lg text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ค้นหาหอพัก..." required />
-         </div>
-  </form>
-  
-     <!-- ส่วนไอเทม -->
-
-     <div class="flex flex-row">
-      <div v-if="dormitories !== null && dormitories.length !== 0" class="items py-2 mx-8">
-        <div v-for="dorm in filteredDormitories" :key="dorm.id" class="bg-white shadow-lg rounded-lg overflow-hidden w-full shadow-3xl">
-
-          <div class="flex flex-row w-full">
-            <div class="bg-red-600 w-72 items-center flex">
-              <img src="@/components/photos/new.svg"  class="object-cover w-full h-full" alt="Dormitory Image" />
-            </div> 
-            <div class="flex flex-col w-full">
-                  <div class="flex w-full justify-center items-center">
-                    <div class="item">
-                      <h1>{{ dorm.name }}</h1>
-                      <h2>{{ dorm.min_price }} - {{ dorm.max_price }} <span>บาท/เดือน</span></h2>
-                      <p>Location: {{ dorm.location }}</p>
-                    </div>
-                  </div>
-          
-              <!-- Button -->
-                  <div class="flex w-full justify-center items-center p-2">
-                    <button @click="setMainDormitory(dorm.id)" class="btn bg-black text-white hover:bg-zinc-600">
-                      ตั้งเป็นหอพักหลัก
-                    </button>
-                    <button @click="setSecondaryDormitory(dorm.id)" class="btn bg-white border-2 border-black hover:bg-zinc-300 hover:border-black">
-                      ตั้งเป็นหอพักรอง
-                    </button>
-                </div>
-          </div>
-          </div>
-          
-
-
-        </div>
       </div>
-
-      <div v-if="dormitories.length === 0" class="text-2xl text-red-600 text-center">No Dormitory</div>
-
-     </div>
-
 </div>
+
+
 
 
 </div>
@@ -462,8 +468,6 @@ const showDetail = (dormitoryId) =>{
 
 
 /* ภาพพื้นหลังด้านบน */
-
-
 .background img {
   width: 100%;
   height: 400px; 
@@ -471,153 +475,41 @@ const showDetail = (dormitoryId) =>{
 }
 
 
-.compare{
-  display: flex;
-  flex-direction: row;
-  /* background-color: #fd6e6e; */
-  justify-content: center;
-}
-
-.comparison-results {
-  padding-left: 8.2rem;
-  padding-right: 8.2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  /* background-color: rgb(171, 255, 183); */
-}
-
-.container{
-  display: flex;
-  flex-direction: column;
-  width: 50%;
-  /* background-color: aqua; */
-}
-
-.items {
-  display: grid;
-  grid-template-columns: repeat(1, minmax(200px, 1fr));
-  grid-template-rows: auto;
-  column-gap: 20px;
-  row-gap: 10px;
-  justify-items: center;
-  width: 88%;
-}
-
-.item {
-  flex: 1; /* Allow the item to take the remaining space */
-  padding: 10px;
-}
-
+/* กล่องของสองไอเทม */
 .main-item{
-  background-color: rgb(230, 230, 230);
-  width: 20rem;
-  height: 20rem;
+  background-color: rgb(236, 181, 181);
+  width: 15rem;
+  height: 15rem;
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: 1.2rem;
 }
 
-
-.searchButton{
-  margin-left: 2rem; /* 32px */
-  margin-right: 2rem; /* 32px */
-}
-
-
-
-
-.title h1 {
-  font-size: 60px;
-}
-
-
-.title2{
-  font-size: 60px;
-  padding-left:7%;
-}
-
-
-/* Responsive adjustments */
-
-@media (max-width: 1600px) {
-  .items {
-    grid-template-columns: repeat(3, minmax(200px, 1fr));
-  }
-
-  .filter {
-    padding-top: 1rem; /* ลดขนาดการเติมช่องว่าง */
-  }
-
-  .right-area {
-    padding-right: 0.5rem; /* ลดการเติมช่องว่างด้านขวา */
-  }
-}
-
-@media (max-width: 1500px) {
-  .items {
-    grid-template-columns: repeat(2, minmax(200px, 1fr));
-  }
-  .filter {
-    font-size: 0.875rem; /* ลดขนาดฟอนต์ */
-    padding-top: 0.75rem; /* ลดการเติมช่องว่างด้านบน */
-  }
-
-  .right-area {
-    padding-right: 0.5rem;
-  }
-}
-
-@media (max-width: 900px) {
-  .items {
-    grid-template-columns: 1fr;
-  }
-  .filter {
-    font-size: 0.75rem; /* ลดขนาดฟอนต์อีกครั้งสำหรับหน้าจอที่เล็กมาก */
-    padding-top: 0.5rem; /* ลดการเติมช่องว่างด้านบน */
-    width: 100px;
-    background-color: red;
-  }
-
-  .right-area {
-    padding-right: 0.25rem; /* ลดการเติมช่องว่างด้านขวา */
-    align-items: flex-start; /* ปรับการจัดตำแหน่งให้เหมาะสมกับหน้าจอเล็ก */
-  }
-}
-
-
-
-/* ดาว */
-.star:hover {
-  transform: scale(1.08); /* ขยายขนาดเล็กน้อยเมื่อ hover */
-  cursor: pointer;
-}
-
-
-.item h1{
+.item h1 {
   font-size: 20px;
-  /* color:#F4845F */
+  color:#F4845F
 }
 
 .item h2{
-  font-size: 20px;
+  font-size: 1.2rem;
   color: black;
 }
 
 .item h2 span{
-  font-size: 14px;
+  font-size: 1rem;
   color: #5D5D5D;
 }
 .item p{
-  font-size: 14px;
+  font-size: 1rem;
   color:#5D5D5D
 }
 
 
 .price-select {
   padding: 8px;
-  border: 2px solid #ccc; /* Border ขนาดที่ต้องการ */
-  box-sizing: border-box; /* ทำให้ padding และ border อยู่ในขนาดของ width */
+  border: 2px solid #ccc; 
+  box-sizing: border-box; 
   cursor: pointer;
   width: 250px;
 }
@@ -626,18 +518,28 @@ hr{
   width: 250px;
 }
 
+.filter h2{
+  font-size: 1.2rem;
+}
+
+
 .filter {
   color: rgb(54, 54, 54);
   /* background-color: #F4845F; */
   display: flex;
   flex-direction: column;
-  padding-top: 1.5rem;
-  width: 25%;
+  padding-top: 1.2rem;
+  width: 33%;
   align-items: center;
+  font-size: 1rem
 }
 
-.filter h2{
-  font-size: 1.4rem;
+.container{
+  padding-top: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  width: 33%;
+  /* background-color: aqua; */
 }
 
 .right-area{
@@ -645,8 +547,19 @@ hr{
   flex-direction: column;
   align-items: center;
   /* background-color: rgb(171, 255, 183); */
-  padding-top: 1.5rem;
-  width: 25%
+  padding-top: 1.2rem;
+  width: 33%;
+  font-size: 1rem;
+}
+
+.right-area h2{
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.pagination-controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 

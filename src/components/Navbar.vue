@@ -1,6 +1,7 @@
 <script setup>
 import { ref} from 'vue';
 import { useAuthStore } from '@/stores/authorize';
+import router from '@/router';
 
 const authStore = useAuthStore();
 
@@ -47,16 +48,16 @@ const openRegisPopup = () => {
     <div :class="isMenuOpen ? 'block' : 'hidden'" class="items-center justify-between w-full md:flex md:w-auto md:order-1">
       <ul class="flex flex-col pt-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
         <li>
-          <a href="/" class="hover:bg-gray-100 active:bg-gray-200">หน้าหลัก</a>
+          <p @click="$router.push('/')" class="cursor-pointer hover hover:bg-gray-100 active:bg-gray-200">หน้าหลัก</p>
         </li>
         <li>
-          <a href="favorites" class="hover:bg-gray-100 active:bg-gray-200">รายการโปรด</a>
+          <p @click="$router.push('/favorites')" class="cursor-pointer hover hover:bg-gray-100 active:bg-gray-200">รายการโปรด</p>
         </li>
         <li>
-          <a href="faq" class="hover:bg-gray-100 active:bg-gray-200">ช่วยเหลือ</a>
+          <p @click="$router.push('/faq')" class="cursor-pointer hover hover:bg-gray-100 active:bg-gray-200">ช่วยเหลือ</p>
         </li>
         <li>
-          <a href="contact" class="hover:bg-gray-100 active:bg-gray-200">ติดต่อเว็บ</a>
+          <p @click="$router.push('/contact')" class="cursor-pointer hover hover:bg-gray-100 active:bg-gray-200">ติดต่อเว็บ</p>
         </li>
       </ul>
     </div>

@@ -53,7 +53,12 @@ const getDormitoryDetail = async () => {
             <div>
                 <div class="flex flex-row w-full justify-between">
                     <h1 class="text-3xl">5000 / เดือน</h1>
-                    <div><button class="btn bg-orange-500 text-white hover:bg-orange-600 btn-xs sm:btn-sm md:btn-md lg:btn-lg ">จอง</button></div>
+                    <button @click="setMainDormitory(dorm.id)" class="btn bg-black text-white hover:bg-zinc-600">
+                      ตั้งเป็นหอพักหลัก
+                    </button>
+                    <button @click="setSecondaryDormitory(dorm.id)" class="btn bg-white border-2 border-black hover:bg-zinc-300 hover:border-black">
+                      ตั้งเป็นหอพักรอง
+                    </button>
                     
                 </div>
                 <div class="flex flex-row space-x-5">
