@@ -35,6 +35,14 @@ const showDetail = (dormitoryId) =>{
 
 
 //---------------------------------- Filter ----------------------------------
+
+const IsfilterShowing = ref(false)
+
+const openCloseFilter=()=>{
+  IsfilterShowing.value=!IsfilterShowing.value
+}
+
+
 const searchInput = ref('')
 
 const selectTypes = ref('รวม')
@@ -192,12 +200,29 @@ const goToPage = (page) => {
         </div>
     </header>
 
+    <div class="searchbar">
+      <div class="itemsearch">
+        <form class="search w-4/5">   
+          <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+          <div class="relative">
+          <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+              <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+              </svg>
+            </div>
+            <input v-model="searchInput" type="search" id="default-search" class="block w-full p-4 ps-10 text-lg text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ค้นหาหอพัก..." required />
+          </div>
+        </form>
+        <button @click="openCloseFilter" class="btn px-8 mx-2">การกรอง</button>
+      </div>
+    </div>
+
     <div class="flex flex-row w-full h-full">
 
 <!----------------------------------------------------------------->
       <!-- ส่วนซ้าย filter -->
-      <div class="filter">
-        <div class="pl-20">
+      <div v-show="IsfilterShowing" class="popup-overlay">
+        <div class="filter">
             <!-------------------------------- 1 --------------------------------->
             <div class="price">
               <h2 class="my-4">ช่วงราคา</h2>
@@ -241,7 +266,7 @@ const goToPage = (page) => {
 
             <div class="mt-10 max-w-72"><hr></div>
             <!-------------------------------- 3 --------------------------------->
-            <div class="inside">
+            <!-- <div class="inside">
               <h2 class="my-4">สิ่งอำนวยความสะดวก ภายในห้อง</h2>
               <div class="flex flex-col space-y-2">
                 <div class="flex flex-row space-x-2">
@@ -269,11 +294,11 @@ const goToPage = (page) => {
                     <p>อินเทอร์เน็ต/Wi-Fi ในห้อง</p>
                 </div>
               </div>
-            </div>
+            </div> -->
 
             <div class="mt-10 max-w-72"><hr></div>
             <!-------------------------------- 4 --------------------------------->
-            <div class="outside">
+            <!-- <div class="outside">
               <h2 class="my-4">สิ่งอำนวยความสะดวก ในอาคาร</h2>
               <div class="flex flex-col space-y-2">
                 <div class="flex flex-row space-x-2">
@@ -305,7 +330,7 @@ const goToPage = (page) => {
                     <p>ลิฟต์</p>
                 </div>
             </div>
-            </div>
+            </div> -->
 
             <div class="mt-10 max-w-72"><hr></div>
             <!-------------------------------- 5 --------------------------------->
@@ -322,27 +347,31 @@ const goToPage = (page) => {
                 </div>
               </div>
             </div>
+            <div class="flex justify-end space-x-1 mt-4">
+              <button class="btn bg-zinc-300 text-white hover:bg-zinc-400 px-8" @click="openCloseFilter">ยกเลิก</button>
+              <button class="btn bg-orange-500 text-white hover:bg-orange-600 px-8" @click="openCloseFilter">ยืนยัน</button>
+            </div>
       </div>
+
             
-          </div>
+      </div>
+
+
+
+
+
+
+
+          
+
+<div class="holdingTwoItems">
 
 
 
 <!--------------------------- ส่วนกลาง Items -------------------------------------->
 
     <div class="container">
-        <form class="px-10 w-full py-3">   
-          <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
-          <div class="relative">
-          <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-              <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-              </svg>
-            </div>
-            <input v-model="searchInput" type="search" id="default-search" class="block w-full p-4 ps-10 text-lg text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ค้นหาหอพัก..." required />
-          </div>
-        </form>
-  
+
      <!-- ส่วนไอเทม -->
 
         <div class="flex flex-row">
@@ -449,6 +478,7 @@ const goToPage = (page) => {
           </table>
       </div>
 </div>
+</div>
 
 
 
@@ -466,12 +496,39 @@ const goToPage = (page) => {
 
 <style scoped>
 
+.searchbar{
+padding-top: 1.2rem;
+width: 100%;
+display: flex;
+justify-content: center;
+align-items: center;
+}
+
+.itemsearch{
+  width: 70%;
+  display: flex;
+  flex-direction: row;
+  /* background-color: #5D5D5D; */
+  justify-content: center;
+  align-items: center;
+
+}
 
 /* ภาพพื้นหลังด้านบน */
 .background img {
   width: 100%;
   height: 400px; 
   object-fit: cover; 
+}
+
+.holdingTwoItems{
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin-left: 15%;
+  margin-right: 15%;
+  /* background-color: #F4845F; */
 }
 
 
@@ -483,7 +540,7 @@ const goToPage = (page) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.2rem;
+  font-size: 1rem;
 }
 
 .item h1 {
@@ -522,23 +579,41 @@ hr{
   font-size: 1.2rem;
 }
 
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
 
 .filter {
-  color: rgb(54, 54, 54);
-  /* background-color: #F4845F; */
-  display: flex;
-  flex-direction: column;
-  padding-top: 1.2rem;
-  width: 33%;
-  align-items: center;
-  font-size: 1rem
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 100%;
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: none;
+  background: none;
+  cursor: pointer;
 }
 
 .container{
   padding-top: 1.2rem;
   display: flex;
   flex-direction: column;
-  width: 33%;
   /* background-color: aqua; */
 }
 
@@ -548,7 +623,6 @@ hr{
   align-items: center;
   /* background-color: rgb(171, 255, 183); */
   padding-top: 1.2rem;
-  width: 33%;
   font-size: 1rem;
 }
 
