@@ -1,6 +1,7 @@
 <script setup>
 import {ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router'
+import Map from '@/components/Map.vue'
 const API_ROOT = import.meta.env.VITE_API_ROOT
 const { params } = useRoute()
 console.log(params.id)
@@ -30,7 +31,7 @@ const getDormitoryDetail = async () => {
 <div class="w-full h-full flex justify-center mt-20">
 
 
-    <div class="flex flex-col border border-xl h-full bg-gray-5oo p-2 w-2/5">
+    <div class="flex flex-col border border-xl h-full bg-gray-500 p-2 w-2/5">
         <!-- เมนูด้านบน -->
         <div class="flex flex-col p-5 space-y-5">
             <div class="text-5xl">{{ dormitoryDetaill.name }}</div>

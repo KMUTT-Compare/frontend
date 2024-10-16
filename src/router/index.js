@@ -42,6 +42,11 @@ const router = createRouter({
       path: '/dormManagement',
       name: 'dormManagement',
       component: () => import('../views/AdminView/DormManagement.vue')
+    },
+    {
+      path: '/AddEditDorm',
+      name: 'AddEditDorm',
+      component: () => import('../views/UserView/AddEditDorm.vue')
     }
   ]
 })

@@ -11,7 +11,7 @@
       "annouce_date": "2025-08-20",
       "update_date": "2024-08-30",
       "type": "รวม",
-      "size":20,
+      "size": 20,
       "room_facilities": {
         "เครื่องทำน้ำอุ่น": true,
         "เครื่องซักผ้า": true,
@@ -37,7 +37,7 @@
         "discount_price": null,
         "promotion_end_date": null
       },
-      "score":10,
+      "score": 10,
       "favorite": true
     },
     {
@@ -51,7 +51,7 @@
       "annouce_date": "2025-09-01",
       "update_date": "2024-09-01",
       "type": "หญิง",
-      "size":30,
+      "size": 30,
       "room_facilities": {
         "เครื่องทำน้ำอุ่น": true,
         "เครื่องซักผ้า": false,
@@ -77,7 +77,7 @@
         "discount_price": 3150,
         "promotion_end_date": "2025-12-31"
       },
-      "score":9,
+      "score": 9,
       "favorite": true
     },
     {
@@ -91,7 +91,7 @@
       "annouce_date": "2025-11-01",
       "update_date": "2024-11-01",
       "type": "รวม",
-      "size":20,
+      "size": 20,
       "room_facilities": {
         "เครื่องทำน้ำอุ่น": true,
         "เครื่องซักผ้า": true,
@@ -117,7 +117,7 @@
         "discount_price": null,
         "promotion_end_date": null
       },
-      "score":8,
+      "score": 8,
       "favorite": true
     },
     {
@@ -131,7 +131,7 @@
       "annouce_date": "2025-11-15",
       "update_date": "2024-11-15",
       "type": "ชาย",
-      "size":20,
+      "size": 20,
       "room_facilities": {
         "เครื่องทำน้ำอุ่น": true,
         "เครื่องซักผ้า": true,
@@ -157,7 +157,7 @@
         "discount_price": 2635,
         "promotion_end_date": "2025-12-31"
       },
-      "score":7,
+      "score": 7,
       "favorite": true
     },
     {
@@ -171,7 +171,7 @@
       "annouce_date": "2026-01-01",
       "update_date": "2025-01-01",
       "type": "รวม",
-      "size":40,
+      "size": 40,
       "room_facilities": {
         "เครื่องทำน้ำอุ่น": true,
         "เครื่องซักผ้า": true,
@@ -197,7 +197,7 @@
         "discount_price": null,
         "promotion_end_date": null
       },
-      "score":6,
+      "score": 6,
       "favorite": true
     },
     {
@@ -211,7 +211,7 @@
       "annouce_date": "2025-06-15",
       "update_date": "2024-06-15",
       "type": "รวม",
-      "size":60,
+      "size": 60,
       "room_facilities": {
         "เครื่องทำน้ำอุ่น": false,
         "เครื่องซักผ้า": false,
@@ -237,7 +237,7 @@
         "discount_price": 800,
         "promotion_end_date": "2025-09-30"
       },
-      "score":5,
+      "score": 5,
       "favorite": false
     },
     {
@@ -276,7 +276,7 @@
         "discount_price": 4900,
         "promotion_end_date": "2025-08-31"
       },
-      "score":5,
+      "score": 5,
       "favorite": true
     },
     {
@@ -290,7 +290,7 @@
       "annouce_date": "2025-07-15",
       "update_date": "2024-07-15",
       "type": "รวม",
-      "size":70,
+      "size": 70,
       "room_facilities": {
         "เครื่องทำน้ำอุ่น": true,
         "เครื่องซักผ้า": false,
@@ -316,7 +316,7 @@
         "discount_price": 0,
         "promotion_end_date": ""
       },
-      "score":7,
+      "score": 7,
       "favorite": true
     },
     {
@@ -330,7 +330,7 @@
       "annouce_date": "2025-08-01",
       "update_date": "2024-08-01",
       "type": "หญิง",
-      "size":90,
+      "size": 90,
       "room_facilities": {
         "เครื่องทำน้ำอุ่น": true,
         "เครื่องซักผ้า": true,
@@ -356,7 +356,7 @@
         "discount_price": 1800,
         "promotion_end_date": "2025-12-31"
       },
-      "score":4,
+      "score": 4,
       "favorite": true
     },
     {
@@ -395,7 +395,7 @@
         "discount_price": 0,
         "promotion_end_date": ""
       },
-      "score":10,
+      "score": 10,
       "favorite": true
     }
   ],
@@ -503,6 +503,16 @@
     },
     {
       "id": "7af2",
+      "email": "testuser1@example.com",
+      "password": "password123"
+    },
+    {
+      "id": "33e6",
+      "email": "testuser1@example.com",
+      "password": "password123"
+    },
+    {
+      "id": "9cfe",
       "email": "testuser1@example.com",
       "password": "password123"
     }
