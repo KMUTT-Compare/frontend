@@ -131,10 +131,9 @@ function calculateDistance(destination) {
     if (status === google.maps.DirectionsStatus.OK) {
       directionsRenderer.setDirections(result);
 
-      // ดึงข้อมูลระยะทางและเวลาที่เดินทาง
+      // ดึงข้อมูลระยะทาง
       const route = result.routes[0];
       distance.value = route.legs[0].distance.text; // เก็บค่าระยะทาง
-      duration.value = route.legs[0].duration.text; // เก็บเวลา
 
       // ไม่แสดง popup อีกต่อไป
       // alert(`ระยะทาง: ${distance.value}, เวลา: ${duration.value}`); // ลบ alert ออก
@@ -180,17 +179,14 @@ function calculateDistance(destination) {
           <label for="website" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">จังหวัด</label>
           <input v-model="province" type="url" id="website" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="จังหวัด" required />
         </div>
-      </div>
-
-      <div class="grid gap-6 mb-6 md:grid-cols-2 mt-5">
         <div>
           <label for="distance" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ระยะทาง</label>
           <input v-model="distance" type="text" id="distance" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ระยะทาง" readonly />
         </div>
-        <div>
-          <label for="duration" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">เวลาเดินทาง</label>
-          <input v-model="duration" type="text" id="duration" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="เวลาเดินทาง" readonly />
-        </div>
+      </div>
+
+      <div class="grid gap-6 mb-6 md:grid-cols-2 mt-5">
+
       </div>
     </div>
   </div>
