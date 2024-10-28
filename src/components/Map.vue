@@ -144,13 +144,18 @@ function calculateDistance(destination) {
 
 <template>
   <div>
-    <input
+    <div class="flex flex-row items-center w-full mb-5">
+      <div class="w-24"><h2>ที่อยู่ที่พัก:</h2></div>
+      <input
       id="place-input"
       type="text"
       placeholder="ค้นหาสถานที่"
-      style="width: 100%; padding: 8px; margin-bottom: 10px;"
+      class="rounded-md ml-2 w-full"
       v-model="searchQuery"
     />
+
+    </div>
+    
     <div id="map" style="width: 100%; height: 300px;"></div>
 
     <div class="flex flex-col mt-5">
@@ -187,9 +192,6 @@ function calculateDistance(destination) {
         </div>
       </div>
 
-      <div class="grid gap-6 mb-6 md:grid-cols-2 mt-5">
-
-      </div>
     </div>
   </div>
 </template>

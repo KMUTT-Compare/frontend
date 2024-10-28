@@ -5,7 +5,7 @@ import * as jwtDecode from 'jwt-decode'; // ใช้ named import ถ้าก�
 export const useAuthStore = defineStore('auth', () => {
   const token = ref(localStorage.getItem('jwtToken') || '');
   // const role = ref(localStorage.getItem('userRole') || '');
-  const role = ref('admin')
+  const role = ref('user')
   // const isAuthenticated = ref(!!localStorage.getItem('jwtToken'));
   const isAuthenticated = ref(false)
   const loginError = ref('');

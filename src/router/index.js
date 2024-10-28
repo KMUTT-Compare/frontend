@@ -46,7 +46,7 @@ const router = createRouter({
     {
       path: '/AddEditDorm',
       name: 'AddEditDorm',
-      component: () => import('../views/UserView/AddEditDorm.vue')
+      component: () => import('../views/ManageDorrm/AddEditDorm.vue')
     }
   ]
 })

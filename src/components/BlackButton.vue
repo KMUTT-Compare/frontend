@@ -14,9 +14,9 @@ const props = defineProps({
  
 <style scoped>
 button {
-  background-color: white;
-  border: 1px solid #888786;
-  width: 50%; /* ใช้ % เพื่อให้กว้างขึ้นตามขนาดหน้าจอ */
+  background-color: rgb(0, 0, 0);
+  border: 1px solid #000000;
+  color: white;
   max-width: 10rem; /* กำหนดความกว้างสูงสุด */
   height: 2.5rem; /* สูงคงที่ */
   font-size: 1rem; /* ขนาดฟอนต์เริ่มต้น */
@@ -47,7 +47,6 @@ button {
 }
 
 button:hover {
-  background-color: #e2e2e2;
   transform: scale(1.05);
 }
 </style>
