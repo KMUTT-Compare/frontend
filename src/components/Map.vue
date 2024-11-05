@@ -145,12 +145,12 @@ function calculateDistance(destination) {
 <template>
   <div>
     <div class="flex flex-row items-center w-full mb-5">
-      <div class="w-24"><h2>ที่อยู่ที่พัก:</h2></div>
+      <div class="w-28"><p class="text-lg font-medium">ที่อยู่ที่พัก:</p></div>
       <input
       id="place-input"
       type="text"
       placeholder="ค้นหาสถานที่"
-      class="rounded-md ml-2 w-full"
+      class="rounded-md ml-2 w-full text-lg"
       v-model="searchQuery"
     />
 
@@ -159,39 +159,51 @@ function calculateDistance(destination) {
     <div id="map" style="width: 100%; height: 300px;"></div>
 
     <div class="flex flex-col mt-5">
-      <h3>กรอกข้อมูลที่อยู่</h3>
+      <h2>กรอกข้อมูลที่อยู่</h2>
 
       <div class="grid gap-6 mb-6 md:grid-cols-2 mt-5">
         <div>
-          <label for="dormNumber" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">เลขที่</label>
-          <input v-model="dormNumber" type="text" id="dormNumber" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="เลขที่" required />
+          <label for="dormNumber" class="block mb-2 text-lg text-gray-900 dark:text-white">เลขที่</label>
+          <input v-model="dormNumber" type="text" id="dormNumber" class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="เลขที่" required />
         </div>
         <div>
-          <label for="street" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ถนน ซอย</label>
-          <input v-model="street" type="text" id="street" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ถนน ซอย" required />
+          <label for="street" class="block mb-2 text-lg text-gray-900 dark:text-white">ถนน ซอย</label>
+          <input v-model="street" type="text" id="street" class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ถนน ซอย" required />
         </div>
         <div>
-          <label for="subDistrict" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ตำบล/แขวง</label>
-          <input v-model="subDistrict" type="text" id="subDistrict" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ตำบล/แขวง" required />
+          <label for="subDistrict" class="block mb-2 text-lg text-gray-900 dark:text-white">ตำบล/แขวง</label>
+          <input v-model="subDistrict" type="text" id="subDistrict" class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ตำบล/แขวง" required />
         </div>
         <div>
-          <label for="district" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">อำเภอ/เขต</label>
-          <input v-model="district" type="tel" id="district" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="อำเภอ/เขต" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" required />
+          <label for="district" class="block mb-2 text-lg text-gray-900 dark:text-white">อำเภอ/เขต</label>
+          <input v-model="district" type="tel" id="district" class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="อำเภอ/เขต" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" required />
         </div>
         <div>
-          <label for="province" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">จังหวัด</label>
-          <input v-model="province" type="url" id="province" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="จังหวัด" required />
+          <label for="province" class="block mb-2 text-lg text-gray-900 dark:text-white">จังหวัด</label>
+          <input v-model="province" type="url" id="province" class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="จังหวัด" required />
         </div>
         <div>
-          <label for="postalCode" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">รหัสไปรษณีย์</label>
-          <input v-model="postalCode" type="url" id="postalCode" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="รหัสไปรษณีย์" required />
+          <label for="postalCode" class="block mb-2 text-lg text-gray-900 dark:text-white">รหัสไปรษณีย์</label>
+          <input v-model="postalCode" type="url" id="postalCode" class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="รหัสไปรษณีย์" required />
         </div>
         <div>
-          <label for="distance" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ระยะทาง</label>
-          <input v-model="distance" type="text" id="distance" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ระยะทาง" readonly />
+          <label for="distance" class="block mb-2 text-lg text-gray-900 dark:text-white">ระยะทาง</label>
+          <input v-model="distance" type="text" id="distance" class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ระยะทาง" readonly />
         </div>
       </div>
 
     </div>
   </div>
 </template>
+
+<style scoped>
+h1{
+  font-size: 2rem;
+  font-weight:500
+}
+
+h2{
+  font-size: 1.5rem;
+  font-weight:500
+}
+</style>

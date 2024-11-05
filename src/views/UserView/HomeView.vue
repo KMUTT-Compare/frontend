@@ -172,7 +172,7 @@ const compareDormitories = computed(() => {
 
 //---------------------------------- pagination ----------------------------------
 const currentPage = ref(1);
-const itemsPerPage = ref(5); // Adjust the number of items per page as needed
+const itemsPerPage = ref(6); // Adjust the number of items per page as needed
 
 // Calculate total pages
 const totalPages = computed(() => Math.ceil(filteredDormitories.value.length / itemsPerPage.value));
@@ -207,141 +207,146 @@ const goToPage = (page) => {
 
     <div class="w-full h-full flex flex-col justify-center items-center">
 
-      <!-- filter -->
-      <div v-show="IsfilterShowing" class="popup-overlay">
-        <div class="filter">
-            <!-------------------------------- 1 --------------------------------->
-            <div class="price">
-              <h2 class="my-4">ช่วงราคา</h2>
-              <div class="relative">
-                <select class="price-select" v-model="selectPriceRange">
-                  <option value="">เลือกช่วงราคา</option>
-                  <option value="below-1000">ต่ำกว่า 1,000 บาท</option>
-                  <option value="1000-3000">1,000 - 3,000 บาท</option>
-                  <option value="3000-5000">3,000 - 5,000 บาท</option>
-                  <option value="above-5000">มากกว่า 5,000 บาท</option>
-                </select>
-              </div>
-            </div>
+ <!-- filter -->
+<div v-show="IsfilterShowing" class="popup-overlay">
+  <div class="filter">
+    <!-------------------------------- 1 --------------------------------->
+    <div class="price">
+      <h2 class="my-2">ช่วงราคา</h2>
+      <div class="relative">
+        <select class="price-select" v-model="selectPriceRange">
+          <option value="">เลือกช่วงราคา</option>
+          <option value="below-1000">ต่ำกว่า 1,000 บาท</option>
+          <option value="1000-3000">1,000 - 3,000 บาท</option>
+          <option value="3000-5000">3,000 - 5,000 บาท</option>
+          <option value="above-5000">มากกว่า 5,000 บาท</option>
+        </select>
+      </div>
+    </div>
 
-            <div class="mt-10 max-w-72"><hr></div>
-            <!-------------------------------- 2 --------------------------------->
-            <div class="type">
-              <h2 class="my-4">ประเภทหอพัก</h2>
-              <div class="flex flex-col space-y-2">
-                <!-- ตัวเลือก "ชาย" -->
-                <div class="flex flex-row space-x-2">
-                  <input v-model="selectTypes" name="default-radio" type="radio" value="ชาย" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
-                  <p>ชาย</p>
-                </div>
-                
-                <!-- ตัวเลือก "หญิง" -->
-                <div class="flex flex-row space-x-2">
-                  <input v-model="selectTypes" name="default-radio" type="radio" value="หญิง" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
-                  <p>หญิง</p>
-                </div>
-                
-                <!-- ตัวเลือก "รวม" -->
-                <div class="flex flex-row space-x-2">
-                  <input v-model="selectTypes" checked name="default-radio" type="radio" value="รวม" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
-                  <p>รวม</p>
-                </div>
-              </div>
-            </div>
+    <div class="mt-4 max-w-72"><hr></div>
+    <!-------------------------------- 2 --------------------------------->
+    <div class="type">
+      <h2 class="my-4">ประเภทหอพัก</h2>
+      <div class="flex flex-col space-y-2">
+        <!-- ตัวเลือก "ชาย" -->
+        <div class="flex flex-row space-x-2">
+          <input v-model="selectTypes" name="default-radio" type="radio" value="ชาย" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
+          <p>ชาย</p>
+        </div>
 
+        <!-- ตัวเลือก "หญิง" -->
+        <div class="flex flex-row space-x-2">
+          <input v-model="selectTypes" name="default-radio" type="radio" value="หญิง" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
+          <p>หญิง</p>
+        </div>
 
+        <!-- ตัวเลือก "รวม" -->
+        <div class="flex flex-row space-x-2">
+          <input v-model="selectTypes" checked name="default-radio" type="radio" value="รวม" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
+          <p>รวม</p>
+        </div>
+      </div>
+    </div>
 
-            <div class="mt-10 max-w-72"><hr></div>
-            <!-------------------------------- 3 --------------------------------->
-            <!-- <div class="inside">
-              <h2 class="my-4">สิ่งอำนวยความสะดวก ภายในห้อง</h2>
-              <div class="flex flex-col space-y-2">
-                <div class="flex flex-row space-x-2">
-                    <input v-model="selectedRoom.hotWater" type="checkbox" class="checkbox"/>
-                    <p>เครื่องทำน้ำอุ่น</p>
-                </div>
-                <div class="flex flex-row space-x-2">
-                    <input v-model="selectedRoom.washer" type="checkbox" class="checkbox"/>
-                    <p>เครื่องซักผ้า</p>
-                </div>
-                <div class="flex flex-row space-x-2">
-                    <input v-model="selectedRoom.airConditioner" type="checkbox" class="checkbox"/>
-                    <p>เครื่องปรับอากาศ</p>
-                </div>
-                <div class="flex flex-row space-x-2">
-                    <input v-model="selectedRoom.tv" type="checkbox" class="checkbox"/>
-                    <p>ทีวี</p>
-                </div>
-                <div class="flex flex-row space-x-2">
-                    <input v-model="selectedRoom.fridge"  type="checkbox" class="checkbox"/>
-                    <p>ตู้เย็น</p>
-                </div>
-                <div class="flex flex-row space-x-2">
-                    <input v-model="selectedRoom.wifi" type="checkbox" class="checkbox"/>
-                    <p>อินเทอร์เน็ต/Wi-Fi ในห้อง</p>
-                </div>
-              </div>
-            </div> -->
+    <div class="mt-4 max-w-72"><hr></div>
 
-            <div class="mt-10 max-w-72"><hr></div>
-            <!-------------------------------- 4 --------------------------------->
-            <!-- <div class="outside">
-              <h2 class="my-4">สิ่งอำนวยความสะดวก ในอาคาร</h2>
-              <div class="flex flex-col space-y-2">
-                <div class="flex flex-row space-x-2">
-                    <input v-model="selectedBuilding.keycard" type="checkbox" class="checkbox"/>
-                    <p>มีประตูระบบ Keycard</p>
-                </div>
-                <div class="flex flex-row space-x-2">
-                    <input v-model="selectedBuilding.security" type="checkbox" class="checkbox"/>
-                    <p>ยามรักษาความปลอดภัย</p>
-                </div>
-                <div class="flex flex-row space-x-2">
-                    <input v-model="selectedBuilding.cctv" type="checkbox" class="checkbox"/>
-                    <p>กล้องวงจรปิด (CCTV)</p>
-                </div>
-                <div class="flex flex-row space-x-2">
-                    <input v-model="selectedBuilding.bikeParking" type="checkbox" class="checkbox"/>
-                    <p>ที่จอดรถมอเตอร์ไซด์/จักรยาน</p>
-                </div>
-                <div class="flex flex-row space-x-2">
-                    <input v-model="selectedBuilding.carParking" type="checkbox" class="checkbox"/>
-                    <p>ที่จอดรถยนต์</p>
-                </div>
-                <div class="flex flex-row space-x-2">
-                    <input v-model="selectedBuilding.pool" type="checkbox" class="checkbox"/>
-                    <p>สระว่ายน้ำ</p>
-                </div>
-                <div class="flex flex-row space-x-2">
-                    <input v-model="selectedBuilding.elevator" type="checkbox" class="checkbox"/>
-                    <p>ลิฟต์</p>
-                </div>
-            </div>
-            </div> -->
+    <!-- แบ่งเป็น Grid (2 คอลัมน์) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            <div class="mt-10 max-w-72"><hr></div>
-            <!-------------------------------- 5 --------------------------------->
-            <div class="other">
-              <h2 class="my-4">อื่นๆ</h2>
-              <div class="flex flex-col space-y-2">
-                <div class="flex flex-row space-x-2">
-                    <input v-model="selectedOther.petsAllowed" type="checkbox" class="checkbox"/>
-                    <p>อนุญาตให้เลี้ยงสัตว์</p>
-                </div>
-                <div class="flex flex-row space-x-2">
-                    <input v-model="selectedOther.smokingAllowed" type="checkbox" class="checkbox"/>
-                    <p>อนุญาตให้สูบบุหรี่ในห้องพัก</p>
-                </div>
-              </div>
-            </div>
-            <div class="flex justify-end space-x-1 mt-4">
-              <button class="btn bg-zinc-300 text-white hover:bg-zinc-400 px-8" @click="openCloseFilter">ยกเลิก</button>
-              <button class="btn bg-orange-500 text-white hover:bg-orange-600 px-8" @click="openCloseFilter">ยืนยัน</button>
-            </div>
+      <!-------------------------------- 3 --------------------------------->
+      <div class="inside">
+        <h2 class="my-4">สิ่งอำนวยความสะดวก ภายในห้อง</h2>
+        <div class="flex flex-col space-y-2">
+          <div class="flex flex-row space-x-2">
+            <input v-model="selectedRoom.hotWater" type="checkbox" class="checkbox" />
+            <p>เครื่องทำน้ำอุ่น</p>
+          </div>
+          <div class="flex flex-row space-x-2">
+            <input v-model="selectedRoom.washer" type="checkbox" class="checkbox" />
+            <p>เครื่องซักผ้า</p>
+          </div>
+          <div class="flex flex-row space-x-2">
+            <input v-model="selectedRoom.airConditioner" type="checkbox" class="checkbox" />
+            <p>เครื่องปรับอากาศ</p>
+          </div>
+          <div class="flex flex-row space-x-2">
+            <input v-model="selectedRoom.tv" type="checkbox" class="checkbox" />
+            <p>ทีวี</p>
+          </div>
+          <div class="flex flex-row space-x-2">
+            <input v-model="selectedRoom.fridge" type="checkbox" class="checkbox" />
+            <p>ตู้เย็น</p>
+          </div>
+          <div class="flex flex-row space-x-2">
+            <input v-model="selectedRoom.wifi" type="checkbox" class="checkbox" />
+            <p>อินเทอร์เน็ต/Wi-Fi ในห้อง</p>
+          </div>
+        </div>
       </div>
 
-            
+      <!-------------------------------- 4 --------------------------------->
+      <div class="outside">
+        <h2 class="my-4">สิ่งอำนวยความสะดวก ในอาคาร</h2>
+        <div class="flex flex-col space-y-2">
+          <div class="flex flex-row space-x-2">
+            <input v-model="selectedBuilding.keycard" type="checkbox" class="checkbox" />
+            <p>มีประตูระบบ Keycard</p>
+          </div>
+          <div class="flex flex-row space-x-2">
+            <input v-model="selectedBuilding.security" type="checkbox" class="checkbox" />
+            <p>ยามรักษาความปลอดภัย</p>
+          </div>
+          <div class="flex flex-row space-x-2">
+            <input v-model="selectedBuilding.cctv" type="checkbox" class="checkbox" />
+            <p>กล้องวงจรปิด (CCTV)</p>
+          </div>
+          <div class="flex flex-row space-x-2">
+            <input v-model="selectedBuilding.bikeParking" type="checkbox" class="checkbox" />
+            <p>ที่จอดรถมอเตอร์ไซด์/จักรยาน</p>
+          </div>
+          <div class="flex flex-row space-x-2">
+            <input v-model="selectedBuilding.carParking" type="checkbox" class="checkbox" />
+            <p>ที่จอดรถยนต์</p>
+          </div>
+          <div class="flex flex-row space-x-2">
+            <input v-model="selectedBuilding.pool" type="checkbox" class="checkbox" />
+            <p>สระว่ายน้ำ</p>
+          </div>
+          <div class="flex flex-row space-x-2">
+            <input v-model="selectedBuilding.elevator" type="checkbox" class="checkbox" />
+            <p>ลิฟต์</p>
+          </div>
+        </div>
       </div>
+
+    </div>
+
+    <div class="mt-4 max-w-72"><hr></div>
+
+    <!-------------------------------- 5 --------------------------------->
+    <div class="other">
+      <h2 class="my-4">อื่นๆ</h2>
+      <div class="flex flex-col space-y-2">
+        <div class="flex flex-row space-x-2">
+          <input v-model="selectedOther.petsAllowed" type="checkbox" class="checkbox" />
+          <p>อนุญาตให้เลี้ยงสัตว์</p>
+        </div>
+        <div class="flex flex-row space-x-2">
+          <input v-model="selectedOther.smokingAllowed" type="checkbox" class="checkbox" />
+          <p>อนุญาตให้สูบบุหรี่ในห้องพัก</p>
+        </div>
+      </div>
+          <div class="flex justify-end items-end space-x-1 mt-4">
+        <button class="btn bg-orange-500 text-white hover:bg-orange-600 px-8" @click="openCloseFilter">ยืนยัน</button>
+        <button class="btn bg-zinc-300 text-white hover:bg-zinc-400 px-8" @click="openCloseFilter">ยกเลิก</button>
+    </div>
+    </div>
+
+
+  </div>
+</div>
+
 
    
 
@@ -355,7 +360,7 @@ const goToPage = (page) => {
       </div>
 
       <div class="flex flex-row items-center w-full justify-around mt-5 h-full pr-2 space-x-2">
-        <Card title="หอพักหลัก:" :dormitoryName="mainDormitory ? dormitories.find(dorm => dorm.id === mainDormitory).name : ''"/>
+        <Card title="หอพักหลัก:" :dormitoryName="mainDormitory ? dormitories.find(dorm => dorm.id === mainDormitory).name : ''" />
         <Card title="หอพักรอง:" :dormitoryName="secondaryDormitory ? dormitories.find(dorm => dorm.id === secondaryDormitory).name : ''" />
       </div>
 
@@ -425,7 +430,16 @@ const goToPage = (page) => {
             </div>
             <input v-model="searchInput" type="search" id="default-search" class="block w-full p-4 ps-10 text-lg text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ค้นหาหอพัก..." required />
           </div>
-        <button @click="openCloseFilter" class="btn ml-2 px-8">การกรอง</button>
+          <div @click="openCloseFilter" class="cursor-pointer p-2"><img src="../../components/icons/filter.png" alt=""></div>
+       
+            <div class="max-w-sm mx-auto">
+              <select id="countries" class="cursor-pointer bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                <option selected>เรียงโดย: ราคาต่ำสุด</option>
+                <option value="US">ราคาสูงสุด</option>
+                <option value="CA">ระยะทาง</option>
+              </select>
+            </div>
+
       </div>   
 
 
@@ -458,8 +472,8 @@ const goToPage = (page) => {
 
             <!-- Button -->
           <div class="flex justify-around space-x-2 mt-2 items-center">
-            <WhiteButton @click="setMainDormitory(dorm.id)" context="ตั้งเป็นหอพักหลัก"/>
-            <BlackButton @click="setSecondaryDormitory(dorm.id)" context="ตั้งเป็นหอพักรอง"/>
+            <BlackButton @click="setMainDormitory(dorm.id)" context="ตั้งเป็นหอพักหลัก"/>
+            <WhiteButton @click="setSecondaryDormitory(dorm.id)" context="ตั้งเป็นหอพักรอง"/>
           </div>
 
 
@@ -475,7 +489,7 @@ const goToPage = (page) => {
     <div v-if="dormitories.length === 0" class="text-2xl text-red-600 text-center">No Dormitory</div>
 
   <!-- Pagination Controls -->
-  <div class="pagination-controls flex justify-center mt-4 space-x-2">
+  <div class="pagination-controls flex justify-center mt-10 space-x-2">
     <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" class="px-3 py-1 border rounded bg-gray-200 hover:bg-gray-300">
       Previous
     </button>
@@ -620,11 +634,35 @@ hr{
 .filter {
   background: white;
   padding: 20px;
+  padding-left: 40px;
   border-radius: 8px;
-  width: 400px;
+  width: 700px;
   max-width: 100%;
+  height: 95%;
   position: relative;
 }
+
+
+@media screen and (max-width: 768px) {
+  .filter {
+    padding: 20px;
+    width: 70%;
+    height: 90%;
+    font-size: 0.8rem;
+  }
+
+  .btn {
+    width: 20%;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 คอลัมน์บนขนาดหน้าจอปกติ */
+  gap: 16px;
+}
+
+
 
 .close-button {
   position: absolute;

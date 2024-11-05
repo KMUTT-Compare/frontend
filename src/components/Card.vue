@@ -12,7 +12,15 @@ const props = defineProps({
   dormitoryName: {
     type: String,
     required: false // ทำให้ไม่จำเป็นต้องส่งค่า
-  }
+  },
+  distance:{
+    type: String,
+    required: true
+  },
+  address:{
+    type: String,
+    required: true
+  },
 });
 </script>
  
@@ -26,6 +34,10 @@ const props = defineProps({
   <div class="card-body">
     <h2 class="card-title text-xl">{{title}} <span class="text-orange-500">{{ dormitoryName || 'ยังไม่ได้เลือก' }}</span></h2>
     <p>{{ context }}</p>
+    <div>
+      <h3 class="card-title text-lg">ระยะทาง <span class="text-orange-500">{{ distance }}</span></h3>
+      <h3 class="card-title text-lg">ที่อยู่ <span class="text-orange-500">{{ address }}</span></h3>
+    </div>
   </div>
 </div>
 </template>
@@ -35,7 +47,7 @@ const props = defineProps({
 @media (min-width: 768px) {
 .card {
     width: 15rem;
-    height: 15rem;
+    height: 20rem;
 }
 }
 
@@ -43,7 +55,7 @@ const props = defineProps({
 @media (min-width: 1024px) {
 .card {
     width: 18rem;
-    height: 18rem;
+    height: 20rem;
 }
 }
 </style>
