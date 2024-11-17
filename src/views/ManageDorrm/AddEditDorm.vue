@@ -2,18 +2,25 @@
 import Map from '@/components/Map.vue'
 import { ref } from 'vue'
 import router from '@/router';
+const API_ROOT = import.meta.env.VITE_API_ROOT
+
+const name = ref('')
+const status = ref('ว่าง'); // เก็บค่าสถานะหอพัก (ว่าง, ไม่ว่าง)
+const address = ref({});
+const roomCount = ref(0)
+const type = ref('รวม'); // เก็บค่าประเภทหอพัก (รวม, หญิง, ชาย)
+const size = ref(0)
 const min_price = ref()
 const max_price = ref()
-const num_room = ref(0)
-const num_bed = ref(0)
-const num_bathroom = ref(0)
-const name = ref('')
-const detail = ref('')
+const selectedImages = ref()
 
-const selectedImages = [];
-const telephone = ref('')
-const name_surname = ref('')
 
+
+
+const handleAddressUpdated = (updatedAddress) => {
+  address.value = updatedAddress;
+  console.log(address.value)
+};
 const handleFiles = (event) => {
   const files = event.target.files;
   const imagePreview = document.getElementById('imagePreview');
@@ -52,6 +59,109 @@ const handleFiles = (event) => {
     reader.readAsDataURL(file);
   }
 };
+
+
+
+const insideAmenities = ref([]);  // รายการสิ่งอำนวยความสะดวกภายในห้อง
+const outsideAmenities = ref([]); // รายการสิ่งอำนวยความสะดวกภายนอกอาคาร
+
+const newInsideAmenity = ref('');  // สิ่งอำนวยความสะดวกใหม่ภายในห้องที่ผู้ใช้พิมพ์
+const newOutsideAmenity = ref(''); // สิ่งอำนวยความสะดวกใหม่ภายนอกอาคารที่ผู้ใช้พิมพ์
+
+// ฟังก์ชันสำหรับเพิ่มสิ่งอำนวยความสะดวกภายในห้อง
+const addInsideAmenity = () => {
+  if (newInsideAmenity.value.trim() !== '') {
+    insideAmenities.value.push(newInsideAmenity.value.trim());
+    newInsideAmenity.value = '';  // เคลียร์ช่องกรอกข้อมูล
+  }
+};
+
+// ฟังก์ชันสำหรับลบสิ่งอำนวยความสะดวกภายนอกอาคาร
+const removeInsideAmenity = (index) => {
+  insideAmenities.value.splice(index, 1); // ลบสิ่งอำนวยความสะดวกที่เลือก
+};
+
+// ฟังก์ชันสำหรับเพิ่มสิ่งอำนวยความสะดวกภายนอกอาคาร
+const addOutsideAmenity = () => {
+  if (newOutsideAmenity.value.trim() !== '') {
+    outsideAmenities.value.push(newOutsideAmenity.value.trim());
+    newOutsideAmenity.value = '';  // เคลียร์ช่องกรอกข้อมูล
+  }
+};
+
+// ฟังก์ชันสำหรับลบสิ่งอำนวยความสะดวกภายนอกอาคาร
+const removeOutsideAmenity = (index) => {
+  outsideAmenities.value.splice(index, 1); // ลบสิ่งอำนวยความสะดวกที่เลือก
+};
+
+
+
+
+const addDormitory = async () => {
+  // ตรวจสอบข้อมูลที่จำเป็นก่อนส่ง
+  if (!name.value || !min_price.value || !max_price.value || roomCount.value <= 0) {
+    alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+    return;
+  }
+
+  // สร้างข้อมูลที่จะส่งไปยัง API
+  const dormitoryData = {
+  dormId: 4,
+  name: name.value,
+  status: status.value,
+  address: {
+    dormNumber: address.value.dormNumber,
+    street:  address.value.street,
+    subdistrict: address.value.subDistrict,
+    district: address.value.district,
+    province: address.value.province,
+    postalCode: address.value.postalCode
+  },
+  roomCount: parseInt(roomCount.value), // ตรวจสอบให้แน่ใจว่าเป็นตัวเลข
+  type: type.value,
+  size: parseFloat(size.value), // ตรวจสอบให้แน่ใจว่าเป็นตัวเลข
+  min_price: parseFloat(min_price.value), // ตรวจสอบให้แน่ใจว่าเป็นตัวเลข
+  max_price: parseFloat(max_price.value), // ตรวจสอบให้แน่ใจว่าเป็นตัวเลข
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  distance: parseFloat(address.distance.value), // ตรวจสอบให้แน่ใจว่าเป็นตัวเลข
+  image: selectedImages, // ใช้ selectedImages ที่ได้จาก handleFiles
+  building_facility: insideAmenities.value,
+  room_facility: outsideAmenities.value,
+  staffId: 3
+};
+
+
+  try {
+    // ส่งข้อมูลไปยัง API โดยใช้ fetch
+    const response = await fetch(`${API_ROOT}/dormitories`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(dormitoryData),
+    });
+
+    if (!response.ok) {
+      throw new Error('การเพิ่มหอพักไม่สำเร็จ');
+    }
+
+    const data = await response.json();
+
+    // ถ้าการเพิ่มหอพักสำเร็จ
+    if (data.success) {
+      alert('เพิ่มหอพักสำเร็จ');
+      router.push('/home');  // กลับไปที่หน้า Home
+    } else {
+      alert('เกิดข้อผิดพลาด: ' + data.message);
+    }
+  } catch (error) {
+    console.error('เกิดข้อผิดพลาดในการส่งข้อมูล:', error);
+    alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
+  }
+};
+
+
 </script>
 
 
@@ -69,7 +179,7 @@ const handleFiles = (event) => {
         <input type="text" class="rounded-md ml-2 w-full text-lg" placeholder="ระบุชื่อที่พัก.." v-model="name"/>
       </div>
 
-      <Map/>
+      <Map @address-updated="handleAddressUpdated" />
 
 
       <h2>รายละเอียดที่พัก</h2>
@@ -90,169 +200,115 @@ const handleFiles = (event) => {
 
     <div class="w-32">
       <label class="block mb-2 text-lg text-gray-900 dark:text-white ">ประเภทหอพัก</label>
-      <select id="types" class="cursor-pointer bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+      <select id="types" v-model="type" class="cursor-pointer bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
         <option selected>รวม</option>
-        <option value="US">หญิง</option>
-        <option value="CA">ชาย</option>
+        <option value="female">หญิง</option>
+        <option value="male">ชาย</option>
       </select>
     </div>
 
-    <!-- จำนวนห้องพักที่เหลือ -->
-    <div class="flex flex-row items-center space-x-3">
-      <p for="min-price" class="w-42 text-lg">จำนวนห้องพักที่เหลือให้เช่า:</p>
-      <button class="btn bg-neutral-400 text-white text-xl" @click="num_room > 0 ? num_room-- : null" :disabled="num_room==0">-</button>
-      <p class="text-lg font-medium">{{ num_room }}</p>
-      <button class="btn bg-black text-white hover:bg-gray-800 text-xl" @click="num_room++">+</button>
+    <div class="w-32">
+        <label class="block mb-2 text-lg text-gray-900 dark:text-white ">สถานะหอพัก</label>
+        <select id="status"  v-model="status" class="cursor-pointer bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+          <option selected>ว่าง</option>
+          <option value="busy">ไม่ว่าง</option>
+        </select>
     </div>
 
+    <div class="flex flex-row space-x-5">
+              <!-- จำนวนห้องพักที่เหลือให้เช่า -->
+              <div class="flex flex-row items-center space-x-3">
+                <p for="room" class="w-42 text-lg">จำนวนห้องพักที่เหลือให้เช่า:</p>
+                  <div class="py-2 px-3 inline-block bg-white border border-gray-200 rounded-lg dark:bg-neutral-900 dark:border-neutral-700">
+                    <div class="flex items-center gap-x-1.5">
+                      <button @click="roomCount > 0 ? roomCount-- : null" :disabled="roomCount==0" type="button" class="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800">
+                        <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M5 12h14"></path>
+                        </svg>
+                      </button>
+                      <input class="p-0 w-6 bg-transparent border-0 text-gray-800 text-center focus:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none dark:text-white" v-model="roomCount">
+                      <button @click="roomCount++" type="button" class="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800">
+                        <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M5 12h14"></path>
+                          <path d="M12 5v14"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+              </div>
+          </div>
 
 
     <h2 class="pt-5">สิ่งอำนวยความสะดวกต่างๆ</h2>
-    <div class="flex flex-row space-x-5">
-              <!-- จำนวนเตียง -->
-              <div class="flex flex-row items-center space-x-3">
-                <p for="bed" class="w-42 text-lg">จำนวนเตียง:</p>
-                
-                  <!-- Input Number -->
-                  <div class="py-2 px-3 inline-block bg-white border border-gray-200 rounded-lg dark:bg-neutral-900 dark:border-neutral-700">
-                    <div class="flex items-center gap-x-1.5">
-                      <button @click="num_bed > 0 ? num_bed-- : null" :disabled="num_bed==0" type="button" class="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800">
-                        <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M5 12h14"></path>
-                        </svg>
-                      </button>
-                      <input class="p-0 w-6 bg-transparent border-0 text-gray-800 text-center focus:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none dark:text-white" v-model="num_bed">
-                      <button @click="num_bed++" type="button" class="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800">
-                        <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M5 12h14"></path>
-                          <path d="M12 5v14"></path>
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                  <!-- End Input Number -->
-              </div>
 
-              <!-- จำนวนห้องน้ำ -->
-              <div class="flex flex-row items-center space-x-3">
-                  <p for="bathroom" class="w-42 text-lg">จำนวนห้องน้ำ:</p>
-                  <!-- Input Number -->
-                  <div class="py-2 px-3 inline-block bg-white border border-gray-200 rounded-lg dark:bg-neutral-900 dark:border-neutral-700">
-                    <div class="flex items-center gap-x-1.5">
-                      <button @click="num_bathroom > 0 ? num_bathroom-- : null" :disabled="num_bathroom==0" type="button" class="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800">
-                        <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M5 12h14"></path>
-                        </svg>
-                      </button>
-                      <input class="p-0 w-6 bg-transparent border-0 text-gray-800 text-center focus:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none dark:text-white" v-model="num_bathroom">
-                      <button @click="num_bathroom++" type="button" class="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800">
-                        <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M5 12h14"></path>
-                          <path d="M12 5v14"></path>
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                  <!-- End Input Number -->
-              </div>   
-          </div>
      <!-- สิ่งอำนวยความสะดวกต่างๆ -->
     <div class="grid gap-6 md:grid-cols-2">
         <div class="room space-y-5">
           <h3>ภายในห้อง</h3>
-            <div class="grid gap-6 md:grid-cols-2">
 
-              <div class="flex flex-row space-x-2">
-                <input type="checkbox" class="checkbox" />
-                <p class="text-lg">เครื่องทำน้ำอุ่น</p>
+             <!-- สิ่งอำนวยความสะดวกภายในห้อง -->
+          <div class="room space-y-5">
+            <div class="flex flex-col space-y-2">
+              <!-- ช่องกรอกข้อมูลและปุ่มเพิ่มสำหรับภายในห้อง -->
+              <div class="flex items-center ">
+                <input v-model="newInsideAmenity" type="text" class="border border-gray-300 text-lg rounded-lg p-2 w-2/3" placeholder="เพิ่มสิ่งอำนวยความสะดวกภายในห้อง" 
+                />
+                <button 
+                  @click="addInsideAmenity" 
+                  class="ml-2 bg-blue-500 text-white rounded-lg p-2 px-8"
+                >
+                  เพิ่ม
+                </button>
               </div>
 
-              <div class="flex flex-row space-x-2">
-                <input type="checkbox" class="checkbox" />
-                <p class="text-lg">เครื่องซักผ้า</p>
-              </div>
-
-              <div class="flex flex-row space-x-2">
-                <input type="checkbox" class="checkbox" />
-                <p class="text-lg">ตู้เย็น</p>
-              </div>
-
-              <div class="flex flex-row space-x-2">
-                <input type="checkbox" class="checkbox" />
-                <p class="text-lg">เครื่องปรับอากาศ</p>
-              </div>
-
-              <div class="flex flex-row space-x-2">
-                <input type="checkbox" class="checkbox" />
-                <p class="text-lg">ไมโครเวฟ</p>
-              </div>
-
-              <div class="flex flex-row space-x-2">
-                <input type="checkbox" class="checkbox" />
-                <p class="text-lg">ทีวี</p>
-              </div>
-
-              <div class="flex flex-row space-x-2">
-                <input type="checkbox" class="checkbox" />
-                <p class="text-lg">Internet/wifi</p>
+              <!-- แสดงรายการสิ่งอำนวยความสะดวกภายในห้อง -->
+              <div class="border-2 rouded-lg w-2/3">
+                  <ul>
+                    <li v-for="(amenity, index) in insideAmenities" :key="index" class="text-lg flex flex-row justify-between p-2">
+                      <span>{{ amenity }}</span> 
+                      <button @click="removeInsideAmenity(index)" class="text-red-500 hover:text-red-700">ลบ</button>
+                    </li>
+                  </ul>
               </div>
             </div>
+          </div>
         </div>
 
         <div class="outside space-y-5">
           <h3>ภายนอกอาคาร</h3>
-          <div class="grid gap-6 md:grid-cols-2">
 
-          <div class="flex flex-row space-x-2">
-            <input type="checkbox" class="checkbox" />
-            <p class="text-lg">Keycard</p>
-          </div>
+                        <!-- สิ่งอำนวยความสะดวกภายนอกอาคาร -->
+              <div class="outside space-y-5">
+                <div class="flex flex-col">
+                  <!-- ช่องกรอกข้อมูลและปุ่มเพิ่มสำหรับภายนอกอาคาร -->
+                  <div class="flex items-center">
+                    <input 
+                      v-model="newOutsideAmenity" 
+                      type="text" 
+                      class="border border-gray-300 text-lg rounded-lg p-2 w-2/3" 
+                      placeholder="เพิ่มสิ่งอำนวยความสะดวกภายนอกอาคาร" 
+                    />
+                    <button 
+                      @click="addOutsideAmenity" 
+                      class="ml-2 bg-blue-500 text-white rounded-lg p-2 px-8"
+                    >
+                      เพิ่ม
+                    </button>
+                  </div>
 
-          <div class="flex flex-row space-x-2">
-            <input type="checkbox" class="checkbox" />
-            <p class="text-lg">ผู้รักษาความปลอดภัย</p>
-          </div>
-
-          <div class="flex flex-row space-x-2">
-            <input type="checkbox" class="checkbox" />
-            <p class="text-lg">ยิม</p>
-          </div>
-
-          <div class="flex flex-row space-x-2">
-            <input type="checkbox" class="checkbox" />
-            <p class="text-lg">กล้องวงจรปิด</p>
-          </div>
-
-          <div class="flex flex-row space-x-2">
-            <input type="checkbox" class="checkbox" />
-            <p class="text-lg">ลานจอดรถจักรยาน</p>
-          </div>
-
-          <div class="flex flex-row space-x-2">
-            <input type="checkbox" class="checkbox" />
-            <p class="text-lg">ลานจอดรถ</p>
-          </div>
-
-          <div class="flex flex-row space-x-2">
-            <input type="checkbox" class="checkbox" />
-            <p class="text-lg">สระว่ายน้ำ</p>
-          </div>
-
-          <div class="flex flex-row space-x-2">
-            <input type="checkbox" class="checkbox" />
-            <p class="text-lg">ลิฟท์</p>
-          </div>
-
-          </div>
+                  <!-- แสดงรายการสิ่งอำนวยความสะดวกภายนอกอาคาร -->
+                  <div class="border-2 w-2/3">
+                      <ul>
+                        <li v-for="(amenity, index) in outsideAmenities" :key="index" class="text-lg flex flex-row justify-between p-2">
+                          <span>{{ amenity }}</span> 
+                          <button @click="removeOutsideAmenity(index)" class="text-red-500 hover:text-red-700">ลบ</button>
+                        </li>
+                      </ul>
+                  </div>
+                </div>
+              </div>
         </div>
     </div>
-
-    <div class="pt-2">
-      <p class="text-lg pb-3">เพิ่มรายละเอียด หรือจุดเด่นของที่พักคุณ</p>
-      <input v-model="detail" type="text" id="dormNumber" class="border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ระบุรายละเอียดที่พักของคุณ" required />
-    </div>
-
-
 
 
 
@@ -269,26 +325,10 @@ const handleFiles = (event) => {
       <div class="flex flex-wrap mt-4" id="imagePreview"></div>
     </div>
 
-    <div class="space-y-5">
-      <h2>ช่องทางการติดต่อ</h2>
-      <!-- ราคา -->
-      <div class="grid gap-6 md:grid-cols-2">
-        <div class="flex flex-row items-center">
-          <p for="min-price" class="w-36 text-lg">ชื่อ-นามสกุล:</p>
-          <input v-model="name_surname" type="text" id="dormNumber" class="border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ชื่อ-นามสกุล" required />
-        </div>
-        <div class="flex flex-row items-center">
-          <p for="max-price" class="w-40 text-lg">เบอร์โทรศัพท์:</p>
-          <input v-model="telephone" type="text" id="street" class="border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="หมายเลขโทรศัพท์" required />
-        </div>
-      </div>
-    </div>
-
     <div class="w-full flex items-center justify-end space-x-2 h-20">
-      <button class="btn bg-orange-500 text-white w-28 hover:bg-orange-600">ADD</button>
-      <button @click="router.push('home')" class="btn w-28">Cancel</button>
-    </div>
-
+    <button @click="addDormitory()" class="btn bg-orange-500 text-white w-28 hover:bg-orange-600">เพิ่มหอพัก</button>
+    <button @click="router.push('home')" class="btn w-28">Cancel</button>
+</div>
 
 
 

@@ -1,30 +1,18 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { useFavoriteItem } from '@/stores/favoriteItem'
 import router from '@/router';
 import WhiteButton from '@/components/WhiteButton.vue';
 import BlackButton from '@/components/BlackButton.vue';
 import Card from '@/components/Card.vue';
+import { getDormitories } from '@/composables/getDormitories';
 
-const API_ROOT = import.meta.env.VITE_API_ROOT
 const dormitories = ref([])
 
 onMounted(async () => {
-   await getDormitories();
+  dormitories.value = await getDormitories();
+  console.log(dormitories.length)
+  console.log(dormitories.value)
 })
-
-// ฟังก์ชันสำหรับดึงข้อมูล
-const getDormitories = async () => {
-  try {
-    const res = await fetch(`${API_ROOT}/dormitories`); // ตรวจสอบให้แน่ใจว่า URL ถูกต้อง
-    if (res.ok) {
-      dormitories.value = await res.json();
-    }
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    throw error;
-  }
-}
 
 
 // ดูรายละเอียดหอพัก
@@ -448,7 +436,7 @@ const goToPage = (page) => {
 
   <!-- ส่วนไอเทม -->
     <div v-if="dormitories !== null && dormitories.length !== 0" class="container">
-      <div v-for="dorm in paginatedDormitories" :key="dorm.id" class="holding-items">
+      <div v-for="dorm in dormitories" :key="dorm.dormId" class="holding-items">
         
         
         <div class="items rounded-lg border-2">
@@ -461,19 +449,19 @@ const goToPage = (page) => {
 
           <div class="flex flex-col w-full h-full p-3 justify-center">
 
-            <div class="flex w-full cursor-pointer" @click="showDetail(dorm.id)">
+            <div class="flex w-full cursor-pointer" @click="showDetail(dorm.dormId)">
               <div class="item">
                 <h1>{{ dorm.name }}</h1>
                 <h2>{{ dorm.min_price }} - {{ dorm.max_price }} <span>บาท/เดือน</span></h2>
-                <p>Location: {{ dorm.location }}</p>
+                <p>ที่อยู่: {{ dorm.address.street }}, {{ dorm.address.subdistrict }}, {{ dorm.address.district }}, {{ dorm.address.province }} {{ dorm.address.postalCode }}</p>      
               </div>
             </div>
 
 
             <!-- Button -->
           <div class="flex justify-around space-x-2 mt-2 items-center">
-            <BlackButton @click="setMainDormitory(dorm.id)" context="ตั้งเป็นหอพักหลัก"/>
-            <WhiteButton @click="setSecondaryDormitory(dorm.id)" context="ตั้งเป็นหอพักรอง"/>
+            <BlackButton @click="setMainDormitory(dorm.dormId)" context="ตั้งเป็นหอพักหลัก"/>
+            <WhiteButton @click="setSecondaryDormitory(dorm.dormId)" context="ตั้งเป็นหอพักรอง"/>
           </div>
 
 
@@ -580,7 +568,7 @@ const goToPage = (page) => {
   }
   
   .item p {
-    font-size: 1rem;
+    font-size: 0.8rem;
   }
 }
 
@@ -599,7 +587,7 @@ const goToPage = (page) => {
   }
   
   .item p {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 }
 .price-select {

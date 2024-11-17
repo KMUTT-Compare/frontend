@@ -1,6 +1,7 @@
 <script setup>
 import {ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router'
+import { formatDate } from '@/composables/formatDate'
 import Map from '@/components/Map.vue'
 const API_ROOT = import.meta.env.VITE_API_ROOT
 const { params } = useRoute()
@@ -38,7 +39,7 @@ const getDormitoryDetail = async () => {
             <div class="flex space-x-5 justify-around">
                 <p>ประกาศโดย : {{ dormitoryDetaill.staffName }}</p>
                 <p>สถานะ : {{ dormitoryDetaill.status }}</p>
-                <p>อัปเดตล่าสุด : {{ dormitoryDetaill.date }}</p>
+                <p>อัปเดตล่าสุด : {{ formatDate(dormitoryDetaill.updated_at) }}</p>
             </div>
         </div>
 
@@ -53,7 +54,7 @@ const getDormitoryDetail = async () => {
             <!-- ราคา -->
             <div>
                 <div class="flex flex-row w-full justify-between">
-                    <h1 class="text-3xl">5000 / เดือน</h1>
+                    <h1 class="text-3xl">{{dormitoryDetaill.min_price}} - {{ dormitoryDetaill.max_price }}</h1>
                     <button @click="setMainDormitory(dorm.id)" class="btn bg-black text-white hover:bg-zinc-600">
                       ตั้งเป็นหอพักหลัก
                     </button>
@@ -62,25 +63,45 @@ const getDormitoryDetail = async () => {
                     </button>
                     
                 </div>
-                <div class="flex flex-row space-x-5">
-                    <p>2 เตียง</p>
-                    <p>1 ห้องน้ำ</p>
-                    <p>30 ตร.ม</p>
+                <div class="flex flex-col space-x-5">
+                    <p>จำนวนห้องพักที่เหลือให้เช่า: {{ dormitoryDetaill.roomCount }}</p>
+                    <p>ประเภทหอพัก: {{ dormitoryDetaill.type }}</p>
+                    <p>ขนาดห้อง: {{ dormitoryDetaill.size }}</p>
                 </div>
             </div>
 
             <!-- รายละเอียด -->
             <div>
-                <h2 class="text-xl">รายละเอียด</h2>
-                <p>We admired the detail of the artist's work. The job requires attention to detail.  requires attention to detai  requires attention to detai</p>
+                <h2>ที่อยู่หอพัก</h2>
+                <ul>
+                    <li v-for="(address, index) in dormitoryDetaill.address" :key="index">
+                        {{ address }}
+                    </li>
+                </ul>
             </div>
 
             <div>
                 <h2 class="text-xl">เฟอร์นิเจอร์</h2>
-                <div class="bg-red-500 h-52"></div>
+                <div>
+                    <h2 class="text-xl">สิ่งอำนวยความสะดวกของอาคาร</h2>
+                    <ul>
+                        <li v-for="(facility, index) in dormitoryDetaill.building_facility" :key="index">
+                        {{ facility }}
+                        </li>
+                    </ul>
+
+                    <h2 class="text-xl mt-4">สิ่งอำนวยความสะดวกของห้อง</h2>
+                    <ul>
+                        <li v-for="(facility, index) in dormitoryDetaill.room_facility" :key="index">
+                        {{ facility }}
+                        </li>
+                    </ul>
+                </div>
+                
             </div>
-        </div>
     </div>
+    </div>
+
 
 </div>
 </template>

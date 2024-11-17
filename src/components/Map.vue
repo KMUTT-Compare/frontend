@@ -1,26 +1,29 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, defineEmits } from 'vue';
 
-onMounted(() => {
-  initMap();
-});
+const emit = defineEmits();
 
-const searchQuery = ref(''); // ค่าที่ผู้ใช้ค้นหา
-const houseNumber1 = ref(''); // เลขที่
-const houseNumber2 = ref(''); // เลขที่
-const dormNumber = ref(''); // เลขที่
-const street = ref(''); // ถนน
-const subDistrict = ref(''); // ตำบล/แขวง
-const district = ref(''); // อำเภอ/เขต
-const province = ref(''); // จังหวัด
-const postalCode = ref(''); // รหัสไปรษณีย์
-const distance = ref(''); // ค่าระยะทาง
+// ค่าที่ใช้สำหรับที่อยู่
+const searchQuery = ref('');
+const houseNumber1 = ref('');
+const houseNumber2 = ref('');
+const dormNumber = ref('');
+const street = ref('');
+const subDistrict = ref('');
+const district = ref('');
+const province = ref('');
+const postalCode = ref('');
+const distance = ref('');
 
 let map;
 let userSelectedMarker = null;
 let autocomplete;
-const directionsService = new google.maps.DirectionsService(); // สร้าง DirectionsService
-const directionsRenderer = new google.maps.DirectionsRenderer(); // สร้าง DirectionsRenderer
+const directionsService = new google.maps.DirectionsService();
+const directionsRenderer = new google.maps.DirectionsRenderer();
+
+onMounted(() => {
+  initMap();
+});
 
 function initMap() {
   const kmuttLocation = { lat: 13.651309958082942, lng: 100.49645730815111 };
@@ -29,7 +32,7 @@ function initMap() {
     center: kmuttLocation,
   });
 
-  directionsRenderer.setMap(map); // เชื่อมต่อ directionsRenderer กับแผนที่
+  directionsRenderer.setMap(map);
 
   const input = document.getElementById('place-input');
   autocomplete = new google.maps.places.Autocomplete(input);
@@ -37,12 +40,10 @@ function initMap() {
 
   autocomplete.addListener('place_changed', () => {
     const place = autocomplete.getPlace();
-
     if (place.geometry) {
       map.setCenter(place.geometry.location);
       map.setZoom(15);
 
-      // ปักหมุด
       if (userSelectedMarker) {
         userSelectedMarker.setPosition(place.geometry.location);
       } else {
@@ -53,12 +54,9 @@ function initMap() {
         });
       }
 
-      // คำนวณระยะทาง
       calculateDistance(place.geometry.location);
 
-      // กำหนดค่าที่อยู่ที่เลือกให้กับฟิลด์ที่อยู่
       if (place.address_components) {
-        // Reset address fields
         houseNumber1.value = '';
         houseNumber2.value = '';
         street.value = '';
@@ -66,49 +64,55 @@ function initMap() {
         district.value = '';
         province.value = '';
         postalCode.value = '';
-
-        // Clear existing value
         dormNumber.value = '';
 
         place.address_components.forEach(component => {
           const componentType = component.types[0];
-
           switch (componentType) {
             case 'subpremise':
-              houseNumber1.value = component.long_name; // เลขที่ตัวหน้า 
+              houseNumber1.value = component.long_name;
               break;
             case 'street_number':
-              houseNumber2.value = component.long_name; // เลขที่ตัวหลัง
+              houseNumber2.value = component.long_name;
               break;
             case 'route':
-              street.value = component.long_name; // ถนน
+              street.value = component.long_name;
               break;
             case 'sublocality_level_2':
-              subDistrict.value = component.long_name; // ตำบล/แขวง
+              subDistrict.value = component.long_name;
               break;
             case 'sublocality_level_1':
-              district.value = component.long_name; // เขต/อำเภอ
+              district.value = component.long_name;
               break;
             case 'administrative_area_level_1':
-              province.value = component.long_name; // จังหวัด
+              province.value = component.long_name;
               break;
             case 'postal_code':
-              postalCode.value = component.long_name; // รหัสไปรษณีย์
+              postalCode.value = component.long_name;
               break;
             default:
               break;
           }
         });
 
-        // Combine house number parts if both are available
         if (houseNumber1.value && houseNumber2.value) {
           dormNumber.value = `${houseNumber1.value}/${houseNumber2.value}`;
         } else {
           dormNumber.value = houseNumber1.value || houseNumber2.value;
         }
 
-        // อัปเดต searchQuery ให้ตรงกับชื่อสถานที่
-        searchQuery.value = place.name; // อัปเดต searchQuery
+        searchQuery.value = place.name;
+
+        // Emit event to send data to parent
+        emit('address-updated', {
+          dormNumber: dormNumber.value,
+          street: street.value,
+          subDistrict: subDistrict.value,
+          district: district.value,
+          province: province.value,
+          postalCode: postalCode.value,
+          distance: distance.value,
+        });
       } else {
         alert("No details available for input: '" + place.name + "'");
       }
@@ -118,29 +122,36 @@ function initMap() {
 
 function calculateDistance(destination) {
   const kmuttLocation = { lat: 13.6513, lng: 100.4964 };
-
   const request = {
     origin: destination,
     destination: kmuttLocation,
-    travelMode: google.maps.TravelMode.DRIVING, // หรือเปลี่ยนเป็น BICYCLING, TRANSIT, WALKING ตามต้องการ
+    travelMode: google.maps.TravelMode.DRIVING,
   };
 
   directionsService.route(request, (result, status) => {
     if (status === google.maps.DirectionsStatus.OK) {
       directionsRenderer.setDirections(result);
-
-      // ดึงข้อมูลระยะทาง
       const route = result.routes[0];
-      distance.value = route.legs[0].distance.text; // เก็บค่าระยะทาง
+      distance.value = route.legs[0].distance.text;
 
-      // ไม่แสดง popup อีกต่อไป
-      // alert(`ระยะทาง: ${distance.value}, เวลา: ${duration.value}`); // ลบ alert ออก
+      // Emit the distance as well
+      emit('address-updated', {
+        dormNumber: dormNumber.value,
+        street: street.value,
+        subDistrict: subDistrict.value,
+        district: district.value,
+        province: province.value,
+        postalCode: postalCode.value,
+        distance: distance.value,
+      });
     } else {
       alert('ไม่สามารถคำนวณระยะทางได้: ' + status);
     }
   });
 }
 </script>
+
+
 
 <template>
   <div>
@@ -188,7 +199,7 @@ function calculateDistance(destination) {
         </div>
         <div>
           <label for="distance" class="block mb-2 text-lg text-gray-900 dark:text-white">ระยะทาง</label>
-          <input v-model="distance" type="text" id="distance" class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ระยะทาง" readonly />
+          <input v-model="distance" type="text" id="distance" class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ระยะทาง" />
         </div>
       </div>
 
