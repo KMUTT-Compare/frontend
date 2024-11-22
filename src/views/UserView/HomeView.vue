@@ -38,29 +38,6 @@ const searchInput = ref('')
 
 const selectTypes = ref('รวม')
 
-const selectedRoom = ref({
-  hotWater: false,
-  washer: false,
-  airConditioner: false,
-  tv: false,
-  fridge: false,
-  wifi: false
-});
-
-const selectedBuilding = ref({
-  keycard: false,
-  security: false,
-  cctv: false,
-  bikeParking: false,
-  carParking: false,
-  pool: false,
-  elevator: false
-});
-
-const selectedOther = ref({
-  petsAllowed: false,
-  smokingAllowed: false
-});
 
 const selectPriceRange = ref('');
 
@@ -111,6 +88,7 @@ const setMainDormitory = (dormId) => {
     secondaryDormitory.value = null; // ลบหอพักรองถ้ามันตรงกับหอพักหลัก
   }
   mainDormitory.value = dormId;
+  console.log(mainDormitory.value)
 };
 
 const setSecondaryDormitory = (dormId) => {
@@ -118,29 +96,16 @@ const setSecondaryDormitory = (dormId) => {
     mainDormitory.value = null; // ลบหอพักหลักถ้ามันตรงกับหอพักรอง
   }
   secondaryDormitory.value = dormId;
+  console.log(secondaryDormitory.value)
 };
 
-const getFacilitiesDisplay = (mainFacilities, secondaryFacilities) => {
-  const allFacilities = new Set([...Object.keys(mainFacilities), ...Object.keys(secondaryFacilities)]);
-  const display = {};
-
-  allFacilities.forEach(facility => {
-    display[facility] = {
-      main: mainFacilities[facility] ? '✔️' : '❌',
-      secondary: secondaryFacilities[facility] ? '✔️' : '❌'
-    };
-  });
-
-  return display;
-};
 
 const compareDormitories = computed(() => {
-  const mainDorm = dormitories.value.find(dorm => dorm.id === mainDormitory.value);
-  const secondaryDorm = dormitories.value.find(dorm => dorm.id === secondaryDormitory.value);
+  const mainDorm = dormitories.value.find(dorm => dorm.dormId === mainDormitory.value);
+  const secondaryDorm = dormitories.value.find(dorm => dorm.dormId === secondaryDormitory.value);
+  
 
   if (!mainDorm || !secondaryDorm) return null;
-
-  const facilitiesDisplay = getFacilitiesDisplay(mainDorm.room_facilities || {}, secondaryDorm.room_facilities || {});
 
   return {
     price: {
@@ -152,34 +117,27 @@ const compareDormitories = computed(() => {
       main: mainDorm.size || 'ไม่ระบุ',
       secondary: secondaryDorm.size || 'ไม่ระบุ'
     },
-    facilities: facilitiesDisplay
+    distance: {
+      main: mainDorm.distance || 'ยังไม่มีข้อมูล',
+      secondary: secondaryDorm.distance || 'ยังไม่มีข้อมูล',
+      better: mainDorm.distance < secondaryDorm.distance ? mainDorm : secondaryDorm
+    },
+    mainDormRoomFacilities: mainDorm.room_facility || [],
+    secondaryDormRoomFacilities: secondaryDorm.room_facility || [],
+    mainDormBuildingFacilities: mainDorm.building_facility || [],
+    secondaryDormBuildingFacilities: secondaryDorm.building_facility || []
   };
+  
 });
 
-
-
-//---------------------------------- pagination ----------------------------------
-const currentPage = ref(1);
-const itemsPerPage = ref(6); // Adjust the number of items per page as needed
-
-// Calculate total pages
-const totalPages = computed(() => Math.ceil(filteredDormitories.value.length / itemsPerPage.value));
-
-// Paginated dormitories
-const paginatedDormitories = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return filteredDormitories.value.slice(start, end);
-});
-
-// Function to change pages
-const goToPage = (page) => {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page;
+// ฟังก์ชันสำหรับแปลง address ให้เป็น string
+const formatAddress = (address) => {
+  if (typeof address === 'object' && address !== null) {
+    // จัดรูปแบบ address ให้เป็น string
+    return `${address.dormNumber} ${address.street}, ${address.subdistrict}, ${address.district}, ${address.province}, ${address.postalCode}`;
   }
-};
-
-
+  return address || 'ยังไม่มีที่อยู่';
+}
 </script>
 
 <template>
@@ -242,94 +200,17 @@ const goToPage = (page) => {
     <!-- แบ่งเป็น Grid (2 คอลัมน์) -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-      <!-------------------------------- 3 --------------------------------->
-      <div class="inside">
-        <h2 class="my-4">สิ่งอำนวยความสะดวก ภายในห้อง</h2>
-        <div class="flex flex-col space-y-2">
-          <div class="flex flex-row space-x-2">
-            <input v-model="selectedRoom.hotWater" type="checkbox" class="checkbox" />
-            <p>เครื่องทำน้ำอุ่น</p>
-          </div>
-          <div class="flex flex-row space-x-2">
-            <input v-model="selectedRoom.washer" type="checkbox" class="checkbox" />
-            <p>เครื่องซักผ้า</p>
-          </div>
-          <div class="flex flex-row space-x-2">
-            <input v-model="selectedRoom.airConditioner" type="checkbox" class="checkbox" />
-            <p>เครื่องปรับอากาศ</p>
-          </div>
-          <div class="flex flex-row space-x-2">
-            <input v-model="selectedRoom.tv" type="checkbox" class="checkbox" />
-            <p>ทีวี</p>
-          </div>
-          <div class="flex flex-row space-x-2">
-            <input v-model="selectedRoom.fridge" type="checkbox" class="checkbox" />
-            <p>ตู้เย็น</p>
-          </div>
-          <div class="flex flex-row space-x-2">
-            <input v-model="selectedRoom.wifi" type="checkbox" class="checkbox" />
-            <p>อินเทอร์เน็ต/Wi-Fi ในห้อง</p>
-          </div>
-        </div>
-      </div>
-
-      <!-------------------------------- 4 --------------------------------->
-      <div class="outside">
-        <h2 class="my-4">สิ่งอำนวยความสะดวก ในอาคาร</h2>
-        <div class="flex flex-col space-y-2">
-          <div class="flex flex-row space-x-2">
-            <input v-model="selectedBuilding.keycard" type="checkbox" class="checkbox" />
-            <p>มีประตูระบบ Keycard</p>
-          </div>
-          <div class="flex flex-row space-x-2">
-            <input v-model="selectedBuilding.security" type="checkbox" class="checkbox" />
-            <p>ยามรักษาความปลอดภัย</p>
-          </div>
-          <div class="flex flex-row space-x-2">
-            <input v-model="selectedBuilding.cctv" type="checkbox" class="checkbox" />
-            <p>กล้องวงจรปิด (CCTV)</p>
-          </div>
-          <div class="flex flex-row space-x-2">
-            <input v-model="selectedBuilding.bikeParking" type="checkbox" class="checkbox" />
-            <p>ที่จอดรถมอเตอร์ไซด์/จักรยาน</p>
-          </div>
-          <div class="flex flex-row space-x-2">
-            <input v-model="selectedBuilding.carParking" type="checkbox" class="checkbox" />
-            <p>ที่จอดรถยนต์</p>
-          </div>
-          <div class="flex flex-row space-x-2">
-            <input v-model="selectedBuilding.pool" type="checkbox" class="checkbox" />
-            <p>สระว่ายน้ำ</p>
-          </div>
-          <div class="flex flex-row space-x-2">
-            <input v-model="selectedBuilding.elevator" type="checkbox" class="checkbox" />
-            <p>ลิฟต์</p>
-          </div>
-        </div>
-      </div>
-
     </div>
 
     <div class="mt-4 max-w-72"><hr></div>
 
     <!-------------------------------- 5 --------------------------------->
-    <div class="other">
-      <h2 class="my-4">อื่นๆ</h2>
-      <div class="flex flex-col space-y-2">
-        <div class="flex flex-row space-x-2">
-          <input v-model="selectedOther.petsAllowed" type="checkbox" class="checkbox" />
-          <p>อนุญาตให้เลี้ยงสัตว์</p>
-        </div>
-        <div class="flex flex-row space-x-2">
-          <input v-model="selectedOther.smokingAllowed" type="checkbox" class="checkbox" />
-          <p>อนุญาตให้สูบบุหรี่ในห้องพัก</p>
-        </div>
-      </div>
-          <div class="flex justify-end items-end space-x-1 mt-4">
+
+      <div class="flex justify-end items-end space-x-1 mt-4">
         <button class="btn bg-orange-500 text-white hover:bg-orange-600 px-8" @click="openCloseFilter">ยืนยัน</button>
         <button class="btn bg-zinc-300 text-white hover:bg-zinc-400 px-8" @click="openCloseFilter">ยกเลิก</button>
-    </div>
-    </div>
+      </div>
+
 
 
   </div>
@@ -348,8 +229,18 @@ const goToPage = (page) => {
       </div>
 
       <div class="flex flex-row items-center w-full justify-around mt-5 h-full pr-2 space-x-2">
-        <Card title="หอพักหลัก:" :dormitoryName="mainDormitory ? dormitories.find(dorm => dorm.id === mainDormitory).name : ''" />
-        <Card title="หอพักรอง:" :dormitoryName="secondaryDormitory ? dormitories.find(dorm => dorm.id === secondaryDormitory).name : ''" />
+        <Card
+        title="หอพักหลัก"
+        :dormitoryName="mainDormitory ? dormitories.find(dorm => dorm.dormId === mainDormitory).name : 'ยังไม่ได้เลือก'"
+        :distance="mainDormitory ? dormitories.find(dorm => dorm.dormId === mainDormitory).distance : 0"
+        :address="mainDormitory ? formatAddress(dormitories.find(dorm => dorm.dormId === mainDormitory).address) : ''"
+      />
+      <Card
+        title="หอพักรอง"
+        :dormitoryName="secondaryDormitory ? dormitories.find(dorm => dorm.dormId === secondaryDormitory).name : 'ยังไม่ได้เลือก'"
+        :distance="secondaryDormitory ? dormitories.find(dorm => dorm.dormId === secondaryDormitory).distance : 0"
+        :address="secondaryDormitory ? formatAddress(dormitories.find(dorm => dorm.dormId === secondaryDormitory).address) : ''"
+      />
       </div>
 
     </div>
@@ -380,23 +271,52 @@ const goToPage = (page) => {
         <td class="border px-4 py-2">{{ compareDormitories?.size.main || 'ยังไม่ได้เลือก' }}</td>
         <td class="border px-4 py-2">{{ compareDormitories?.size.secondary || 'ยังไม่ได้เลือก' }}</td>
       </tr>
+      
       <tr>
-        <td class="border px-4 py-2">สิ่งอำนวยความสะดวก</td>
+        <td class="border px-4 py-2">สิ่งอำนวยความสะดวกภายในห้อง</td>
         <td class="border px-4 py-2">
-          <ul>
-            <li v-for="(status, key) in compareDormitories?.facilities" :key="key">
-              {{ key }}: {{ status.main }}
-            </li>
-          </ul>
-        </td>
-        <td class="border px-4 py-2">
-          <ul>
-            <li v-for="(status, key) in compareDormitories?.facilities" :key="key">
-              {{ key }}: {{ status.secondary }}
-            </li>
-          </ul>
-        </td>
-      </tr>
+        <ul>
+          <li v-if="compareDormitories?.mainDormRoomFacilities && compareDormitories.mainDormRoomFacilities.length" 
+              v-for="facility in compareDormitories.mainDormRoomFacilities" :key="facility">
+            {{ facility }}
+          </li>
+          <li v-else>ยังไม่ได้เลือก</li>
+        </ul>
+      </td>
+
+      <td class="border px-4 py-2">
+        <ul>
+          <li v-if="compareDormitories?.secondaryDormRoomFacilities && compareDormitories.secondaryDormRoomFacilities.length" 
+              v-for="facility in compareDormitories.secondaryDormRoomFacilities" :key="facility">
+            {{ facility }}
+          </li>
+          <li v-else>ยังไม่ได้เลือก</li>
+        </ul>
+      </td>
+    </tr>
+    
+    <tr>
+      <td class="border px-4 py-2">สิ่งอำนวยความสะดวกภายนอกอาคาร</td>
+      <td class="border px-4 py-2">
+        <ul>
+          <li v-if="compareDormitories?.mainDormBuildingFacilities && compareDormitories.mainDormBuildingFacilities.length"  
+              v-for="facility in compareDormitories?.mainDormBuildingFacilities" :key="facility">
+            {{ facility }}
+          </li>
+          <li v-else>ยังไม่ได้เลือก</li>
+        </ul>
+      </td>
+      <td class="border px-4 py-2">
+        <ul>
+          <li v-if="compareDormitories?.secondaryDormBuildingFacilities && compareDormitories.secondaryDormBuildingFacilities.length"  
+              v-for="facility in compareDormitories?.secondaryDormBuildingFacilities" :key="facility">
+            {{ facility }}
+          </li>
+          <li v-else>ยังไม่ได้เลือก</li>
+        </ul>
+      </td>
+    </tr>
+
     </tbody>
   </table>
 </div>
@@ -518,7 +438,7 @@ const goToPage = (page) => {
 /* ภาพพื้นหลังด้านบน */
 .background img {
   width: 100%;
-  height: 400px; 
+  height: 200px; 
   object-fit: cover; 
 }
 

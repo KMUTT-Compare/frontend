@@ -259,7 +259,7 @@ const addDormitory = async () => {
 
                         <!-- สิ่งอำนวยความสะดวกภายนอกอาคาร -->
               <div class="outside space-y-5">
-                <div class="flex flex-col">
+                <div class="flex flex-col space-y-2">
                   <!-- ช่องกรอกข้อมูลและปุ่มเพิ่มสำหรับภายนอกอาคาร -->
                   <div class="flex items-center">
                     <input 
