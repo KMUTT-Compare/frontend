@@ -476,17 +476,6 @@ const goToPage = (page) => {
     </div>
     <div v-if="dormitories.length === 0" class="text-2xl text-red-600 text-center">No Dormitory</div>
 
-  <!-- Pagination Controls -->
-  <div class="pagination-controls flex justify-center mt-10 space-x-2">
-    <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" class="px-3 py-1 border rounded bg-gray-200 hover:bg-gray-300">
-      Previous
-    </button>
-    <span>Page {{ currentPage }} of {{ totalPages }}</span>
-    <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages" class="px-3 py-1 border rounded bg-gray-200 hover:bg-gray-300">
-      Next
-    </button>
-  </div>
-
 </div>
 
 

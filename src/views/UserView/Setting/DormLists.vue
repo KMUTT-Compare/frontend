@@ -1,54 +1,259 @@
 <script setup>
 import Sidebar from '@/components/Sidebar.vue';
+import { getDormitories } from '@/composables/getDormitories';
+import { onMounted,ref } from 'vue';
+import router from '@/router';
+const API_ROOT = import.meta.env.VITE_API_ROOT
+const dormitories = ref([])
 
-// const API_ROOT = import.meta.env.VITE_API_ROOT
-// const dormitories = ref([])
+onMounted(async () => {
+  dormitories.value = await getDormitories();
+})
 
-// onMounted(async () => {
-//    await getDormitories();
-// })
+// ดูรายละเอียดหอพัก
+const showDetail = (dormitoryId) =>{
+  router.push({
+    name : 'dormitoryDetail',
+    params : {id : dormitoryId}
+  })
+}
 
-// const getDormitories = async () => {
-//   try {
-//     const res = await fetch(`${API_ROOT}/dormitories`); // ตรวจสอบให้แน่ใจว่า URL ถูกต้อง
-//     if (res.ok) {
-//       dormitories.value = await res.json();
-//     }
-//   } catch (error) {
-//     console.error('Error fetching data:', error);
-//     throw error;
-//   }
-// }
+const deleteDormitory = async (dormId) => {
+    const confirmed = window.confirm('Do you want to delete');
+    if (confirmed) {
+        try {
+            const res = await fetch(`${API_ROOT}/dormitories/${dormId}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                method: 'DELETE'
+            });
+
+            if (res.ok) {
+                // ถ้าลบข้อมูลสำเร็จ ให้ดึงข้อมูลใหม่จาก API
+                dormitories.value = await getDormitories();  // เรียกใช้ฟังก์ชัน getDormitories เพื่อดึงข้อมูลใหม่
+            } else {
+                alert(`There are no dormitory with id = ${dormId}`);
+                throw new Error('Cannot delete data!');
+            }
+        } catch (error) {
+            console.log(`ERROR: ${error}`);
+        }
+    } else {
+        router.push({
+            name: 'home'
+        });
+    }
+}
+
 
 </script>
  
 <template>
 <div class="flex flex row w-full justify-center p-20">
     <Sidebar/>
-    <div class="pl-2 w-1/2 h-full">
-        <!-- <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
-            <h1>รายการประกาศ</h1>
-            <div class="flex w-full cursor-pointer" @click="showDetail(dorm.id)">
-              <div class="item">
-                <h1>{{ dorm.name }}</h1>
-                <h2>{{ dorm.min_price }} - {{ dorm.max_price }} <span>บาท/เดือน</span></h2>
-                <p>Location: {{ dorm.location }}</p>
-              </div>
+    <div class="pl-2 w-1/2 h-full flex border-2 rounded-xl">
+        <div class="w-full flex flex-col mt-5 items-center justify-center ">
+
+        <!-- ส่วนไอเทม -->
+        <div v-if="dormitories !== null && dormitories.length !== 0" class="container">
+            <div v-for="dorm in dormitories" :key="dorm.dormId" class="holding-items">
+            
+            
+            <div class="items rounded-lg border-2">
+                
+                <div class="w-8/12">
+                <img src="@/components/photos/new.svg" class="object-cover h-full rounded-2xl" alt="Dormitory Image" />
+                </div>
+
+
+
+                <div class="flex flex-col w-full h-full p-3 justify-center">
+
+                <div class="flex w-full cursor-pointer">
+                    <div class="item">
+                    <div class="flex flex-row justify-between">
+                        <h1  @click="showDetail(dorm.dormId)">{{ dorm.name }}</h1>
+                        <div class="icons">
+                            <div @click="router.push()"><img src="../../../components/icons/edit.png" alt=""></div>
+                            <img src="../../../components/icons/trash.png" alt="Trash Icon" @click="deleteDormitory(dorm.dormId)" />
+                        </div>
+
+                    </div>               
+                    <h2>{{ dorm.min_price }} - {{ dorm.max_price }} <span>บาท/เดือน</span></h2>
+                    <p>ที่อยู่: {{ dorm.address.street }}, {{ dorm.address.subdistrict }}, {{ dorm.address.district }}, {{ dorm.address.province }} {{ dorm.address.postalCode }}</p>      
+                        <div></div>
+                    </div>
+                </div>
+
+                </div>
+                
+                </div>
+
+                
+            
             </div>
-        </div> -->
+        </div>
+        <div v-if="dormitories.length === 0" class="text-2xl text-red-600 text-center">No Dormitory</div>
+
+</div>
         
     </div>
 </div>
 </template>
  
 <style scoped>
-h1{
-    font-size: 1.8rem;
+.items{
+  display: flex;
+  flex-direction: row;
 }
-h2{
-    font-size: 1.4rem;
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 10px;
+  width: 100%; /* ให้เต็มพื้นที่ที่มีอยู่ */
+  overflow-wrap: break-word; /* ตัดคำถ้าเกินพื้นที่ */
+  
 }
-span{
-   font-size: 1.2rem;
+
+.holding-items {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 0; /* ให้ขนาดลดลงตามพื้นที่ */
+  max-width: 100%; /* ให้ไม่เกินพื้นที่ */
 }
+
+/* ภาพพื้นหลังด้านบน */
+.background img {
+  width: 100%;
+  height: 400px; 
+  object-fit: cover; 
+}
+
+.item h1 {
+  font-size: 1.5rem; /* ขนาดเริ่มต้นสำหรับหน้าจอขนาดเล็ก */
+  color: #F4845F;
+}
+
+.item h2 {
+  font-size: 1rem;
+  color: black;
+}
+
+.item h2 span {
+  font-size: 0.9rem;
+  color: #5D5D5D;
+}
+
+.item p {
+  font-size: 0.9rem;
+  color: #5D5D5D;
+}
+
+/* สำหรับหน้าจอขนาดกลาง (เช่น Tablet) */
+@media (min-width: 640px) {
+  .item h1 {
+    font-size: 1.75rem;
+  }
+  
+  .item h2 {
+    font-size: 1.2rem;
+  }
+  
+  .item h2 span {
+    font-size: 1rem;
+  }
+  
+  .item p {
+    font-size: 0.8rem;
+  }
+}
+
+/* สำหรับหน้าจอขนาดใหญ่ (เช่น Desktop) */
+@media (min-width: 1024px) {
+  .item h1 {
+    font-size: 1.rem;
+  }
+  
+  .item h2 {
+    font-size: 1.2rem;
+  }
+  
+  .item h2 span {
+    font-size: 1.2rem;
+  }
+  
+  .item p {
+    font-size: 1rem;
+  }
+}
+.price-select {
+  padding: 8px;
+  border: 2px solid #ccc; 
+  box-sizing: border-box; 
+  cursor: pointer;
+  width: 250px;
+}
+
+hr{
+  width: 250px;
+}
+
+.filter h2{
+  font-size: 1.2rem;
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.filter {
+  background: white;
+  padding: 20px;
+  padding-left: 40px;
+  border-radius: 8px;
+  width: 700px;
+  max-width: 100%;
+  height: 95%;
+  position: relative;
+}
+
+
+@media screen and (max-width: 768px) {
+  .filter {
+    padding: 20px;
+    width: 70%;
+    height: 90%;
+    font-size: 0.8rem;
+  }
+
+  .btn {
+    width: 20%;
+  }
+}
+
+.icons{
+    display: flex;
+    flex-direction: row;
+   
+
+
+}
+
+.icons img{
+    width: 40px;
+    margin-left: 5px;
+}
+
 </style>

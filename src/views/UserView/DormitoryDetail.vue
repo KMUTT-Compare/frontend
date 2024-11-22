@@ -2,12 +2,13 @@
 import {ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router'
 import { formatDate } from '@/composables/formatDate'
-import Map from '@/components/Map.vue'
+import WhiteButton from '@/components/WhiteButton.vue';
+import BlackButton from '@/components/BlackButton.vue';
 const API_ROOT = import.meta.env.VITE_API_ROOT
 const { params } = useRoute()
 console.log(params.id)
 
-const dormitoryDetaill = ref('')
+const dormitoryDetaill = ref([])
 
 onMounted(async()=>{
     await getDormitoryDetail()
@@ -29,76 +30,93 @@ const getDormitoryDetail = async () => {
 </script>
  
 <template>
-<div class="w-full h-full flex justify-center mt-20">
+<div class="w-full h-full flex justify-center">
 
 
-    <div class="flex flex-col border border-xl h-full bg-gray-500 p-2 w-2/5">
+    <div class="flex flex-col border border-xl h-full p-2 w-2/4">
         <!-- เมนูด้านบน -->
-        <div class="flex flex-col p-5 space-y-5">
-            <div class="text-5xl">{{ dormitoryDetaill.name }}</div>
-            <div class="flex space-x-5 justify-around">
+            <div class="flex justify-between w-3/5">
                 <p>ประกาศโดย : {{ dormitoryDetaill.staffName }}</p>
                 <p>สถานะ : {{ dormitoryDetaill.status }}</p>
                 <p>อัปเดตล่าสุด : {{ formatDate(dormitoryDetaill.updated_at) }}</p>
             </div>
-        </div>
 
-        <!-- รูป -->
-        <div class="flex bg-red-500 h-52 justify-center items-center">
-            Photos
+        <!-- รายละเอียดมุมขวาบน -->    
+        <div class="flex flex-row p-5 px-2 space-x-2 justify-center w-full">
+            <!-- กรอบสำหรับรูป 3 รูปทางซ้าย -->
+            <div class="w-1/5 flex flex-col space-y-2">
+                <img class="imgs object-cover w-full h-36" src="../../assets/images/cat.jpg" alt="">
+                <img class="imgs object-cover w-full h-36" src="../../assets/images/cat.jpg" alt="">
+                <img class="imgs object-cover w-full h-36" src="../../assets/images/cat.jpg" alt="">
+            </div>
+            
+            <!-- กรอบสำหรับรูปเดียวทางขวา -->
+            <div class="w-3/6 flex justify-center">
+                <img class="imgs object-cover w-full" src="../../assets/images/cat.jpg" alt="">
+            </div>
+            
+            <!-- รายละเอียดหอพัก -->
+            <div class="flex flex-col w-3/6 space-y-2 px-4">
+                <h1>{{ dormitoryDetaill.name }}</h1>
+                <div class="pt-4">
+                    <p>ราคา</p>
+                    <h2>{{dormitoryDetaill.min_price}} - {{ dormitoryDetaill.max_price }} บาท / เดือน</h2>
+                </div>
+                <!-- ปุ่ม -->
+                <div class="flex flex-col pt-4 space-y-2">
+                    <BlackButton @click="setMainDormitory(dorm.dormId)" context="ตั้งเป็นหอพักหลัก"/>
+                    <WhiteButton @click="setSecondaryDormitory(dorm.dormId)" context="ตั้งเป็นหอพักรอง"/>
+                </div>
+            </div>
         </div>
 
         <!-- รายละเอียดต่างๆ -->
-         <div class="flex flex-col p-5 space-y-5">
-
-            <!-- ราคา -->
-            <div>
-                <div class="flex flex-row w-full justify-between">
-                    <h1 class="text-3xl">{{dormitoryDetaill.min_price}} - {{ dormitoryDetaill.max_price }}</h1>
-                    <button @click="setMainDormitory(dorm.id)" class="btn bg-black text-white hover:bg-zinc-600">
-                      ตั้งเป็นหอพักหลัก
-                    </button>
-                    <button @click="setSecondaryDormitory(dorm.id)" class="btn bg-white border-2 border-black hover:bg-zinc-300 hover:border-black">
-                      ตั้งเป็นหอพักรอง
-                    </button>
-                    
-                </div>
-                <div class="flex flex-col space-x-5">
+         <div class="flex flex-col px-2 py-5 space-y-5">
+            <h2>รายละเอียด</h2>
+                <div class="flex flex-col space-y-2">
                     <p>จำนวนห้องพักที่เหลือให้เช่า: {{ dormitoryDetaill.roomCount }}</p>
                     <p>ประเภทหอพัก: {{ dormitoryDetaill.type }}</p>
                     <p>ขนาดห้อง: {{ dormitoryDetaill.size }}</p>
                 </div>
-            </div>
+      
 
             <!-- รายละเอียด -->
-            <div>
-                <h2>ที่อยู่หอพัก</h2>
+            <div class="space-y-2">
+                <h3>ที่อยู่หอพัก</h3>
                 <ul>
-                    <li v-for="(address, index) in dormitoryDetaill.address" :key="index">
-                        {{ address }}
-                    </li>
+                    <p v-for="(address, index) in dormitoryDetaill" :key="index">
+                        <p>{{ address.dormNumber }} {{ address.street }} {{ address.subdistrict }} {{ address.district }} {{ address.province }} {{ address.postalCode }} </p>
+                    </p>
                 </ul>
             </div>
 
-            <div>
-                <h2 class="text-xl">เฟอร์นิเจอร์</h2>
-                <div>
-                    <h2 class="text-xl">สิ่งอำนวยความสะดวกของอาคาร</h2>
-                    <ul>
-                        <li v-for="(facility, index) in dormitoryDetaill.building_facility" :key="index">
-                        {{ facility }}
-                        </li>
-                    </ul>
+            <div class="space-y-2">
+                <h3 class="text-xl">เฟอร์นิเจอร์</h3>
+                <div class="space-y-4">
+                    <div class="flex space-x-8">
+                        <!-- สิ่งอำนวยความสะดวกภายในห้อง (ซ้าย) -->
+                        <div class="flex-1">
+                            <h4 class="text-xl">สิ่งอำนวยความสะดวกภายในห้อง</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <p v-for="(facility, index) in dormitoryDetaill.room_facility" :key="index">
+                                    {{ facility }}
+                                </p>
+                            </div>
+                        </div>
 
-                    <h2 class="text-xl mt-4">สิ่งอำนวยความสะดวกของห้อง</h2>
-                    <ul>
-                        <li v-for="(facility, index) in dormitoryDetaill.room_facility" :key="index">
-                        {{ facility }}
-                        </li>
-                    </ul>
+                        <!-- สิ่งอำนวยความสะดวกนอกอาคาร (ขวา) -->
+                        <div class="flex-1">
+                            <h4 class="text-xl">สิ่งอำนวยความสะดวกนอกอาคาร</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <p v-for="(facility, index) in dormitoryDetaill.building_facility" :key="index">
+                                    {{ facility }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                
             </div>
+
     </div>
     </div>
 
@@ -107,5 +125,26 @@ const getDormitoryDetail = async () => {
 </template>
  
 <style scoped>
+
+p{
+    font-size: 1.3rem;
+}
+
+h1{
+    font-size: 2rem;
+}
+
+h2{
+    font-size: 1.7rem;
+}
+
+h3{
+    font-size: 1.5rem;
+}
+
+
+p{
+    font-size: 1.2rem;
+}
 
 </style>

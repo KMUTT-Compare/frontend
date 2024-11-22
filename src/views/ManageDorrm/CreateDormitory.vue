@@ -4,27 +4,24 @@ import { ref } from 'vue'
 import router from '@/router';
 const API_ROOT = import.meta.env.VITE_API_ROOT
 
-const name = ref('')
+const name = ref('');
 const status = ref('ว่าง'); // เก็บค่าสถานะหอพัก (ว่าง, ไม่ว่าง)
 const address = ref({});
-const roomCount = ref(0)
+const roomCount = ref(0);
 const type = ref('รวม'); // เก็บค่าประเภทหอพัก (รวม, หญิง, ชาย)
-const size = ref(0)
-const min_price = ref()
-const max_price = ref()
-const selectedImages = ref()
-
-
-
+const size = ref(0);
+const min_price = ref();
+const max_price = ref();
+const selectedImages = ref([]);
 
 const handleAddressUpdated = (updatedAddress) => {
   address.value = updatedAddress;
-  console.log(address.value)
+  console.log(address.value);
 };
+
 const handleFiles = (event) => {
   const files = event.target.files;
   const imagePreview = document.getElementById('imagePreview');
-  // imagePreview.innerHTML = ''; // เคลียร์ภาพเก่า
   selectedImages.length = 0; // เคลียร์ array ก่อน
 
   for (let i = 0; i < files.length; i++) {
@@ -43,10 +40,10 @@ const handleFiles = (event) => {
       removeButton.innerText = 'ลบ';
       removeButton.className = 'absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full';
       removeButton.onclick = () => {
-        imgContainer.remove(); // ลบ container
+        imgContainer.remove();
         const index = selectedImages.indexOf(e.target.result);
         if (index > -1) {
-          selectedImages.splice(index, 1); // ลบจาก array
+          selectedImages.splice(index, 1);
         }
       };
 
@@ -60,80 +57,66 @@ const handleFiles = (event) => {
   }
 };
 
+const insideAmenities = ref([]);
+const outsideAmenities = ref([]);
 
+const newInsideAmenity = ref('');
+const newOutsideAmenity = ref('');
 
-const insideAmenities = ref([]);  // รายการสิ่งอำนวยความสะดวกภายในห้อง
-const outsideAmenities = ref([]); // รายการสิ่งอำนวยความสะดวกภายนอกอาคาร
-
-const newInsideAmenity = ref('');  // สิ่งอำนวยความสะดวกใหม่ภายในห้องที่ผู้ใช้พิมพ์
-const newOutsideAmenity = ref(''); // สิ่งอำนวยความสะดวกใหม่ภายนอกอาคารที่ผู้ใช้พิมพ์
-
-// ฟังก์ชันสำหรับเพิ่มสิ่งอำนวยความสะดวกภายในห้อง
 const addInsideAmenity = () => {
   if (newInsideAmenity.value.trim() !== '') {
     insideAmenities.value.push(newInsideAmenity.value.trim());
-    newInsideAmenity.value = '';  // เคลียร์ช่องกรอกข้อมูล
+    newInsideAmenity.value = '';
   }
 };
 
-// ฟังก์ชันสำหรับลบสิ่งอำนวยความสะดวกภายนอกอาคาร
 const removeInsideAmenity = (index) => {
-  insideAmenities.value.splice(index, 1); // ลบสิ่งอำนวยความสะดวกที่เลือก
+  insideAmenities.value.splice(index, 1);
 };
 
-// ฟังก์ชันสำหรับเพิ่มสิ่งอำนวยความสะดวกภายนอกอาคาร
 const addOutsideAmenity = () => {
   if (newOutsideAmenity.value.trim() !== '') {
     outsideAmenities.value.push(newOutsideAmenity.value.trim());
-    newOutsideAmenity.value = '';  // เคลียร์ช่องกรอกข้อมูล
+    newOutsideAmenity.value = '';
   }
 };
 
-// ฟังก์ชันสำหรับลบสิ่งอำนวยความสะดวกภายนอกอาคาร
 const removeOutsideAmenity = (index) => {
-  outsideAmenities.value.splice(index, 1); // ลบสิ่งอำนวยความสะดวกที่เลือก
+  outsideAmenities.value.splice(index, 1);
 };
 
-
-
-
 const addDormitory = async () => {
-  // ตรวจสอบข้อมูลที่จำเป็นก่อนส่ง
-  if (!name.value || !min_price.value || !max_price.value || roomCount.value <= 0) {
+  if (!name.value || !min_price.value || !max_price.value || roomCount.value <= 0 || !address.value) {
     alert('กรุณากรอกข้อมูลให้ครบถ้วน');
     return;
   }
 
-  // สร้างข้อมูลที่จะส่งไปยัง API
   const dormitoryData = {
-  dormId: 4,
-  name: name.value,
-  status: status.value,
-  address: {
-    dormNumber: address.value.dormNumber,
-    street:  address.value.street,
-    subdistrict: address.value.subDistrict,
-    district: address.value.district,
-    province: address.value.province,
-    postalCode: address.value.postalCode
-  },
-  roomCount: parseInt(roomCount.value), // ตรวจสอบให้แน่ใจว่าเป็นตัวเลข
-  type: type.value,
-  size: parseFloat(size.value), // ตรวจสอบให้แน่ใจว่าเป็นตัวเลข
-  min_price: parseFloat(min_price.value), // ตรวจสอบให้แน่ใจว่าเป็นตัวเลข
-  max_price: parseFloat(max_price.value), // ตรวจสอบให้แน่ใจว่าเป็นตัวเลข
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
-  distance: parseFloat(address.distance.value), // ตรวจสอบให้แน่ใจว่าเป็นตัวเลข
-  image: selectedImages, // ใช้ selectedImages ที่ได้จาก handleFiles
-  building_facility: insideAmenities.value,
-  room_facility: outsideAmenities.value,
-  staffId: 3
-};
-
+    name: name.value,
+    status: status.value,
+    address: {
+      dormNumber: address.value.dormNumber,
+      street: address.value.street,
+      subdistrict: address.value.subDistrict,
+      district: address.value.district,
+      province: address.value.province,
+      postalCode: address.value.postalCode
+    },
+    roomCount: parseInt(roomCount.value),
+    type: type.value,
+    size: size.value, // ส่งเป็น number ได้โดยตรง
+    min_price: min_price.value,
+    max_price: max_price.value,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    distance: address.value.distance,
+    image: selectedImages.value,
+    building_facility: insideAmenities.value,
+    room_facility: outsideAmenities.value,
+    staffId: 3 // สมมติว่า staffId คือ 3
+  };
 
   try {
-    // ส่งข้อมูลไปยัง API โดยใช้ fetch
     const response = await fetch(`${API_ROOT}/dormitories`, {
       method: 'POST',
       headers: {
@@ -148,10 +131,9 @@ const addDormitory = async () => {
 
     const data = await response.json();
 
-    // ถ้าการเพิ่มหอพักสำเร็จ
     if (data.success) {
       alert('เพิ่มหอพักสำเร็จ');
-      router.push('/home');  // กลับไปที่หน้า Home
+      router.push('/home');
     } else {
       alert('เกิดข้อผิดพลาด: ' + data.message);
     }
@@ -160,8 +142,6 @@ const addDormitory = async () => {
     alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
   }
 };
-
-
 </script>
 
 
