@@ -36,47 +36,27 @@ const openCloseFilter=()=>{
 
 const searchInput = ref('')
 
-const selectTypes = ref('รวม')
+const selectTypes = ref('all')
 
 
-const selectPriceRange = ref('');
+// ตัวแปรที่เก็บค่าที่ผู้ใช้กรอก
+const minPrice = ref(0);  // ราคาต่ำสุดเริ่มต้น
+const maxPrice = ref(20000);  // ราคาสูงสุดเริ่มต้น
 
 const filteredDormitories = computed(() => {
-  let minPrice = 0
-  let maxPrice = Infinity
-
-  switch (selectPriceRange.value) {
-    case 'below-1000':
-      maxPrice = 1000
-      break
-    case '1000-3000':
-      minPrice = 1000
-      maxPrice = 3000
-      break
-    case '3000-5000':
-      minPrice = 3000
-      maxPrice = 5000
-      break
-    case 'above-5000':
-      minPrice = 5000
-      break
-  }
-
   return dormitories.value.filter(dorm => {
     // กรองตามช่วงราคา
-    const inPriceRange = dorm.min_price >= minPrice && dorm.max_price <= maxPrice
+    const inPriceRange = dorm.min_price >= minPrice.value && dorm.max_price <= maxPrice.value;
 
     // กรองตามประเภทหอพัก
-    const typeMatches = dorm.type === selectTypes.value
+    const typeMatches = dorm.type === selectTypes.value;
 
-     const nameMatches = dorm.name.toLowerCase().includes(searchInput.value.toLowerCase())
+    // กรองตามชื่อหอพัก
+    const nameMatches = dorm.name.toLowerCase().includes(searchInput.value.toLowerCase());
 
-
-
-    return inPriceRange && typeMatches && nameMatches
-  })
-})
-
+    return inPriceRange && nameMatches && typeMatches;
+  });
+});
 
 
 // ---------------------------------- เปรียบเทียบหอพัก ----------------------------------
@@ -157,17 +137,12 @@ const formatAddress = (address) => {
 <div v-show="IsfilterShowing" class="popup-overlay">
   <div class="filter">
     <!-------------------------------- 1 --------------------------------->
-    <div class="price">
-      <h2 class="my-2">ช่วงราคา</h2>
-      <div class="relative">
-        <select class="price-select" v-model="selectPriceRange">
-          <option value="">เลือกช่วงราคา</option>
-          <option value="below-1000">ต่ำกว่า 1,000 บาท</option>
-          <option value="1000-3000">1,000 - 3,000 บาท</option>
-          <option value="3000-5000">3,000 - 5,000 บาท</option>
-          <option value="above-5000">มากกว่า 5,000 บาท</option>
-        </select>
-      </div>
+    <div class="w-64">
+      <label for="minPrice">ราคาเริ่มต้น: {{ minPrice }} ฿</label>
+      <input id="minPrice" type="range" v-model="minPrice" min="0" max="20000" step="100" />
+
+      <label for="maxPrice">ราคาสูงสุด: {{ maxPrice }} ฿</label>
+      <input id="maxPrice" type="range" v-model="maxPrice" min="0" max="20000" step="100" />
     </div>
 
     <div class="mt-4 max-w-72"><hr></div>
@@ -177,29 +152,28 @@ const formatAddress = (address) => {
       <div class="flex flex-col space-y-2">
         <!-- ตัวเลือก "ชาย" -->
         <div class="flex flex-row space-x-2">
-          <input v-model="selectTypes" name="default-radio" type="radio" value="ชาย" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
+          <input v-model="selectTypes" name="default-radio" type="radio" value="m" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
           <p>ชาย</p>
         </div>
 
         <!-- ตัวเลือก "หญิง" -->
         <div class="flex flex-row space-x-2">
-          <input v-model="selectTypes" name="default-radio" type="radio" value="หญิง" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
+          <input v-model="selectTypes" name="default-radio" type="radio" value="f" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
           <p>หญิง</p>
         </div>
 
         <!-- ตัวเลือก "รวม" -->
         <div class="flex flex-row space-x-2">
-          <input v-model="selectTypes" checked name="default-radio" type="radio" value="รวม" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
+          <input v-model="selectTypes" checked name="default-radio" type="radio" value="all" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
           <p>รวม</p>
         </div>
       </div>
     </div>
 
     <div class="mt-4 max-w-72"><hr></div>
-
-    <!-- แบ่งเป็น Grid (2 คอลัมน์) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
+    <div>
+      <h2 class="my-4">ระยะทาง</h2>
+      <input v-model="searchInput" type="search" id="default-search" class="block w-34 p-4 ps-10 text-lg text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ค้นหาหอพัก..." required />
     </div>
 
     <div class="mt-4 max-w-72"><hr></div>
@@ -356,7 +330,7 @@ const formatAddress = (address) => {
 
   <!-- ส่วนไอเทม -->
     <div v-if="dormitories !== null && dormitories.length !== 0" class="container">
-      <div v-for="dorm in dormitories" :key="dorm.dormId" class="holding-items">
+      <div v-for="dorm in filteredDormitories" :key="dorm.dormId" class="holding-items">
         
         
         <div class="items rounded-lg border-2">
@@ -372,7 +346,14 @@ const formatAddress = (address) => {
             <div class="flex w-full cursor-pointer" @click="showDetail(dorm.dormId)">
               <div class="item">
                 <h1>{{ dorm.name }}</h1>
-                <h2>{{ dorm.min_price }} - {{ dorm.max_price }} <span>บาท/เดือน</span></h2>
+                <h2>{{ dorm.min_price }} - {{ dorm.max_price }} บาท/เดือน</h2>
+                <h2>
+                  ประเภทหอพัก:
+                  <span v-if="dorm.type === 'all'">รวม</span>
+                  <span v-else-if="dorm.type === 'f'">หญิง</span>
+                  <span v-else-if="dorm.type === 'm'">ชาย</span>
+                  <span v-else>{{ dorm.type }}</span>
+                </h2>
                 <p>ที่อยู่: {{ dorm.address.street }}, {{ dorm.address.subdistrict }}, {{ dorm.address.district }}, {{ dorm.address.province }} {{ dorm.address.postalCode }}</p>      
               </div>
             </div>
@@ -599,5 +580,43 @@ hr{
   background-color: #fff; /* พื้นหลังสีของเซลล์ */
 }
 
+input[type="range"] {
+  width: 100%;
+  height: 8px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #ddd;
+  border-radius: 5px;
+  outline: none;
+  transition: background 0.3s ease;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 5px;
+  background: #ddd;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ff9c4a;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  /* เลื่อน thumb ขึ้นไปข้างบนเล็กน้อย */
+  transform: translateY(-6px); /* ย้าย thumb ขึ้นจาก track */
+}
+
+input[type="range"]:hover::-webkit-slider-thumb {
+  background: #ff7b00;
+}
+
+input[type="range"]:focus {
+  outline: none;
+}
 
 </style>
