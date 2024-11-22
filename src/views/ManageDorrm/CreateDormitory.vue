@@ -5,56 +5,60 @@ import router from '@/router';
 const API_ROOT = import.meta.env.VITE_API_ROOT
 
 const name = ref('');
-const status = ref('ว่าง'); // เก็บค่าสถานะหอพัก (ว่าง, ไม่ว่าง)
+const status = ref('empty'); // เก็บค่าสถานะหอพัก (ว่าง, ไม่ว่าง)
 const address = ref({});
 const roomCount = ref(0);
-const type = ref('รวม'); // เก็บค่าประเภทหอพัก (รวม, หญิง, ชาย)
+const type = ref('all'); // เก็บค่าประเภทหอพัก (รวม, หญิง, ชาย)
 const size = ref(0);
 const min_price = ref();
 const max_price = ref();
-const selectedImages = ref([]);
+
+
 
 const handleAddressUpdated = (updatedAddress) => {
   address.value = updatedAddress;
   console.log(address.value);
 };
 
+const selectedImages = ref([]);  // เก็บ URL ของรูปภาพที่เลือก
+
 const handleFiles = (event) => {
+  console.log(address.value)
   const files = event.target.files;
   const imagePreview = document.getElementById('imagePreview');
-  selectedImages.length = 0; // เคลียร์ array ก่อน
+  
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
-    const reader = new FileReader();
-    
-    reader.onload = function(e) {
-      const imgContainer = document.createElement('div');
-      imgContainer.className = 'relative m-1';
+    const imageUrl = URL.createObjectURL(file);  // สร้าง URL สำหรับแสดงรูปภาพ
 
-      const img = document.createElement('img');
-      img.src = e.target.result;
-      img.className = 'w-24 h-24 object-cover';
+    const imgContainer = document.createElement('div');
+    imgContainer.className = 'relative m-1';
 
-      const removeButton = document.createElement('button');
-      removeButton.innerText = 'ลบ';
-      removeButton.className = 'absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full';
-      removeButton.onclick = () => {
-        imgContainer.remove();
-        const index = selectedImages.indexOf(e.target.result);
-        if (index > -1) {
-          selectedImages.splice(index, 1);
-        }
-      };
+    const img = document.createElement('img');
+    img.src = imageUrl;  // ใช้ URL ที่สร้างจากไฟล์
+    img.className = 'w-24 h-24 object-cover';
 
-      imgContainer.appendChild(img);
-      imgContainer.appendChild(removeButton);
-      imagePreview.appendChild(imgContainer);
-      selectedImages.push(e.target.result); // เก็บข้อมูลไฟล์
+    const removeButton = document.createElement('button');
+    removeButton.innerText = 'ลบ';
+    removeButton.className = 'absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full';
+    removeButton.onclick = () => {
+      imgContainer.remove();
+      const index = selectedImages.value.indexOf(imageUrl);
+      if (index > -1) {
+        selectedImages.value.splice(index, 1); // ลบ URL ของไฟล์
+      }
     };
-    
-    reader.readAsDataURL(file);
+
+    imgContainer.appendChild(img);
+    imgContainer.appendChild(removeButton);
+    imagePreview.appendChild(imgContainer);
+    selectedImages.value.push(imageUrl);  // เก็บ URL ของไฟล์
   }
+  console.log(selectedImages.value)
+  selectedImages.value.forEach(url => {
+  console.log(url); // log แต่ละ URL
+});
 };
 
 const insideAmenities = ref([]);
@@ -85,63 +89,87 @@ const removeOutsideAmenity = (index) => {
   outsideAmenities.value.splice(index, 1);
 };
 
-const addDormitory = async () => {
+const dormitoryData = {
+    staffId: 0,
+    name: '',
+    status: '',
+    address: '',
+    roomCount: 0,
+    type: '',
+    size: 0,
+    min_price: 0,
+    max_price: 0,
+    created_at: null,
+    updated_at: null,
+    distance: 0,
+    image: '',
+    building_facility: '',
+    room_facility: '',
+  };
+
+  const addDormitory = async () => {
+  // ตรวจสอบความครบถ้วนของข้อมูลก่อนส่ง
   if (!name.value || !min_price.value || !max_price.value || roomCount.value <= 0 || !address.value) {
     alert('กรุณากรอกข้อมูลให้ครบถ้วน');
     return;
   }
 
-  const dormitoryData = {
-    name: name.value,
-    status: status.value,
-    address: {
-      dormNumber: address.value.dormNumber,
-      street: address.value.street,
-      subdistrict: address.value.subDistrict,
-      district: address.value.district,
-      province: address.value.province,
-      postalCode: address.value.postalCode
-    },
-    roomCount: parseInt(roomCount.value),
-    type: type.value,
-    size: size.value, // ส่งเป็น number ได้โดยตรง
-    min_price: min_price.value,
-    max_price: max_price.value,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    distance: address.value.distance,
-    image: selectedImages.value,
-    building_facility: insideAmenities.value,
-    room_facility: outsideAmenities.value,
-    staffId: 3 // สมมติว่า staffId คือ 3
-  };
-
-  try {
-    const response = await fetch(`${API_ROOT}/dormitories`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+  let isConfirm = confirm('Confirm to submit?')
+  if (isConfirm) {
+    dormitoryData.value = {
+      staffId: 2,
+      name: name.value,
+      status: status.value,
+      address: {
+        dormNumber: address.value.dormNumber,
+        street: address.value.street,
+        subdistrict: address.value.subDistrict,
+        district: address.value.district,
+        province: address.value.province,
+        postalCode: address.value.postalCode
       },
-      body: JSON.stringify(dormitoryData),
-    });
+      roomCount: parseInt(roomCount.value),
+      type: type.value,
+      size: size.value, // ส่งเป็น number ได้โดยตรง
+      min_price: min_price.value,
+      max_price: max_price.value,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      distance: parseFloat(address.value.distance),
+      image: selectedImages.value,
+      building_facility: insideAmenities.value,
+      room_facility: outsideAmenities.value,
+    };
 
-    if (!response.ok) {
-      throw new Error('การเพิ่มหอพักไม่สำเร็จ');
+    try {
+      // ส่งคำขอ POST ไปยัง API
+      const res = await fetch(`${API_ROOT}/dormitories`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', // ใช้ JSON
+        },
+        body: JSON.stringify(dormitoryData.value), // ส่งข้อมูลในรูปแบบ JSON
+      });
+
+      // ตรวจสอบผลลัพธ์ของคำขอ
+      if (res.ok) {
+        const responseJson = await res.json();
+        alert('เพิ่มหอพักสำเร็จ');
+        router.push('/');
+      } else {
+        const errorResponse = await res.json(); // ถ้ามีข้อผิดพลาดจาก server
+        alert(`ไม่สามารถเพิ่มหอพักได้: ${errorResponse.message || 'โปรดลองใหม่อีกครั้ง'}`);
+      }
+
+    } catch (error) {
+      // จัดการข้อผิดพลาดที่เกิดจากการเชื่อมต่อ
+      console.error('เกิดข้อผิดพลาดในการส่งข้อมูล:', error);
+      alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
     }
-
-    const data = await response.json();
-
-    if (data.success) {
-      alert('เพิ่มหอพักสำเร็จ');
-      router.push('/home');
-    } else {
-      alert('เกิดข้อผิดพลาด: ' + data.message);
-    }
-  } catch (error) {
-    console.error('เกิดข้อผิดพลาดในการส่งข้อมูล:', error);
-    alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
   }
 };
+
+ 
 </script>
 
 
@@ -164,38 +192,41 @@ const addDormitory = async () => {
 
       <h2>รายละเอียดที่พัก</h2>
 
-      <!-- ราคา -->
-      <div class="grid gap-6 md:grid-cols-2">
-        <div class="flex flex-row items-center">
-          <p for="min-price" class="w-32 text-lg">ราคาเริ่มต้น:</p>
-          <input v-model="min_price" type="text" id="dormNumber" class="border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="โปรดระบุเป็นตัวเลข" required />
+            <!-- ประเภท -->
+            <div class="flex flex-row space-x-5">
+        <div class="w-32">
+            <label class="block mb-2 text-lg text-gray-900 dark:text-white ">ประเภทหอพัก</label>
+            <select id="type" v-model="type" class="cursor-pointer bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+              <!-- ใช้ค่า value เป็นภาษาอังกฤษ -->
+              <option selected value="all">รวม</option>
+              <option value="m">ชาย</option>
+              <option value="f">หญิง</option>
+            </select>
         </div>
-        <div class="flex flex-row items-center">
-          <p for="max-price" class="w-32 text-lg">ราคาสูงสุด:</p>
-          <input v-model="max_price" type="text" id="street" class="border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="โปรดระบุเป็นตัวเลข" required />
+        <div class="w-32">
+          <label class="block mb-2 text-lg text-gray-900 dark:text-white ">สถานะหอพัก</label>
+          <select id="status" v-model="status" class="cursor-pointer bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <!-- ค่า value เป็นภาษาอังกฤษ, แสดงค่าภาษาไทย -->
+            <option selected value="empty">ว่าง</option>
+            <option value="full">ไม่ว่าง</option>
+          </select>
         </div>
       </div>
 
-      <!-- ประเภท -->
 
-    <div class="w-32">
-      <label class="block mb-2 text-lg text-gray-900 dark:text-white ">ประเภทหอพัก</label>
-      <select id="types" v-model="type" class="cursor-pointer bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-        <option selected>รวม</option>
-        <option value="female">หญิง</option>
-        <option value="male">ชาย</option>
-      </select>
-    </div>
+      <!-- ราคา -->
+      <div class="flex flex-row space-x-8">
+        <div class="flex flex-row items-center">
+          <p for="min-price" class="w-24 text-lg">ราคาเริ่มต้น:</p>
+          <input v-model="min_price" type="text" id="dormNumber" class="border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-42 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="โปรดระบุเป็นตัวเลข" required />
+        </div>
+        <div class="flex flex-row items-center">
+          <p for="max-price" class="w-24 text-lg">ราคาสูงสุด:</p>
+          <input v-model="max_price" type="text" id="street" class="border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-42 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="โปรดระบุเป็นตัวเลข" required />
+        </div>
+      </div>
 
-    <div class="w-32">
-        <label class="block mb-2 text-lg text-gray-900 dark:text-white ">สถานะหอพัก</label>
-        <select id="status"  v-model="status" class="cursor-pointer bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-          <option selected>ว่าง</option>
-          <option value="busy">ไม่ว่าง</option>
-        </select>
-    </div>
-
-    <div class="flex flex-row space-x-5">
+      <div class="flex flex-row space-x-5">
               <!-- จำนวนห้องพักที่เหลือให้เช่า -->
               <div class="flex flex-row items-center space-x-3">
                 <p for="room" class="w-42 text-lg">จำนวนห้องพักที่เหลือให้เช่า:</p>
@@ -217,6 +248,13 @@ const addDormitory = async () => {
                   </div>
               </div>
           </div>
+
+        <div class="flex flex-row items-center">
+          <p for="max-price" class="w-24 text-lg">ขนาดห้อง: (ตร.ม.)</p>
+          <input v-model="size" type="text" id="street" class="border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-42 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="โปรดระบุเป็นตัวเลข" required />
+        </div>
+
+
 
 
     <h2 class="pt-5">สิ่งอำนวยความสะดวกต่างๆ</h2>

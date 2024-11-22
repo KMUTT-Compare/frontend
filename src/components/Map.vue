@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, defineEmits } from 'vue';
+import { ref, watch, onMounted, defineEmits } from 'vue';
 
 const emit = defineEmits();
 
@@ -14,6 +14,23 @@ const district = ref('');
 const province = ref('');
 const postalCode = ref('');
 const distance = ref('');
+
+// ติดตามการเปลี่ยนแปลงในตัวแปรต่างๆ และส่งข้อมูลให้กับ parent ทุกครั้งที่ค่ามีการเปลี่ยนแปลง
+watch(
+  [dormNumber, street, subDistrict, district, province, postalCode, distance],
+  () => {
+    emit('address-updated', {
+      dormNumber: dormNumber.value,
+      street: street.value,
+      subDistrict: subDistrict.value,
+      district: district.value,
+      province: province.value,
+      postalCode: postalCode.value,
+      distance: distance.value,
+    });
+  },
+  { immediate: true } // ทำให้ข้อมูลถูกส่งออกไปตอนที่ component ถูก mount
+);
 
 let map;
 let userSelectedMarker = null;
@@ -132,7 +149,10 @@ function calculateDistance(destination) {
     if (status === google.maps.DirectionsStatus.OK) {
       directionsRenderer.setDirections(result);
       const route = result.routes[0];
-      distance.value = route.legs[0].distance.text;
+      const distanceText = route.legs[0].distance.text;
+      
+      // เอาเฉพาะตัวเลขจากระยะทาง
+      distance.value = distanceText.split(' ')[0];  // แยกตัวเลขออกจากหน่วย เช่น "5.2" จาก "5.2 km"
 
       // Emit the distance as well
       emit('address-updated', {
