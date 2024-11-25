@@ -34,7 +34,7 @@ const openCloseFilter=()=>{
 
 const searchInput = ref('')
 
-const selectTypes = ref('all')
+const selectTypes = ref('')
 
 
 // ตัวแปรที่เก็บค่าที่ผู้ใช้กรอก
@@ -47,7 +47,7 @@ const filteredDormitories = computed(() => {
     const inPriceRange = dorm.min_price >= minPrice.value && dorm.max_price <= maxPrice.value;
 
     // กรองตามประเภทหอพัก
-    const typeMatches = dorm.type === selectTypes.value;
+    const typeMatches = dorm.type === selectTypes.value || selectTypes.value === '';  // ถ้า selectTypes เป็นค่าว่าง จะไม่กรองประเภท
 
     // กรองตามชื่อหอพัก
     const nameMatches = dorm.name.toLowerCase().includes(searchInput.value.toLowerCase());
@@ -55,7 +55,6 @@ const filteredDormitories = computed(() => {
     return inPriceRange && nameMatches && typeMatches;
   });
 });
-
 
 // ---------------------------------- เปรียบเทียบหอพัก ----------------------------------
 const mainDormitory = ref(null);
@@ -148,6 +147,11 @@ const formatAddress = (address) => {
     <div class="type">
       <h2 class="my-4">ประเภทหอพัก</h2>
       <div class="flex flex-col space-y-2">
+        <!-- ตัวเลือก "ทั้งหมด" -->
+          <div class="flex flex-row space-x-2">
+          <input v-model="selectTypes" name="default-radio" type="radio" value="" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
+          <p>ทั้งหมด</p>
+        </div>
         <!-- ตัวเลือก "ชาย" -->
         <div class="flex flex-row space-x-2">
           <input v-model="selectTypes" name="default-radio" type="radio" value="m" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
@@ -163,7 +167,7 @@ const formatAddress = (address) => {
         <!-- ตัวเลือก "รวม" -->
         <div class="flex flex-row space-x-2">
           <input v-model="selectTypes" checked name="default-radio" type="radio" value="all" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
-          <p>รวม</p>
+          <p>ไม่แยกชายหญิง</p>
         </div>
       </div>
     </div>
@@ -347,7 +351,7 @@ const formatAddress = (address) => {
                 <h2>{{ dorm.min_price }} - {{ dorm.max_price }} บาท/เดือน</h2>
                 <h2>
                   ประเภทหอพัก:
-                  <span v-if="dorm.type === 'all'">รวม</span>
+                  <span v-if="dorm.type === 'all'">ไม่แยกชายหญิง</span>
                   <span v-else-if="dorm.type === 'f'">หญิง</span>
                   <span v-else-if="dorm.type === 'm'">ชาย</span>
                   <span v-else>{{ dorm.type }}</span>

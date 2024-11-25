@@ -32,7 +32,7 @@ const props = defineProps({
     </div>
   </figure>
   <div class="p-4">
-      <h3 class="card-title text-xl">ระยะทาง :<span class="text-orange-500">{{ distance }}</span></h3>
+      <h3 class="card-title text-xl">ระยะทาง :<span class="text-orange-500">{{ distance }} km.</span></h3>
       <h3 class="card-title text-base"><span class="text-zinc-500">{{ address }}</span></h3>
   </div>
 </div>
