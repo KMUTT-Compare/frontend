@@ -1,6 +1,13 @@
 <script setup>
 import { ref, watch, onMounted, defineEmits } from 'vue';
 
+const props = defineProps({
+  address: {
+    type: Object,
+    required: true
+  }
+});
+
 const emit = defineEmits();
 
 // ค่าที่ใช้สำหรับที่อยู่
@@ -14,6 +21,22 @@ const district = ref('');
 const province = ref('');
 const postalCode = ref('');
 const distance = ref('');
+
+watch(
+  () => props.address,
+  (newAddress) => {
+    if (newAddress) {
+      dormNumber.value = newAddress.dormNumber || '';
+      street.value = newAddress.street || '';
+      subDistrict.value = newAddress.subdistrict || '';
+      district.value = newAddress.district || '';
+      province.value = newAddress.province || '';
+      postalCode.value = newAddress.postalCode || '';
+      distance.value = newAddress.distance || '';
+    }
+  },
+  { immediate: true }
+);
 
 // ติดตามการเปลี่ยนแปลงในตัวแปรต่างๆ และส่งข้อมูลให้กับ parent ทุกครั้งที่ค่ามีการเปลี่ยนแปลง
 watch(
@@ -158,7 +181,7 @@ function calculateDistance(destination) {
       emit('address-updated', {
         dormNumber: dormNumber.value,
         street: street.value,
-        subDistrict: subDistrict.value,
+        subDistrict: subdistrict.value,
         district: district.value,
         province: province.value,
         postalCode: postalCode.value,

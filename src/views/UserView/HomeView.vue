@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import router from '@/router';
-import WhiteButton from '@/components/WhiteButton.vue';
-import BlackButton from '@/components/BlackButton.vue';
+import WhiteButton from '@/components/buttons/WhiteButton.vue';
+import BlackButton from '@/components/buttons/BlackButton.vue';
 import Card from '@/components/Card.vue';
 import { getDormitories } from '@/composables/getDormitories';
 
@@ -10,8 +10,6 @@ const dormitories = ref([])
 
 onMounted(async () => {
   dormitories.value = await getDormitories();
-  console.log(dormitories.length)
-  console.log(dormitories.value)
 })
 
 

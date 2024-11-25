@@ -1,106 +1,114 @@
 <script setup>
 import Sidebar from '@/components/Sidebar.vue';
 import { getDormitories } from '@/composables/getDormitories';
-import { onMounted,ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import router from '@/router';
-const API_ROOT = import.meta.env.VITE_API_ROOT
-const dormitories = ref([])
+import DeleteModal from '@/components/modals/DeleteModal.vue';
+import SuccessModal from '@/components/modals/SuccessModal.vue';
+
+
+const API_ROOT = import.meta.env.VITE_API_ROOT;
+const dormitories = ref([]);
+const isModalVisible = ref(false);
+const dormIdToDelete = ref(null);
+const isSuccessModalVisible = ref(false)
 
 onMounted(async () => {
   dormitories.value = await getDormitories();
-})
+});
 
-// ดูรายละเอียดหอพัก
-const showDetail = (dormitoryId) =>{
+const showDetail = (dormitoryId) => {
   router.push({
-    name : 'dormitoryDetail',
-    params : {id : dormitoryId}
-  })
-}
+    name: 'dormitoryDetail',
+    params: { id: dormitoryId }
+  });
+};
 
-const deleteDormitory = async (dormId) => {
-    const confirmed = window.confirm('Do you want to delete');
-    if (confirmed) {
-        try {
-            const res = await fetch(`${API_ROOT}/dormitories/${dormId}`, {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                method: 'DELETE'
-            });
+const editDormitory = (dormitoryId) => {
+  router.push({
+    name: 'addEditDormitory',
+    params: { id: dormitoryId }
+  });
+};
 
-            if (res.ok) {
-                // ถ้าลบข้อมูลสำเร็จ ให้ดึงข้อมูลใหม่จาก API
-                dormitories.value = await getDormitories();  // เรียกใช้ฟังก์ชัน getDormitories เพื่อดึงข้อมูลใหม่
-            } else {
-                alert(`There are no dormitory with id = ${dormId}`);
-                throw new Error('Cannot delete data!');
-            }
-        } catch (error) {
-            console.log(`ERROR: ${error}`);
-        }
-    } else {
-        router.push({
-            name: 'home'
-        });
+const showDeleteModal = (dormId) => {
+  dormIdToDelete.value = dormId;
+  isModalVisible.value = true;
+};
+
+const closeSuccessModal = () => {
+  isSuccessModalVisible.value = false; // ปิด Modal เมื่อได้รับเหตุการณ์ close
+};
+
+const closeModal = () => {
+  isModalVisible.value = false;
+  dormIdToDelete.value = null;
+};
+
+const deleteDormitory = async () => {
+  if (dormIdToDelete.value) {
+    try {
+      const res = await fetch(`${API_ROOT}/dormitories/${dormIdToDelete.value}`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: 'DELETE'
+      });
+
+      if (res.ok) {
+        dormitories.value = await getDormitories();  // ดึงข้อมูลใหม่หลังการลบ
+        closeModal();  // ปิด Modal หลังจากการลบสำเร็จ
+        isSuccessModalVisible.value = true;
+      } else {
+        alert(`There are no dormitory with id = ${dormIdToDelete.value}`);
+        throw new Error('Cannot delete data!');
+      }
+    } catch (error) {
+      console.log(`ERROR: ${error}`);
     }
-}
-
-
+  }
+};
 </script>
- 
+
 <template>
-<div class="flex flex row w-full justify-center p-20">
-    <Sidebar/>
+  <div class="flex flex-row w-full justify-center p-20">
+    <Sidebar />
     <div class="pl-2 w-1/2 h-full flex border-2 rounded-xl">
-        <div class="w-full flex flex-col mt-5 items-center justify-center ">
-
-        <!-- ส่วนไอเทม -->
-        <div v-if="dormitories !== null && dormitories.length !== 0" class="container">
-            <div v-for="dorm in dormitories" :key="dorm.dormId" class="holding-items">
-            
-            
+      <div class="w-full flex flex-col mt-5 items-center justify-center">
+        <div v-if="dormitories.length > 0" class="container">
+          <div v-for="dorm in dormitories" :key="dorm.dormId" class="holding-items">
             <div class="items rounded-lg border-2">
-                
-                <div class="w-8/12">
+              <div class="w-8/12">
                 <img src="@/components/photos/new.svg" class="object-cover h-full rounded-2xl" alt="Dormitory Image" />
-                </div>
-
-
-
-                <div class="flex flex-col w-full h-full p-3 justify-center">
-
+              </div>
+              <div class="flex flex-col w-full h-full p-3 justify-center">
                 <div class="flex w-full cursor-pointer">
-                    <div class="item">
+                  <div class="item">
                     <div class="flex flex-row justify-between">
-                        <h1  @click="showDetail(dorm.dormId)">{{ dorm.name }}</h1>
-                        <div class="icons">
-                            <div @click="router.push()"><img src="../../../components/icons/edit.png" alt=""></div>
-                            <img src="../../../components/icons/trash.png" alt="Trash Icon" @click="deleteDormitory(dorm.dormId)" />
-                        </div>
-
-                    </div>               
-                    <h2>{{ dorm.min_price }} - {{ dorm.max_price }} <span>บาท/เดือน</span></h2>
-                    <p>ที่อยู่: {{ dorm.address.street }}, {{ dorm.address.subdistrict }}, {{ dorm.address.district }}, {{ dorm.address.province }} {{ dorm.address.postalCode }}</p>      
-                        <div></div>
+                      <h1 @click="showDetail(dorm.dormId)">{{ dorm.name }}</h1>
+                      <div class="icons">
+                        <div @click="editDormitory(dorm.dormId)"><img src="../../../components/icons/edit.png" alt="" /></div>
+                        <img src="../../../components/icons/trash.png" alt="Trash Icon" @click="showDeleteModal(dorm.dormId)" />
+                      </div>
                     </div>
+                    <h2>{{ dorm.min_price }} - {{ dorm.max_price }} <span>บาท/เดือน</span></h2>
+                    <p>ที่อยู่: {{ dorm.address.street }}, {{ dorm.address.subdistrict }}, {{ dorm.address.district }}, {{ dorm.address.province }} {{ dorm.address.postalCode }}</p>
+                  </div>
                 </div>
-
-                </div>
-                
-                </div>
-
-                
-            
+              </div>
             </div>
+          </div>
         </div>
         <div v-if="dormitories.length === 0" class="text-2xl text-red-600 text-center">No Dormitory</div>
-
-</div>
-        
+      </div>
     </div>
-</div>
+  </div>
+
+  <!-- Modal for deletion -->
+  <DeleteModal :isVisible="isModalVisible" :dormId="dormIdToDelete" @close="closeModal" @delete="deleteDormitory" context="dormitory"/>
+  <SuccessModal v-if="isSuccessModalVisible" @close="closeSuccessModal"/>
 </template>
+
  
 <style scoped>
 .items{

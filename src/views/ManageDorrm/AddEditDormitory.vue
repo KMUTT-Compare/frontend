@@ -1,0 +1,636 @@
+<script setup>
+import { ref, onMounted } from 'vue'
+import router from '@/router';
+import { getDormitoryById } from '@/composables/getDormitoryById'; // นำเข้าฟังก์ชัน composable
+import { useRoute } from 'vue-router'
+const API_ROOT = import.meta.env.VITE_API_ROOT
+const { params } = useRoute()
+const dormitoryId = params.id
+const oldDormitory = ref({})
+
+//จัดการตัวแปรแผนที่
+const address = ref({});
+const houseNumber1 = ref('');
+const houseNumber2 = ref('');
+
+
+//ฟิลในแผนที่
+const searchQuery = ref('');
+const dormNumber = ref('');
+const street = ref('');
+const subDistrict = ref('');
+const district = ref('');
+const province = ref('');
+const postalCode = ref('');
+const distance = ref(0)
+
+
+//รายละเอียด
+const name = ref('');
+const status = ref('empty'); // เก็บค่าสถานะหอพัก (ว่าง, ไม่ว่าง)
+const roomCount = ref(0);
+const type = ref('all'); // เก็บค่าประเภทหอพัก (รวม, หญิง, ชาย)
+const size = ref(0);
+const min_price = ref();
+const max_price = ref();
+const isEditMode = ref(false);  // ใช้เพื่อระบุว่าอยู่ในโหมดเพิ่มหรือลบ
+
+
+// --------------------------------- Map ---------------------------------
+let map;
+let userSelectedMarker = null;
+let autocomplete;
+const directionsService = new google.maps.DirectionsService();
+const directionsRenderer = new google.maps.DirectionsRenderer();
+
+onMounted(async () => {
+  initMap();
+
+  if (dormitoryId) {
+    isEditMode.value = true;
+    try {
+      // ดึงข้อมูลหอพักตาม id และรอผลลัพธ์
+      oldDormitory.value = await getDormitoryById(dormitoryId);
+
+      console.log(oldDormitory.value); // แสดงผลข้อมูลที่ได้จาก API
+
+      // นำข้อมูลจาก oldDormitory มาใส่ในตัวแปรที่เกี่ยวข้อง
+      name.value = oldDormitory.value.name || '';
+      status.value = oldDormitory.value.status || 'empty';
+      roomCount.value = oldDormitory.value.roomCount || 0;
+      type.value = oldDormitory.value.type || 'all';
+      size.value = oldDormitory.value.size || 0;
+      min_price.value = oldDormitory.value.min_price || 0;
+      max_price.value = oldDormitory.value.max_price || 0;
+      distance.value = oldDormitory.value.distance || 0;
+
+      // สำหรับที่อยู่
+      if (oldDormitory.value.address) {
+        dormNumber.value = oldDormitory.value.address.dormNumber || '';
+        street.value = oldDormitory.value.address.street || '';
+        subDistrict.value = oldDormitory.value.address.subdistrict || '';
+        district.value = oldDormitory.value.address.district || '';
+        province.value = oldDormitory.value.address.province || '';
+        postalCode.value = oldDormitory.value.address.postalCode || '';
+      }
+
+      // กำหนดสิ่งอำนวยความสะดวก
+      insideAmenities.value = oldDormitory.value.room_facility || [];
+      outsideAmenities.value = oldDormitory.value.building_facility || [];
+
+      // กำหนดรูปภาพที่เลือก
+      selectedImages.value = oldDormitory.value.image || [];
+      console.log(selectedImages.value)
+
+      
+    } catch (error) {
+      console.error('Error fetching dormitory:', error);
+    }
+  }
+});
+
+function initMap() {
+  const kmuttLocation = { lat: 13.651309958082942, lng: 100.49645730815111 };
+  map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 14,
+    center: kmuttLocation,
+  });
+
+  directionsRenderer.setMap(map);
+
+  const input = document.getElementById('place-input');
+  autocomplete = new google.maps.places.Autocomplete(input);
+  autocomplete.setComponentRestrictions({ country: ['th'] });
+
+  autocomplete.addListener('place_changed', () => {
+    const place = autocomplete.getPlace();
+    if (place.geometry) {
+      map.setCenter(place.geometry.location);
+      map.setZoom(15);
+
+      if (userSelectedMarker) {
+        userSelectedMarker.setPosition(place.geometry.location);
+      } else {
+        userSelectedMarker = new google.maps.Marker({
+          position: place.geometry.location,
+          map: map,
+          title: place.name,
+        });
+      }
+
+      calculateDistance(place.geometry.location);
+
+      if (place.address_components) {
+        houseNumber1.value = '';
+        houseNumber2.value = '';
+        street.value = '';
+        subDistrict.value = '';
+        district.value = '';
+        province.value = '';
+        postalCode.value = '';
+        dormNumber.value = '';
+
+        place.address_components.forEach(component => {
+          const componentType = component.types[0];
+          switch (componentType) {
+            case 'subpremise':
+              houseNumber1.value = component.long_name;
+              break;
+            case 'street_number':
+              houseNumber2.value = component.long_name;
+              break;
+            case 'route':
+              street.value = component.long_name;
+              break;
+            case 'sublocality_level_2':
+              subDistrict.value = component.long_name;
+              break;
+            case 'sublocality_level_1':
+              district.value = component.long_name;
+              break;
+            case 'administrative_area_level_1':
+              province.value = component.long_name;
+              break;
+            case 'postal_code':
+              postalCode.value = component.long_name;
+              break;
+            default:
+              break;
+          }
+        });
+
+        if (houseNumber1.value && houseNumber2.value) {
+          dormNumber.value = `${houseNumber1.value}/${houseNumber2.value}`;
+        } else {
+          dormNumber.value = houseNumber1.value || houseNumber2.value;
+        }
+
+        searchQuery.value = place.name;
+
+      } else {
+        alert("No details available for input: '" + place.name + "'");
+      }
+    }
+  });
+}
+
+function calculateDistance(destination) {
+  const kmuttLocation = { lat: 13.6513, lng: 100.4964 };
+  const request = {
+    origin: destination,
+    destination: kmuttLocation,
+    travelMode: google.maps.TravelMode.DRIVING,
+  };
+
+  directionsService.route(request, (result, status) => {
+    if (status === google.maps.DirectionsStatus.OK) {
+      directionsRenderer.setDirections(result);
+      const route = result.routes[0];
+      const distanceText = route.legs[0].distance.text;
+      
+      // เอาเฉพาะตัวเลขจากระยะทาง
+      distance.value = distanceText.split(' ')[0];  // แยกตัวเลขออกจากหน่วย เช่น "5.2" จาก "5.2 km"
+
+    } else {
+      alert('ไม่สามารถคำนวณระยะทางได้: ' + status);
+    }
+  });
+}
+
+
+// --------------------------------- Manage Images ---------------------------------
+
+
+const selectedImages = ref([]);  // เก็บ URL ของรูปภาพที่เลือก
+
+const handleFiles = (event) => {
+  console.log(address.value);
+  const files = event.target.files;
+  const imagePreview = document.getElementById('imagePreview');
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const imageUrl = URL.createObjectURL(file);  // สร้าง URL สำหรับแสดงรูปภาพ
+    console.log(imageUrl);  // ตรวจสอบ URL ที่สร้างจากไฟล์
+
+    const imgContainer = document.createElement('div');
+    imgContainer.className = 'relative m-1';
+
+    const img = document.createElement('img');
+    img.src = imageUrl;  // ใช้ URL ที่สร้างจากไฟล์
+    img.className = 'w-24 h-24 object-cover';
+
+    const removeButton = document.createElement('button');
+    removeButton.innerText = 'ลบ';
+    removeButton.className = 'absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full';
+    removeButton.onclick = () => {
+      imgContainer.remove();
+      const index = selectedImages.value.indexOf(imageUrl);
+      if (index > -1) {
+        selectedImages.value.splice(index, 1); // ลบ URL ของไฟล์
+      }
+    };
+
+    imgContainer.appendChild(img);
+    imgContainer.appendChild(removeButton);
+    imagePreview.appendChild(imgContainer);
+    
+    // ใช้ .value ในการเพิ่ม URL เข้าไปใน array
+    selectedImages.value.push(imageUrl);  // เก็บ URL ของไฟล์
+  }
+
+  console.log(selectedImages.value);  // ตรวจสอบค่าของ selectedImages หลังจากการเพิ่ม URL
+};
+
+
+
+
+// --------------------------------- Manage Facilities ---------------------------------
+
+const insideAmenities = ref([]);
+const outsideAmenities = ref([]);
+
+const newInsideAmenity = ref('');
+const newOutsideAmenity = ref('');
+
+const addInsideAmenity = () => {
+  if (newInsideAmenity.value.trim() !== '') {
+    insideAmenities.value.push(newInsideAmenity.value.trim());
+    newInsideAmenity.value = '';
+  }
+};
+
+const removeInsideAmenity = (index) => {
+  insideAmenities.value.splice(index, 1);
+};
+
+const addOutsideAmenity = () => {
+  if (newOutsideAmenity.value.trim() !== '') {
+    outsideAmenities.value.push(newOutsideAmenity.value.trim());
+    newOutsideAmenity.value = '';
+  }
+};
+
+const removeOutsideAmenity = (index) => {
+  outsideAmenities.value.splice(index, 1);
+};
+
+const dormitoryData = {
+    staffId: 0,
+    name: '',
+    status: '',
+    address: '',
+    roomCount: 0,
+    type: '',
+    size: 0,
+    min_price: 0,
+    max_price: 0,
+    created_at: null,
+    updated_at: null,
+    distance: 0,
+    image: '',
+    building_facility: '',
+    room_facility: '',
+  };
+
+
+
+
+  // --------------------------------- Add/Edit ---------------------------------
+
+// ฟังก์ชันเพิ่มหรืออัปเดตหอพัก
+const handleSubmit = async () => {
+  // ตรวจสอบความครบถ้วนของข้อมูล
+  if (!name.value || !min_price.value || !max_price.value || roomCount.value <= 0 || !address.value) {
+    alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+    return;
+  }
+
+  const isConfirm = confirm(isEditMode.value ? 'ยืนยันการอัปเดตหอพัก?' : 'ยืนยันการเพิ่มหอพัก?');
+  if (isConfirm) {
+    dormitoryData.value = {
+      staffId: 2,
+      name: name.value,
+      status: status.value,
+      address: {
+        dormNumber: dormNumber.value,
+        street: street.value,
+        subdistrict: subDistrict.value,
+        district: district.value,
+        province: province.value,
+        postalCode: postalCode.value,
+      },
+      roomCount: parseInt(roomCount.value),
+      type: type.value,
+      size: size.value,
+      min_price: min_price.value,
+      max_price: max_price.value,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      distance: parseFloat(distance.value),
+      image: selectedImages.value,
+      building_facility: insideAmenities.value,
+      room_facility: outsideAmenities.value,
+    };
+
+    try {
+      let res;
+      if (isEditMode.value) {
+        res = await fetch(`${API_ROOT}/dormitories/${dormitoryId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dormitoryData.value),
+        });
+      } else {
+        res = await fetch(`${API_ROOT}/dormitories`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dormitoryData.value),
+        });
+      }
+
+      if (res.ok) {
+        const responseJson = await res.json();
+        alert(isEditMode.value ? 'อัปเดตหอพักสำเร็จ' : 'เพิ่มหอพักสำเร็จ');
+        router.push('/');
+      } else {
+        const errorResponse = await res.json();
+        alert(`ไม่สามารถ ${isEditMode.value ? 'อัปเดต' : 'เพิ่ม'} หอพักได้: ${errorResponse.message || 'โปรดลองใหม่อีกครั้ง'}`);
+      }
+    } catch (error) {
+      console.error('เกิดข้อผิดพลาดในการส่งข้อมูล:', error);
+      alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
+    }
+  }
+};
+
+ 
+</script>
+
+
+
+<template>
+  <div class="w-full h-full flex justify-center mt-24">
+
+    <div class="w-8/12 space-y-5">
+
+      <h1>{{ isEditMode ? 'แก้ไขหอพัก' : 'ลงประกาศที่พัก' }}</h1>
+
+      <!-- ชื่อ -->
+      <div class="flex flex-row items-center w-full">
+        <div class="w-28 text-lg font-medium"><p>ชื่อที่อยู่ที่พัก:</p></div>
+        <input type="text" class="rounded-md ml-2 w-full text-lg" placeholder="ระบุชื่อที่พัก.." v-model="name"/>
+      </div>
+
+     <!-- Map -->
+
+     <div class="flex flex-row items-center w-full mb-5">
+      <div class="w-28"><p class="text-lg font-medium">ที่อยู่ที่พัก:</p></div>
+      <input
+      id="place-input"
+      type="text"
+      placeholder="ค้นหาสถานที่"
+      class="rounded-md ml-2 w-full text-lg"
+      v-model="searchQuery"
+    />
+
+    </div>
+    
+    <div id="map" style="width: 100%; height: 300px;"></div>
+
+    <div class="flex flex-col mt-5">
+      <h2>กรอกข้อมูลที่อยู่</h2>
+
+      <div class="grid gap-6 mb-6 md:grid-cols-2 mt-5">
+        <div>
+          <label for="dormNumber" class="block mb-2 text-lg text-gray-900 dark:text-white">เลขที่</label>
+          <input v-model="dormNumber" type="text" id="dormNumber" class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="เลขที่" required />
+        </div>
+        <div>
+          <label for="street" class="block mb-2 text-lg text-gray-900 dark:text-white">ถนน ซอย</label>
+          <input v-model="street" type="text" id="street" class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ถนน ซอย" required />
+        </div>
+        <div>
+          <label for="subDistrict" class="block mb-2 text-lg text-gray-900 dark:text-white">ตำบล/แขวง</label>
+          <input v-model="subDistrict" type="text" id="subDistrict" class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ตำบล/แขวง" required />
+        </div>
+        <div>
+          <label for="district" class="block mb-2 text-lg text-gray-900 dark:text-white">อำเภอ/เขต</label>
+          <input v-model="district" type="tel" id="district" class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="อำเภอ/เขต" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" required />
+        </div>
+        <div>
+          <label for="province" class="block mb-2 text-lg text-gray-900 dark:text-white">จังหวัด</label>
+          <input v-model="province" type="url" id="province" class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="จังหวัด" required />
+        </div>
+        <div>
+          <label for="postalCode" class="block mb-2 text-lg text-gray-900 dark:text-white">รหัสไปรษณีย์</label>
+          <input v-model="postalCode" type="url" id="postalCode" class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="รหัสไปรษณีย์" required />
+        </div>
+        <div>
+          <label for="distance" class="block mb-2 text-lg text-gray-900 dark:text-white">ระยะทาง</label>
+          <input v-model="distance" type="text" id="distance" class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ระยะทาง" />
+        </div>
+      </div>
+
+    </div>
+
+
+      <h2>รายละเอียดที่พัก</h2>
+
+            <!-- ประเภท -->
+            <div class="flex flex-row space-x-5">
+        <div class="w-32">
+            <label class="block mb-2 text-lg text-gray-900 dark:text-white ">ประเภทหอพัก</label>
+            <select id="type" v-model="type" class="cursor-pointer bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+              <!-- ใช้ค่า value เป็นภาษาอังกฤษ -->
+              <option selected value="all">รวม</option>
+              <option value="m">ชาย</option>
+              <option value="f">หญิง</option>
+            </select>
+        </div>
+        <div class="w-32">
+          <label class="block mb-2 text-lg text-gray-900 dark:text-white ">สถานะหอพัก</label>
+          <select id="status" v-model="status" class="cursor-pointer bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <!-- ค่า value เป็นภาษาอังกฤษ, แสดงค่าภาษาไทย -->
+            <option selected value="empty">ว่าง</option>
+            <option value="full">ไม่ว่าง</option>
+          </select>
+        </div>
+      </div>
+
+
+      <!-- ราคา -->
+      <div class="flex flex-row space-x-8">
+        <div class="flex flex-row items-center">
+          <p for="min-price" class="w-24 text-lg">ราคาเริ่มต้น:</p>
+          <input v-model="min_price" type="text" id="min_price" class="border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-42 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="โปรดระบุเป็นตัวเลข" required />
+        </div>
+        <div class="flex flex-row items-center">
+          <p for="max-price" class="w-24 text-lg">ราคาสูงสุด:</p>
+          <input v-model="max_price" type="text" id="max_price" class="border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-42 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="โปรดระบุเป็นตัวเลข" required />
+        </div>
+      </div>
+
+      <div class="flex flex-row space-x-5">
+              <!-- จำนวนห้องพักที่เหลือให้เช่า -->
+              <div class="flex flex-row items-center space-x-3">
+                <p for="room" class="w-42 text-lg">จำนวนห้องพักที่เหลือให้เช่า:</p>
+                  <div class="py-2 px-3 inline-block bg-white border border-gray-200 rounded-lg dark:bg-neutral-900 dark:border-neutral-700">
+                    <div class="flex items-center gap-x-1.5">
+                      <button @click="roomCount > 0 ? roomCount-- : null" :disabled="roomCount==0" type="button" class="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800">
+                        <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M5 12h14"></path>
+                        </svg>
+                      </button>
+                      <input class="p-0 w-6 bg-transparent border-0 text-gray-800 text-center focus:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none dark:text-white" v-model="roomCount">
+                      <button @click="roomCount++" type="button" class="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800">
+                        <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M5 12h14"></path>
+                          <path d="M12 5v14"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+              </div>
+          </div>
+
+        <div class="flex flex-row items-center">
+          <p for="max-price" class="w-24 text-lg">ขนาดห้อง: (ตร.ม.)</p>
+          <input v-model="size" type="text" id="size" class="border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-42 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="โปรดระบุเป็นตัวเลข" required />
+        </div>
+
+
+
+
+    <h2 class="pt-5">สิ่งอำนวยความสะดวกต่างๆ</h2>
+
+     <!-- สิ่งอำนวยความสะดวกต่างๆ -->
+    <div class="grid gap-6 md:grid-cols-2">
+        <div class="room space-y-5">
+          <h3>ภายในห้อง</h3>
+
+             <!-- สิ่งอำนวยความสะดวกภายในห้อง -->
+          <div class="room space-y-5">
+            <div class="flex flex-col space-y-2">
+              <!-- ช่องกรอกข้อมูลและปุ่มเพิ่มสำหรับภายในห้อง -->
+              <div class="flex items-center ">
+                <input v-model="newInsideAmenity" type="text" class="border border-gray-300 text-lg rounded-lg p-2 w-2/3" placeholder="เพิ่มสิ่งอำนวยความสะดวกภายในห้อง" 
+                />
+                <button 
+                  @click="addInsideAmenity" 
+                  class="ml-2 bg-blue-500 text-white rounded-lg p-2 px-8"
+                >
+                  เพิ่ม
+                </button>
+              </div>
+
+              <!-- แสดงรายการสิ่งอำนวยความสะดวกภายในห้อง -->
+              <div class="border-2 rouded-lg w-2/3">
+                  <ul>
+                    <li v-for="(amenity, index) in insideAmenities" :key="index" class="text-lg flex flex-row justify-between p-2">
+                      <span>{{ amenity }}</span> 
+                      <button @click="removeInsideAmenity(index)" class="text-red-500 hover:text-red-700">ลบ</button>
+                    </li>
+                  </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="outside space-y-5">
+          <h3>ภายนอกอาคาร</h3>
+
+                        <!-- สิ่งอำนวยความสะดวกภายนอกอาคาร -->
+              <div class="outside space-y-5">
+                <div class="flex flex-col space-y-2">
+                  <!-- ช่องกรอกข้อมูลและปุ่มเพิ่มสำหรับภายนอกอาคาร -->
+                  <div class="flex items-center">
+                    <input 
+                      v-model="newOutsideAmenity" 
+                      type="text" 
+                      class="border border-gray-300 text-lg rounded-lg p-2 w-2/3" 
+                      placeholder="เพิ่มสิ่งอำนวยความสะดวกภายนอกอาคาร" 
+                    />
+                    <button 
+                      @click="addOutsideAmenity" 
+                      class="ml-2 bg-blue-500 text-white rounded-lg p-2 px-8"
+                    >
+                      เพิ่ม
+                    </button>
+                  </div>
+
+                  <!-- แสดงรายการสิ่งอำนวยความสะดวกภายนอกอาคาร -->
+                  <div class="border-2 w-2/3">
+                      <ul>
+                        <li v-for="(amenity, index) in outsideAmenities" :key="index" class="text-lg flex flex-row justify-between p-2">
+                          <span>{{ amenity }}</span> 
+                          <button @click="removeOutsideAmenity(index)" class="text-red-500 hover:text-red-700">ลบ</button>
+                        </li>
+                      </ul>
+                  </div>
+                </div>
+              </div>
+        </div>
+    </div>
+
+
+
+    <div class="pt-10 space-y-5">
+      <h2>อัปโหลดรูปภาพ</h2>
+      <div class="flex flex-col items-start">
+        <label class="flex flex-col items-center cursor-pointer">
+          <div class="file-input-container border-dashed border-2 border-gray-400 p-4 rounded-lg text-center">
+            <span class="text-blue-600 font-semibold">คลิกเพื่อเลือกไฟล์</span>
+          </div>
+          <input type="file" class="hidden" multiple @change="handleFiles" />
+        </label>
+      </div>
+      <div class="flex flex-wrap mt-4" id="imagePreview"></div>
+    </div>
+
+    <div class="w-full flex items-center justify-end space-x-2 h-20">
+      <button @click="handleSubmit" class="btn bg-orange-500 text-white w-28 hover:bg-orange-600">
+          {{ isEditMode ? 'อัปเดตหอพัก' : 'เพิ่มหอพัก' }}
+        </button>
+        <button @click="router.push('/')" class="btn w-28">ยกเลิก</button>
+</div>
+
+
+
+
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.file-input-container {
+  transition: border 0.2s ease;
+}
+
+.file-input-container:hover {
+  border-color: blue;
+}
+h1{
+  font-size: 2rem;
+  font-weight:500
+}
+
+h2{
+  font-size: 1.5rem;
+  font-weight:500
+}
+
+h3{
+  font-size: 1.25rem;
+  font-weight:500
+}
+
+#imagePreview img {
+  border-radius: 5px; /* ทำให้มุมรูปภาพกลม */
+  transition: transform 0.2s;
+}
+
+#imagePreview img:hover {
+  transform: scale(1.05); /* ขยายเมื่อชี้เมาส์ */
+}
+</style>

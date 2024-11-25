@@ -2,8 +2,8 @@
 import {ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router'
 import { formatDate } from '@/composables/formatDate'
-import WhiteButton from '@/components/WhiteButton.vue';
-import BlackButton from '@/components/BlackButton.vue';
+import WhiteButton from '@/components/buttons/WhiteButton.vue';
+import BlackButton from '@/components/buttons/BlackButton.vue';
 const API_ROOT = import.meta.env.VITE_API_ROOT
 const { params } = useRoute()
 console.log(params.id)
