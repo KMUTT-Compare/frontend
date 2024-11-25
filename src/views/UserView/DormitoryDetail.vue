@@ -4,27 +4,23 @@ import { useRoute } from 'vue-router'
 import { formatDate } from '@/composables/formatDate'
 import WhiteButton from '@/components/buttons/WhiteButton.vue';
 import BlackButton from '@/components/buttons/BlackButton.vue';
+import { getDormitoryById } from '@/composables/getDormitoryById'; // นำเข้าฟังก์ชัน composable
 const API_ROOT = import.meta.env.VITE_API_ROOT
 const { params } = useRoute()
-console.log(params.id)
+
 
 const dormitoryDetaill = ref([])
 
 onMounted(async()=>{
-    await getDormitoryDetail()
-})
+    try {
+    dormitoryDetaill.value = await getDormitoryById(params.id); // เรียก getDormitoryById เมื่อ component ถูก mount
 
-const getDormitoryDetail = async () => {
-  try {
-    const res = await fetch(`${API_ROOT}/dormitories/${params.id}`); // ตรวจสอบให้แน่ใจว่า URL ถูกต้อง
-    if (res.ok) {
-        dormitoryDetaill.value = await res.json();
-    }
   } catch (error) {
-    console.error('Error fetching data:', error);
-    throw error;
+    console.error('Error fetching dormitory:', error);
   }
-}
+});
+
+
 
 
 </script>
