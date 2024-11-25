@@ -39,7 +39,9 @@ const selectTypes = ref('')
 
 // ตัวแปรที่เก็บค่าที่ผู้ใช้กรอก
 const minPrice = ref(0);  // ราคาต่ำสุดเริ่มต้น
-const maxPrice = ref(20000);  // ราคาสูงสุดเริ่มต้น
+const maxPrice = ref(30000);  // ราคาสูงสุดเริ่มต้น
+
+const selectedDistance = ref(0) // เก็บระยะทางที่ผู้ใช้เลือก
 
 const filteredDormitories = computed(() => {
   return dormitories.value.filter(dorm => {
@@ -47,15 +49,38 @@ const filteredDormitories = computed(() => {
     const inPriceRange = dorm.min_price >= minPrice.value && dorm.max_price <= maxPrice.value;
 
     // กรองตามประเภทหอพัก
-    const typeMatches = dorm.type === selectTypes.value || selectTypes.value === '';  // ถ้า selectTypes เป็นค่าว่าง จะไม่กรองประเภท
+    const typeMatches = dorm.type === selectTypes.value || selectTypes.value === '';
 
     // กรองตามชื่อหอพัก
     const nameMatches = dorm.name.toLowerCase().includes(searchInput.value.toLowerCase());
 
-    return inPriceRange && nameMatches && typeMatches;
+    // กรองตามระยะทาง
+    let inDistanceRange = false;
+    switch (selectedDistance.value) {
+      case '1': // น้อยกว่า 1 กม.
+        inDistanceRange = dorm.distance < 1;
+        break;
+      case '2': // 2 -> 3 กม.
+        inDistanceRange = dorm.distance >= 2 && dorm.distance < 3;
+        break;
+      case '3': // 3 -> 4 กม.
+        inDistanceRange = dorm.distance >= 3 && dorm.distance < 4;
+        break;
+      case '4': // 4 -> 5 กม.
+        inDistanceRange = dorm.distance >= 4 && dorm.distance < 5;
+        break;
+      case '5': // 5 กม. ขึ้นไป
+        inDistanceRange = dorm.distance >= 5;
+        break;
+      case '0': // ไม่จำกัด
+      default:
+        inDistanceRange = true;
+        break;
+    }
+
+    return inPriceRange && nameMatches && typeMatches && inDistanceRange;
   });
 });
-
 // ---------------------------------- เปรียบเทียบหอพัก ----------------------------------
 const mainDormitory = ref(null);
 const secondaryDormitory = ref(null);
@@ -134,12 +159,12 @@ const formatAddress = (address) => {
 <div v-show="IsfilterShowing" class="popup-overlay">
   <div class="filter">
     <!-------------------------------- 1 --------------------------------->
-    <div class="w-64">
+    <div class="w-80">
       <label for="minPrice">ราคาเริ่มต้น: {{ minPrice }} ฿</label>
-      <input id="minPrice" type="range" v-model="minPrice" min="0" max="20000" step="100" />
+      <input id="minPrice" type="range" v-model="minPrice" min="0" max="30000" step="100" />
 
       <label for="maxPrice">ราคาสูงสุด: {{ maxPrice }} ฿</label>
-      <input id="maxPrice" type="range" v-model="maxPrice" min="0" max="20000" step="100" />
+      <input id="maxPrice" type="range" v-model="maxPrice" min="0" max="30000" step="100" />
     </div>
 
     <div class="mt-4 max-w-72"><hr></div>
@@ -173,10 +198,19 @@ const formatAddress = (address) => {
     </div>
 
     <div class="mt-4 max-w-72"><hr></div>
-    <div>
-      <h2 class="my-4">ระยะทาง</h2>
-      <input v-model="searchInput" type="search" id="default-search" class="block w-34 p-4 ps-10 text-lg text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ค้นหาหอพัก..." required />
-    </div>
+      <!-- ตัวกรองระยะทาง -->
+      <div class="mt-4">
+        <h2 class="my-4">ระยะทาง</h2>
+        <label for="distanceSelect">เลือกระยะทาง</label>
+        <select id="distanceSelect" v-model="selectedDistance" class="block w-full p-2 mt-2 border rounded-lg bg-gray-50 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+          <option value="0">ไม่จำกัด</option>
+          <option value="1">น้อยกว่า 1 กม.</option>
+          <option value="2">2 -> 3 กม.</option>
+          <option value="3">3 -> 4 กม.</option>
+          <option value="4">4 -> 5 กม.</option>
+          <option value="5">5 กม. ขึ้นไป</option>
+        </select>
+      </div>
 
     <div class="mt-4 max-w-72"><hr></div>
 
@@ -314,7 +348,8 @@ const formatAddress = (address) => {
             </div>
             <input v-model="searchInput" type="search" id="default-search" class="block w-full p-4 ps-10 text-lg text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ค้นหาหอพัก..." required />
           </div>
-          <div @click="openCloseFilter" class="cursor-pointer p-2"><img src="../../components/icons/filter.png" alt=""></div>
+
+          <div @click="openCloseFilter" class="icons cursor-pointer px-2"><img src="../../components/icons/filter.png" alt=""></div>
        
             <div class="max-w-sm mx-auto">
               <select id="countries" class="cursor-pointer bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
@@ -345,10 +380,11 @@ const formatAddress = (address) => {
 
           <div class="flex flex-col w-full h-full p-3 justify-center">
 
-            <div class="flex w-full cursor-pointer" @click="showDetail(dorm.dormId)">
+            <div class="flex w-full">
               <div class="item">
-                <h1>{{ dorm.name }}</h1>
-                <h2>{{ dorm.min_price }} - {{ dorm.max_price }} บาท/เดือน</h2>
+                <h1 @click="showDetail(dorm.dormId)" class="dormname cursor-pointer">{{ dorm.name }}</h1>
+                <h2><span style="color: green; font-size: larger;">{{ dorm.min_price }} - {{ dorm.max_price }}</span> บาท/เดือน</h2>
+                <h2>ระยะทาง <span>{{ dorm.distance }} กม.</span></h2>
                 <h2>
                   ประเภทหอพัก:
                   <span v-if="dorm.type === 'all'">ไม่แยกชายหญิง</span>
@@ -356,7 +392,7 @@ const formatAddress = (address) => {
                   <span v-else-if="dorm.type === 'm'">ชาย</span>
                   <span v-else>{{ dorm.type }}</span>
                 </h2>
-                <p>ที่อยู่: {{ dorm.address.street }}, {{ dorm.address.subdistrict }}, {{ dorm.address.district }}, {{ dorm.address.province }} {{ dorm.address.postalCode }}</p>      
+                <p class="text-sm">ที่อยู่: {{ dorm.address.street }}, {{ dorm.address.subdistrict }}, {{ dorm.address.district }}, {{ dorm.address.province }} {{ dorm.address.postalCode }}</p>      
               </div>
             </div>
 
@@ -378,6 +414,7 @@ const formatAddress = (address) => {
       </div>
     </div>
     <div v-if="dormitories.length === 0" class="text-2xl text-red-600 text-center">No Dormitory</div>
+    
 
 </div>
 
@@ -432,12 +469,17 @@ const formatAddress = (address) => {
 
 .item h2 {
   font-size: 1rem;
-  color: black;
+  color: rgb(0, 0, 0);
 }
 
 .item h2 span {
   font-size: 0.9rem;
-  color: #5D5D5D;
+  color: #5d5d5d;
+}
+
+.item h3 span {
+  font-size: 0.9rem;
+  color: #5d5d5d;
 }
 
 .item p {
@@ -482,13 +524,7 @@ const formatAddress = (address) => {
     font-size: 1rem;
   }
 }
-.price-select {
-  padding: 8px;
-  border: 2px solid #ccc; 
-  box-sizing: border-box; 
-  cursor: pointer;
-  width: 250px;
-}
+
 
 hr{
   width: 250px;
@@ -553,10 +589,6 @@ hr{
   cursor: pointer;
 }
 
-.pagination-controls button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
 
 
 .table {
@@ -619,6 +651,24 @@ input[type="range"]:hover::-webkit-slider-thumb {
 
 input[type="range"]:focus {
   outline: none;
+}
+
+
+.dormname {
+  font-size: 1.5rem; /* ขนาดเริ่มต้น */
+  color: #F4845F;    /* สีเริ่มต้น */
+  transition: transform 0.3s ease, color 0.3s ease; /* เพิ่มการเคลื่อนไหวอย่างนุ่มนวล */
+}
+
+.dormname:hover {
+  color: #c45830; /* เปลี่ยนสีเมื่อ hover */
+  transform: scale(1.02); /* ขยายขนาดข้อความเมื่อ hover */
+}
+
+/* ไอคอน*/
+.icons img:hover  {
+  transform: scale(1.02); /* ขยายขนาดเล็กน้อยเมื่อ hover */
+  transition: transform 0.3s ease; /* เพิ่มการขยายขนาดอย่างนุ่มนวล */
 }
 
 </style>

@@ -73,29 +73,39 @@ const deleteDormitory = async () => {
 <template>
   <div class="flex flex-row w-full justify-center p-20">
     <Sidebar />
-    <div class="pl-2 w-1/2 h-full flex border-2 rounded-xl">
-      <div class="w-full flex flex-col mt-5 items-center justify-center">
+    <div class="pl-2 w-1/2 h-full flex rounded-xl">
+      <div class="w-full flex flex-col items-center justify-center">
         <div v-if="dormitories.length > 0" class="container">
           <div v-for="dorm in dormitories" :key="dorm.dormId" class="holding-items">
             <div class="items rounded-lg border-2">
               <div class="w-8/12">
                 <img src="@/components/photos/new.svg" class="object-cover h-full rounded-2xl" alt="Dormitory Image" />
               </div>
+
               <div class="flex flex-col w-full h-full p-3 justify-center">
-                <div class="flex w-full cursor-pointer">
-                  <div class="item">
-                    <div class="flex flex-row justify-between">
-                      <h1 @click="showDetail(dorm.dormId)">{{ dorm.name }}</h1>
-                      <div class="icons">
-                        <div @click="editDormitory(dorm.dormId)"><img src="../../../components/icons/edit.png" alt="" /></div>
-                        <img src="../../../components/icons/trash.png" alt="Trash Icon" @click="showDeleteModal(dorm.dormId)" />
-                      </div>
+                <div class="item">
+                  <div class="icons flex flex-row justify-between items-center">
+                    <!-- ชื่อหอพัก -->
+                    <div class="flex justify-start w-full">
+                      <h1 class="cursor-pointer" @click="showDetail(dorm.dormId)">{{ dorm.name }}</h1>
                     </div>
-                    <h2>{{ dorm.min_price }} - {{ dorm.max_price }} <span>บาท/เดือน</span></h2>
-                    <p>ที่อยู่: {{ dorm.address.street }}, {{ dorm.address.subdistrict }}, {{ dorm.address.district }}, {{ dorm.address.province }} {{ dorm.address.postalCode }}</p>
+
+                    <!-- ไอคอน Edit -->
+                    <div  @click="editDormitory(dorm.dormId)" class="flex-shrink-0 cursor-pointer">
+                      <img src="../../../components/icons/edit.png" alt="Edit Icon" />
+                    </div>
+                    
+                    <!-- ไอคอน Trash -->
+                    <div @click="showDeleteModal(dorm.dormId)" class="flex-shrink-0 cursor-pointer">
+                      <img src="../../../components/icons/trash.png" alt="Trash Icon" />
+                    </div>
                   </div>
+
+                  <h2><span style="color: green; font-size: larger;">{{ dorm.min_price }} - {{ dorm.max_price }}</span> บาท/เดือน</h2>
+                  <p>ที่อยู่: {{ dorm.address.street }}, {{ dorm.address.subdistrict }}, {{ dorm.address.district }}, {{ dorm.address.province }} {{ dorm.address.postalCode }}</p>
                 </div>
               </div>
+              
             </div>
           </div>
         </div>
@@ -114,6 +124,7 @@ const deleteDormitory = async () => {
 .items{
   display: flex;
   flex-direction: row;
+  width: 100%;
 }
 
 .container {
@@ -143,6 +154,11 @@ const deleteDormitory = async () => {
 .item h1 {
   font-size: 1.5rem; /* ขนาดเริ่มต้นสำหรับหน้าจอขนาดเล็ก */
   color: #F4845F;
+}
+
+.item h1:hover {
+  color: #dd5c2d; /* เปลี่ยนสีเมื่อ hover */
+  transform: scale(1.02); /* ขยายขนาดเล็กน้อยเมื่อ hover */
 }
 
 .item h2 {
@@ -254,14 +270,21 @@ hr{
 .icons{
     display: flex;
     flex-direction: row;
-   
-
-
+    width: 100%;
+  
 }
 
 .icons img{
     width: 40px;
     margin-left: 5px;
 }
+
+
+/* ไอคอน*/
+.icons div:hover img {
+  transform: scale(1.1); /* ขยายขนาดเล็กน้อยเมื่อ hover */
+  transition: transform 0.3s ease; /* เพิ่มการขยายขนาดอย่างนุ่มนวล */
+}
+
 
 </style>
