@@ -6,29 +6,18 @@ import WhiteButton from '@/components/buttons/WhiteButton.vue';
 import BlackButton from '@/components/buttons/BlackButton.vue';
 import { getDormitoryById } from '@/composables/getDormitoryById';
 
-// สมมุติว่าเรามีรูปภาพหลายรูปที่อยู่ในตัวแปร
 const dormImages = ref([
   "/images/1.jpg",
   "/images/2.jpg",
   "/images/3.jpg",
   "/images/4.jpg"
-  // เพิ่มเติมรูปภาพอื่น ๆ
 ]);
 
 const showModal = ref(false);
 const selectedImage = ref("");
 
-// ใช้ `useRoute` เพื่อดึงข้อมูลจาก URL
 const { params } = useRoute();
 const dormitoryDetaill = ref([]);
-
-onMounted(async () => {
-  try {
-    dormitoryDetaill.value = await getDormitoryById(params.id);
-  } catch (error) {
-    console.error('Error fetching dormitory:', error);
-  }
-});
 
 // ฟังก์ชันเปิดปิดโมดัล
 function openModal(image) {
@@ -39,6 +28,118 @@ function openModal(image) {
 function closeModal() {
   showModal.value = false;
 }
+
+
+onMounted(async () => {
+  try {
+    dormitoryDetaill.value = await getDormitoryById(params.id);
+    if (dormitoryDetaill.value.address) {
+      const convertedAddress = convertAddressForGeocoding(dormitoryDetaill.value.address);  // แปลงที่อยู่ก่อน
+      initMap(convertedAddress); // ส่งที่อยู่ที่แปลงแล้วไปยัง initMap
+    }
+  } catch (error) {
+    console.error('Error fetching dormitory:', error);
+  }
+});
+
+function convertAddressForGeocoding(address) {
+  const addressObject = {
+    subpremise: '', // ตัวแปรที่จะเก็บเลขที่ห้อง/เลขที่
+    street_number: '', // ตัวแปรที่จะเก็บหมายเลขถนน
+    route: '', // ตัวแปรที่จะเก็บชื่อถนน
+    sublocality_level_2: '', // ตัวแปรที่จะเก็บแขวง
+    sublocality_level_1: '', // ตัวแปรที่จะเก็บเขต
+    administrative_area_level_1: '', // ตัวแปรที่จะเก็บจังหวัด
+    country: '', // ตัวแปรที่จะเก็บประเทศ
+    postal_code: '' // ตัวแปรที่จะเก็บรหัสไปรษณีย์
+  };
+
+  // ตรวจสอบว่า address.dormNumber มีค่าและไม่เป็น null หรือ undefined ก่อนการใช้งาน
+  if (address.dormNumber && address.dormNumber.includes('/')) {
+    // แยกเลขที่ห้องและหมายเลขถนน
+    const dormNumberParts = address.dormNumber.split('/');
+    addressObject.subpremise = dormNumberParts[0].trim(); // เลขที่ห้อง/เลขที่
+    addressObject.street_number = dormNumberParts[1] ? dormNumberParts[1].trim() : ''; // หมายเลขถนน
+  } else {
+    // ถ้าไม่มีเครื่องหมาย / ให้เก็บหมายเลขถนนลงใน street_number
+    addressObject.street_number = address.dormNumber ? address.dormNumber.trim() : '';
+  }
+
+  // กำหนดค่าของแต่ละตัวแปร
+  addressObject.route = address.street || ''; // ชื่อถนน
+  addressObject.sublocality_level_2 = address.subdistrict || ''; // แขวง
+  addressObject.sublocality_level_1 = address.district || ''; // เขต
+  addressObject.administrative_area_level_1 = address.province || ''; // จังหวัด
+  addressObject.postal_code = address.postalCode || ''; // รหัสไปรษณีย์
+  addressObject.country = address.country || ''; // ประเทศ
+
+  return addressObject;
+}
+
+
+function initMap(addressObject) {
+  const geocoder = new google.maps.Geocoder();
+
+  // สร้าง addressString ด้วยการใช้ข้อมูลจาก addressObject ที่แปลงแล้ว
+  const addressString = `${addressObject.subpremise || ''} ${addressObject.street_number || ''} ${addressObject.route}, ${addressObject.sublocality_level_2}, ${addressObject.sublocality_level_1}, ${addressObject.administrative_area_level_1}, ${addressObject.postal_code}, ${addressObject.country}`;
+
+  console.log("Address String for Geocoding:", addressString);  // ตรวจสอบคำขอที่ส่งไปยัง Geocoding API
+
+  geocoder.geocode({ address: addressString }, (results, status) => {
+    if (status === google.maps.GeocoderStatus.OK) {
+      const locationA = results[0].geometry.location;  // ตำแหน่งที่ได้จาก Geocoding
+
+      console.log("Geocoding results for A:", results);  // ดูผลลัพธ์ที่ได้จาก Geocoding API
+
+      // สร้างแผนที่
+      const map = new google.maps.Map(document.getElementById("map"), {
+        center: locationA,
+        zoom: 15,
+      });
+
+      // เพิ่ม Marker สำหรับจุด A (ที่อยู่ปัจจุบัน)
+      const markerA = new google.maps.Marker({
+        position: locationA,
+        map: map,
+        title: "Current Location",
+      });
+
+      // เพิ่ม Marker สำหรับจุด B (ที่อยู่ KMUTT)
+      const kmuttLocation = { lat: 13.651309958082942, lng: 100.49645730815111 };
+      const markerB = new google.maps.Marker({
+        position: kmuttLocation,
+        map: map,
+        title: "KMUTT Location",
+      });
+
+      // เชื่อมต่อจุด A และ B ด้วยเส้น
+      const directionsService = new google.maps.DirectionsService();
+      const directionsRenderer = new google.maps.DirectionsRenderer({
+        map: map,
+      });
+
+      const request = {
+        origin: locationA,
+        destination: kmuttLocation,
+        travelMode: google.maps.TravelMode.DRIVING, // สามารถเปลี่ยนเป็น WALKING, BICYCLING, หรือ TRANSIT
+      };
+
+      // คำนวณเส้นทางระหว่างจุด A และ B
+      directionsService.route(request, (result, status) => {
+        if (status === google.maps.DirectionsStatus.OK) {
+          directionsRenderer.setDirections(result);
+        } else {
+          console.error("Error with DirectionsService: " + status);
+        }
+      });
+
+    } else {
+      alert('ไม่สามารถค้นหาที่อยู่ได้: ' + status);
+      console.error('Geocoding failed with status: ' + status);  // แสดงข้อผิดพลาดในกรณีที่การค้นหาล้มเหลว
+    }
+  });
+}
+
 </script>
 
 <template>
@@ -89,21 +190,15 @@ function closeModal() {
       <div class="flex flex-col space-y-6 px-6">
         <h2 class="text-3xl font-semibold">รายละเอียดหอพัก</h2>
         <div class="space-y-4">
-          <p>จำนวนห้องพักที่เหลือให้เช่า: {{ dormitoryDetaill.roomCount }}</p>
-          <p>ประเภทหอพัก: {{ dormitoryDetaill.type }}</p>
-          <p>ขนาดห้อง: {{ dormitoryDetaill.size }}</p>
+          <p><span style="font-weight:500;">จำนวนห้องพักที่เหลือให้เช่า:</span> {{ dormitoryDetaill.roomCount }} ห้อง</p>
+          <p><span style="font-weight:500;">ประเภทหอพัก: </span> 
+            <span v-if="dormitoryDetaill.type === 'f'">หญิง</span>
+            <span v-else-if="dormitoryDetaill.type === 'm'">ชาย</span>
+            <span v-else-if="dormitoryDetaill.type === 'all'">รวม</span>
+          </p>
+          <p><span style="font-weight:500;">ขนาดห้อง: </span>{{ dormitoryDetaill.size }} ตร.ม.</p>
         </div>
         
-        <!-- ที่อยู่ -->
-        <div class="space-y-4">
-          <h3 class="text-2xl font-semibold">ที่อยู่หอพัก</h3>
-          <ul class="space-y-2">
-            <li v-for="(address, index) in dormitoryDetaill" :key="index">
-              {{ address.dormNumber }} {{ address.street }} {{ address.subdistrict }} {{ address.district }} {{ address.province }} {{ address.postalCode }}
-            </li>
-          </ul>
-        </div>
-
         <!-- Facility: ภายในห้องพัก และ ภายนอกอาคาร -->
         <div class="flex space-x-4">
           <!-- ภายในห้องพัก -->
@@ -118,7 +213,7 @@ function closeModal() {
                 </thead>
                 <tbody>
                   <tr v-for="(facility, index) in dormitoryDetaill.room_facility" :key="index">
-                    <td class="border px-4 py-2">{{ facility }}</td>
+                    <td class="border px-4 py-2"><p>{{ facility }}</p></td>
                   </tr>
                 </tbody>
               </table>
@@ -137,16 +232,34 @@ function closeModal() {
                 </thead>
                 <tbody>
                   <tr v-for="(facility, index) in dormitoryDetaill.building_facility" :key="index">
-                    <td class="border px-4 py-2">{{ facility }}</td>
+                    <td class="border px-4 py-2"><p>{{ facility }}</p></td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
         </div>
+
+        <!-- ที่อยู่ -->
+        <div class="space-y-4">
+          <h3 class="text-2xl font-semibold">ที่อยู่หอพัก</h3>
+          <ul class="space-y-2">
+            <p v-for="(address, index) in dormitoryDetaill" :key="index">
+              {{ address.dormNumber }} {{ address.street }} {{ address.subdistrict }} {{ address.district }} {{ address.province }} {{ address.postalCode }}
+            </p>
+          </ul>
+        </div>
+
+          <!-- แผนที่ -->
+        <div class="w-full h-80 my-8">
+          <div id="map" class="w-full h-full rounded-lg shadow-lg"></div>
+        </div>
+
       </div>
     </div>
   </div>
+
+  
 
   <!-- Modal แสดงรูปภาพเพิ่มเติม -->
   <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -217,4 +330,9 @@ td {
 .space-x-4 {
   gap: 1rem;
 }
+
+p{
+  font-size: 1.2rem;
+}
+
 </style>

@@ -22,7 +22,7 @@ const subDistrict = ref('');
 const district = ref('');
 const province = ref('');
 const postalCode = ref('');
-const distance = ref(0)
+const distance = ref()
 
 
 //รายละเอียด
@@ -30,7 +30,7 @@ const name = ref('');
 const status = ref('empty'); // เก็บค่าสถานะหอพัก (ว่าง, ไม่ว่าง)
 const roomCount = ref(0);
 const type = ref('all'); // เก็บค่าประเภทหอพัก (รวม, หญิง, ชาย)
-const size = ref(0);
+const size = ref();
 const min_price = ref();
 const max_price = ref();
 const isEditMode = ref(false);  // ใช้เพื่อระบุว่าอยู่ในโหมดเพิ่มหรือลบ
@@ -129,6 +129,8 @@ function initMap() {
         province.value = '';
         postalCode.value = '';
         dormNumber.value = '';
+
+        console.log(place.address_components)
 
         place.address_components.forEach(component => {
           const componentType = component.types[0];
@@ -294,72 +296,164 @@ const dormitoryData = {
   };
 
 
-
-
+const nameError = ref('')
+const distanceError = ref('')
+const minPriceError = ref('')
+const maxPriceError = ref('')
+const dormNumberError = ref('')
+const streetError = ref('')
+const subDistrictError = ref('')
+const districtError = ref('')
+const provinceError = ref('')
+const postalCodeError = ref('')
+const roomCountError = ref('')
+const sizeError = ref('')
+const insideAmenitiesError = ref()
+const outsideAmenitiesError = ref()
   // --------------------------------- Add/Edit ---------------------------------
 
 // ฟังก์ชันเพิ่มหรืออัปเดตหอพัก
 const handleSubmit = async () => {
+
+
+  // รีเซ็ตข้อความ error ทุกฟิลด์ก่อนการตรวจสอบใหม่
+  nameError.value = '';
+  distanceError.value = '';
+  minPriceError.value = '';
+  maxPriceError.value = '';
+  roomCountError.value = '';
+  dormNumberError.value = '';
+  streetError.value = '';
+  subDistrictError.value = '';
+  districtError.value = '';
+  provinceError.value = '';
+  postalCodeError.value = '';
+  sizeError.value = '';
+  insideAmenitiesError.value = ''
+  outsideAmenitiesError.value = ''
+
+  // ตัวแปรที่ใช้ในการตรวจสอบข้อผิดพลาด
+  let isValid = true;
+
   // ตรวจสอบความครบถ้วนของข้อมูล
-  if (!name.value || !min_price.value || !max_price.value || roomCount.value <= 0 || !address.value) {
-    alert('กรุณากรอกข้อมูลให้ครบถ้วน');
-    return;
+    if (!name.value) {
+    nameError.value = ''
+    isValid = false;
+    nameError.value = 'กรุณากรอกชื่อที่พัก';
+  }
+  if (!distance.value || isNaN(distance.value)) {
+    distanceError.value = ''
+    isValid = false;
+    distanceError.value = 'กรุณากรอกระยะทางเป็นตัวเลข';
+  }
+  if (!min_price.value || isNaN(min_price.value)) {
+
+    isValid = false;
+    minPriceError.value = 'กรุณากรอกราคาเริ่มต้นเป็นตัวเลข';
+  }
+  if (!max_price.value || isNaN(max_price.value)) {
+    isValid = false;
+    maxPriceError.value = 'กรุณากรอกราคาสูงสุดเป็นตัวเลข';
+  }
+  if (roomCount.value <= 0) {
+    isValid = false;
+    roomCountError.value = 'กรุณาระบุจำนวนห้องพักที่เหลือให้เช่า';
+  }
+  if (!dormNumber.value) {
+    isValid = false;
+    dormNumberError.value = 'กรุณากรอกเลขที่หอพัก';
+  }
+  if (!street.value) {
+    isValid = false;
+    streetError.value = 'กรุณากรอกถนน ซอย';
+  }
+  if (!subDistrict.value) {
+    isValid = false;
+    subDistrictError.value = 'กรุณากรอกตำบล/แขวง';
+  }
+  if (!district.value) {
+    isValid = false;
+    districtError.value = 'กรุณากรอกอำเภอ/เขต';
+  }
+  if (!province.value) {
+    isValid = false;
+    provinceError.value = 'กรุณากรอกจังหวัด';
+  }
+  if (!postalCode.value) {
+    isValid = false;
+    postalCodeError.value = 'กรุณากรอกรหัสไปรษณีย์';
+  }
+  if (!size.value || isNaN(size.value)) {
+    isValid = false;
+    sizeError.value = 'กรุณากรอกขนาดห้องเป็นตัวเลข';
+  }
+  // ตรวจสอบสิ่งอำนวยความสะดวก
+  if (insideAmenities.value.length === 0) {
+    insideAmenitiesError.value = 'กรุณาเพิ่มเฟอร์นิเจอร์ภายในห้องพัก';
+    isValid = false;
+  }
+  if (outsideAmenities.value.length === 0) {
+    outsideAmenitiesError.value = 'กรุณาเพิ่มเฟอร์นิเจอร์ภายนอกอาคาร';
+    isValid = false;
   }
 
-  const isConfirm = confirm(isEditMode.value ? 'ยืนยันการอัปเดตหอพัก?' : 'ยืนยันการเพิ่มหอพัก?');
-  if (isConfirm) {
-    dormitoryData.value = {
-      staffId: 2,
-      name: name.value,
-      status: status.value,
-      address: {
-        dormNumber: dormNumber.value,
-        street: street.value,
-        subdistrict: subDistrict.value,
-        district: district.value,
-        province: province.value,
-        postalCode: postalCode.value,
-      },
-      roomCount: parseInt(roomCount.value),
-      type: type.value,
-      size: size.value,
-      min_price: min_price.value,
-      max_price: max_price.value,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      distance: parseFloat(distance.value),
-      image: selectedImages.value,
-      building_facility: insideAmenities.value,
-      room_facility: outsideAmenities.value,
-    };
+  // ถ้าไม่มีข้อผิดพลาดก็ทำการเพิ่มหอพัก
+  if (isValid) {
+    const isConfirm = confirm(isEditMode.value ? 'ยืนยันการอัปเดตหอพัก?' : 'ยืนยันการเพิ่มหอพัก?');
+    if (isConfirm) {
+      dormitoryData.value = {
+        staffId: 2,
+        name: name.value,
+        status: status.value,
+        address: {
+          dormNumber: dormNumber.value,
+          street: street.value,
+          subdistrict: subDistrict.value,
+          district: district.value,
+          province: province.value,
+          postalCode: postalCode.value,
+        },
+        roomCount: parseInt(roomCount.value),
+        type: type.value,
+        size: size.value,
+        min_price: min_price.value,
+        max_price: max_price.value,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        distance: parseFloat(distance.value),
+        image: selectedImages.value,
+        building_facility: insideAmenities.value,
+        room_facility: outsideAmenities.value,
+      };
 
-    try {
-      let res;
-      if (isEditMode.value) {
-        res = await fetch(`${API_ROOT}/dormitories/${dormitoryId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(dormitoryData.value),
-        });
-      } else {
-        res = await fetch(`${API_ROOT}/dormitories`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(dormitoryData.value),
-        });
-      }
+      try {
+        let res;
+        if (isEditMode.value) {
+          res = await fetch(`${API_ROOT}/dormitories/${dormitoryId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dormitoryData.value),
+          });
+        } else {
+          res = await fetch(`${API_ROOT}/dormitories`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dormitoryData.value),
+          });
+        }
 
-      if (res.ok) {
-        const responseJson = await res.json();
-        alert(isEditMode.value ? 'อัปเดตหอพักสำเร็จ' : 'เพิ่มหอพักสำเร็จ');
-        router.push('/');
-      } else {
-        const errorResponse = await res.json();
-        alert(`ไม่สามารถ ${isEditMode.value ? 'อัปเดต' : 'เพิ่ม'} หอพักได้: ${errorResponse.message || 'โปรดลองใหม่อีกครั้ง'}`);
+        if (res.ok) {
+          const responseJson = await res.json();
+          alert(isEditMode.value ? 'อัปเดตหอพักสำเร็จ' : 'เพิ่มหอพักสำเร็จ');
+          router.push('/');
+        } else {
+          const errorResponse = await res.json();
+          alert(`ไม่สามารถ ${isEditMode.value ? 'อัปเดต' : 'เพิ่ม'} หอพักได้: ${errorResponse.message || 'โปรดลองใหม่อีกครั้ง'}`);
+        }
+      } catch (error) {
+        console.error('เกิดข้อผิดพลาดในการส่งข้อมูล:', error);
+        alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
       }
-    } catch (error) {
-      console.error('เกิดข้อผิดพลาดในการส่งข้อมูล:', error);
-      alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
     }
   }
 };
@@ -379,9 +473,9 @@ const handleSubmit = async () => {
       <!-- ชื่อ -->
       <div class="flex flex-row items-center w-full">
         <div class="w-28 text-lg font-medium">
-          <p>ชื่อที่อยู่ที่พัก:</p>
-          
+          <p>ชื่อที่อยู่ที่พัก:<span class="text-red-500">*</span></p>
         </div>
+
         <div class="relative w-full">
           <input 
             type="text" 
@@ -391,9 +485,9 @@ const handleSubmit = async () => {
             :class="{'border-red-500': !name}"
             required 
           />
-          <span v-if="!name" class="absolute top-0 right-0 text-red-500 text-xl">*</span>
-          <p v-if="!name" class="text-red-500 text-sm mt-1">กรุณากรอกชื่อที่พัก</p>
+          <p v-if="nameError" class="pl-2 text-red-500 text-sm mt-1">{{ nameError }}</p>
         </div>
+        
       </div>
 
 
@@ -430,7 +524,7 @@ const handleSubmit = async () => {
       placeholder="เลขที่" 
       required 
     />
-    <p v-if="!dormNumber" class="text-red-500 text-sm">กรุณากรอกเลขที่หอพัก</p>
+    <p v-if="dormNumberError" class="text-red-500 text-sm">{{ dormNumberError }}</p>
   </div>
 
   <div>
@@ -446,7 +540,7 @@ const handleSubmit = async () => {
       placeholder="ถนน ซอย" 
       required 
     />
-    <p v-if="!street" class="text-red-500 text-sm">กรุณากรอกชื่อถนนหรือซอย</p>
+    <p v-if="streetError" class="text-red-500 text-sm">{{ streetError }}</p>
   </div>
 
   <div>
@@ -462,7 +556,7 @@ const handleSubmit = async () => {
       placeholder="ตำบล/แขวง" 
       required 
     />
-    <p v-if="!subDistrict" class="text-red-500 text-sm">กรุณากรอกตำบลหรือแขวง</p>
+    <p v-if="subDistrictError" class="text-red-500 text-sm">{{ subDistrictError }}</p>
   </div>
 
   <div>
@@ -479,7 +573,7 @@ const handleSubmit = async () => {
       pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" 
       required 
     />
-    <p v-if="!district" class="text-red-500 text-sm">กรุณากรอกอำเภอหรือเขต</p>
+    <p v-if="districtError" class="text-red-500 text-sm">{{ districtError }}</p>
   </div>
 
   <div>
@@ -495,7 +589,7 @@ const handleSubmit = async () => {
       placeholder="จังหวัด" 
       required 
     />
-    <p v-if="!province" class="text-red-500 text-sm">กรุณากรอกจังหวัด</p>
+    <p v-if="provinceError" class="text-red-500 text-sm">{{ provinceError }}</p>
   </div>
 
   <div>
@@ -511,12 +605,13 @@ const handleSubmit = async () => {
       placeholder="รหัสไปรษณีย์" 
       required 
     />
-    <p v-if="!postalCode" class="text-red-500 text-sm">กรุณากรอกรหัสไปรษณีย์</p>
+    <p v-if="postalCodeError" class="text-red-500 text-sm">{{ postalCodeError }}</p>
   </div>
 
   <div>
     <label for="distance" class="block mb-2 text-lg text-gray-900 dark:text-white">
       ระยะทาง
+      <span class="text-red-500">*</span>
     </label>
     <input 
       v-model="distance" 
@@ -525,7 +620,7 @@ const handleSubmit = async () => {
       class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
       placeholder="ระยะทาง" 
     />
-    <p v-if="!distance" class="text-red-500 text-sm">กรุณากรอกระยะทาง</p>
+    <p v-if="distanceError" class="text-red-500 text-sm">{{ distanceError }}</p>
   </div>
 </div>
 
@@ -559,20 +654,27 @@ const handleSubmit = async () => {
 
       <!-- ราคา -->
       <div class="flex flex-row space-x-8">
-        <div class="flex flex-row items-center">
-          <p for="min-price" class="w-24 text-lg">ราคาเริ่มต้น:</p>
-          <input v-model="min_price" type="text" id="min_price" class="border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-42 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="โปรดระบุเป็นตัวเลข" required />
+        <div class="flex flex-col">
+          <div class="flex flex-row items-center">
+            <p for="min-price" class="w-24 text-lg">ราคาเริ่มต้น:<span class="text-red-500">*</span></p>
+            <input v-model="min_price" type="text" id="min_price" class="ml-2 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-42 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="โปรดระบุเป็นตัวเลข" required />
+          </div>
+          <p v-if="minPriceError" class="pl-24 ml-2 text-red-500 text-sm">{{ minPriceError }}</p>
         </div>
+        <div class="flex flex-col">
         <div class="flex flex-row items-center">
-          <p for="max-price" class="w-24 text-lg">ราคาสูงสุด:</p>
+          <p for="max-price" class="w-24 text-lg">ราคาสูงสุด:<span class="text-red-500">*</span></p>
           <input v-model="max_price" type="text" id="max_price" class="border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-42 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="โปรดระบุเป็นตัวเลข" required />
         </div>
+        <p v-if="maxPriceError" class="pl-24 ml-2 text-red-500 text-sm">{{ maxPriceError }}</p>
+      </div>
       </div>
 
       <div class="flex flex-row space-x-5">
+        <div class="flex flex-col">
               <!-- จำนวนห้องพักที่เหลือให้เช่า -->
               <div class="flex flex-row items-center space-x-3">
-                <p for="room" class="w-42 text-lg">จำนวนห้องพักที่เหลือให้เช่า:</p>
+                <p for="room" class="w-42 text-lg">จำนวนห้องพักที่เหลือให้เช่า:<span class="text-red-500">*</span></p>
                   <div class="py-2 px-3 inline-block bg-white border border-gray-200 rounded-lg dark:bg-neutral-900 dark:border-neutral-700">
                     <div class="flex items-center gap-x-1.5">
                       <button @click="roomCount > 0 ? roomCount-- : null" :disabled="roomCount==0" type="button" class="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800">
@@ -590,11 +692,18 @@ const handleSubmit = async () => {
                     </div>
                   </div>
               </div>
+              <p v-if="roomCountError" class="text-red-500 text-sm mt-1">{{ roomCountError }}</p>
+            </div>
           </div>
 
         <div class="flex flex-row items-center">
-          <p for="max-price" class="w-24 text-lg">ขนาดห้อง: (ตร.ม.)</p>
-          <input v-model="size" type="text" id="size" class="border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-42 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="โปรดระบุเป็นตัวเลข" required />
+          <div class="flex flex-col">
+            <div class="flex flex-row">
+              <p for="max-price" class="w-24 text-lg">ขนาดห้อง: (ตร.ม.)<span class="text-red-500">*</span></p>
+              <input v-model="size" type="text" id="size" class="border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-42 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="โปรดระบุเป็นตัวเลข" required />
+            </div>
+            <p v-if="sizeError" class="pl-24 ml-2 text-red-500 text-sm">{{ sizeError }}</p>
+          </div>
         </div>
 
 
@@ -605,7 +714,7 @@ const handleSubmit = async () => {
      <!-- สิ่งอำนวยความสะดวกต่างๆ -->
     <div class="grid gap-6 md:grid-cols-2">
         <div class="room space-y-5">
-          <h3>ภายในห้อง</h3>
+          <h3>ภายในห้อง<span class="text-red-500">*</span></h3>
 
              <!-- สิ่งอำนวยความสะดวกภายในห้อง -->
           <div class="room space-y-5">
@@ -631,12 +740,14 @@ const handleSubmit = async () => {
                     </li>
                   </ul>
               </div>
+
+              <p v-if="insideAmenitiesError" class="ml-2 text-red-500 text-sm">{{ insideAmenitiesError }}</p>
             </div>
           </div>
         </div>
 
         <div class="outside space-y-5">
-          <h3>ภายนอกอาคาร</h3>
+          <h3>ภายนอกอาคาร<span class="text-red-500">*</span></h3>
 
                         <!-- สิ่งอำนวยความสะดวกภายนอกอาคาร -->
               <div class="outside space-y-5">
@@ -666,6 +777,7 @@ const handleSubmit = async () => {
                         </li>
                       </ul>
                   </div>
+                  <p v-if="outsideAmenitiesError" class="ml-2 text-red-500 text-sm">{{ outsideAmenitiesError }}</p>
                 </div>
               </div>
         </div>

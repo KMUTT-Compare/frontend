@@ -105,19 +105,34 @@ const setSecondaryDormitory = (dormId) => {
 const compareDormitories = computed(() => {
   const mainDorm = dormitories.value.find(dorm => dorm.dormId === mainDormitory.value);
   const secondaryDorm = dormitories.value.find(dorm => dorm.dormId === secondaryDormitory.value);
-  
 
   if (!mainDorm || !secondaryDorm) return null;
 
+  const minPrice = mainDorm.min_price !== undefined && secondaryDorm.min_price !== undefined
+    ? Math.min(mainDorm.min_price, secondaryDorm.min_price)
+    : 'ไม่ระบุ';
+
+  const maxPrice = mainDorm.max_price !== undefined && secondaryDorm.max_price !== undefined
+    ? Math.max(mainDorm.max_price, secondaryDorm.max_price)
+    : 'ไม่ระบุ';
+
+  const minSize = mainDorm.size !== undefined && secondaryDorm.size !== undefined
+    ? Math.min(mainDorm.size, secondaryDorm.size)
+    : 'ไม่ระบุ';
+
   return {
-    price: {
-      main: mainDorm.max_price,
-      secondary: secondaryDorm.max_price,
-      better: mainDorm.max_price < secondaryDorm.max_price ? mainDorm : secondaryDorm
+    minprice: {
+      main: mainDorm.min_price || 'ไม่ระบุ',
+      secondary: secondaryDorm.min_price || 'ไม่ระบุ',
+    },
+    maxprice: {
+      main: mainDorm.max_price || 'ไม่ระบุ',
+      secondary: secondaryDorm.max_price || 'ไม่ระบุ',
     },
     size: {
       main: mainDorm.size || 'ไม่ระบุ',
-      secondary: secondaryDorm.size || 'ไม่ระบุ'
+      secondary: secondaryDorm.size || 'ไม่ระบุ',
+      minSize: minSize,  // ขนาดห้องน้อยที่สุด
     },
     distance: {
       main: mainDorm.distance || 'ยังไม่มีข้อมูล',
@@ -129,7 +144,6 @@ const compareDormitories = computed(() => {
     mainDormBuildingFacilities: mainDorm.building_facility || [],
     secondaryDormBuildingFacilities: secondaryDorm.building_facility || []
   };
-  
 });
 
 // ฟังก์ชันสำหรับแปลง address ให้เป็น string
@@ -212,26 +226,22 @@ const formatAddress = (address) => {
         </select>
       </div>
 
-    <div class="mt-4 max-w-72"><hr></div>
-
     <!-------------------------------- 5 --------------------------------->
 
-      <div class="flex justify-end items-end space-x-1 mt-4">
+      <div class="flex justify-end items-end space-x-1 mt-10">
         <button class="btn bg-orange-500 text-white hover:bg-orange-600 px-8" @click="openCloseFilter">ยืนยัน</button>
         <button class="btn bg-zinc-300 text-white hover:bg-zinc-400 px-8" @click="openCloseFilter">ยกเลิก</button>
       </div>
-
-
 
   </div>
 </div>
 
 
    
-
+<!------------------------------- COMPARE Dormitories ------------------------------->
 <div class="w-8/12 flex flex-row justify-between">
 
-<!----------------------------------------------------------------->
+<!------------------------------- CARD Dormitories ---------------------------------->
     <div class="w-8/12 flex flex-col items-center justify-center">
       <!-- ส่วนหัวเรื่อง -->
       <div class="text-center py-5 mt-5 text-2xl font-semibold">
@@ -256,80 +266,107 @@ const formatAddress = (address) => {
     </div>
 
 
-
+<!--------------------------------- ตารางเปรียบเทียบ --------------------------------->
     <div class="w-8/12 flex flex-col items-center">
-  <div class="text-center py-5 mt-5 text-2xl font-semibold">
-    <h2>ตารางเปรียบเทียบ</h2>
-  </div>
+      <div class="text-center py-5 mt-5 text-2xl font-semibold">
+        <h2>ตารางเปรียบเทียบ</h2>
+      </div>
 
-  <table class="table w-full mt-5 h-full">
-    <thead>
-      <tr>
-        <th class="border px-4 py-2">คุณสมบัติ</th>
-        <th class="border px-4 py-2">หอพักหลัก</th>
-        <th class="border px-4 py-2">หอพักรอง</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="border px-4 py-2">ราคา</td>
-        <td class="border px-4 py-2">{{ compareDormitories?.price.main || 'ยังไม่ได้เลือก' }}</td>
-        <td class="border px-4 py-2">{{ compareDormitories?.price.secondary || 'ยังไม่ได้เลือก' }}</td>
-      </tr>
-      <tr>
-        <td class="border px-4 py-2">ขนาดห้อง</td>
-        <td class="border px-4 py-2">{{ compareDormitories?.size.main || 'ยังไม่ได้เลือก' }}</td>
-        <td class="border px-4 py-2">{{ compareDormitories?.size.secondary || 'ยังไม่ได้เลือก' }}</td>
-      </tr>
-      
-      <tr>
-        <td class="border px-4 py-2">สิ่งอำนวยความสะดวกภายในห้อง</td>
-        <td class="border px-4 py-2">
-        <ul>
-          <li v-if="compareDormitories?.mainDormRoomFacilities && compareDormitories.mainDormRoomFacilities.length" 
-              v-for="facility in compareDormitories.mainDormRoomFacilities" :key="facility">
-            {{ facility }}
-          </li>
-          <li v-else>ยังไม่ได้เลือก</li>
-        </ul>
-      </td>
+      <table class="table w-full mt-5 h-full">
+        <thead>
+          <tr>
+            <th class="border px-4 py-2">คุณสมบัติ</th>
+            <th class="border px-4 py-2">หอพักหลัก</th>
+            <th class="border px-4 py-2">หอพักรอง</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="border px-4 py-2">ราคาต่ำสุด</td>
+            <td class="border px-4 py-2">
+              {{ compareDormitories?.minprice.main === Math.min(compareDormitories?.minprice.main, compareDormitories?.minprice.secondary) ? '✔️' : '' }}
+              {{ compareDormitories?.minprice.main || 'ยังไม่ได้เลือก' }}
+            </td>
+            <td class="border px-4 py-2">
+              {{ compareDormitories?.minprice.secondary === Math.min(compareDormitories?.minprice.main, compareDormitories?.minprice.secondary) ? '✔️' : '' }}
+              {{ compareDormitories?.minprice.secondary || 'ยังไม่ได้เลือก' }}
+            </td>
+          </tr>
 
-      <td class="border px-4 py-2">
-        <ul>
-          <li v-if="compareDormitories?.secondaryDormRoomFacilities && compareDormitories.secondaryDormRoomFacilities.length" 
-              v-for="facility in compareDormitories.secondaryDormRoomFacilities" :key="facility">
-            {{ facility }}
-          </li>
-          <li v-else>ยังไม่ได้เลือก</li>
-        </ul>
-      </td>
-    </tr>
-    
-    <tr>
-      <td class="border px-4 py-2">สิ่งอำนวยความสะดวกภายนอกอาคาร</td>
-      <td class="border px-4 py-2">
-        <ul>
-          <li v-if="compareDormitories?.mainDormBuildingFacilities && compareDormitories.mainDormBuildingFacilities.length"  
-              v-for="facility in compareDormitories?.mainDormBuildingFacilities" :key="facility">
-            {{ facility }}
-          </li>
-          <li v-else>ยังไม่ได้เลือก</li>
-        </ul>
-      </td>
-      <td class="border px-4 py-2">
-        <ul>
-          <li v-if="compareDormitories?.secondaryDormBuildingFacilities && compareDormitories.secondaryDormBuildingFacilities.length"  
-              v-for="facility in compareDormitories?.secondaryDormBuildingFacilities" :key="facility">
-            {{ facility }}
-          </li>
-          <li v-else>ยังไม่ได้เลือก</li>
-        </ul>
-      </td>
-    </tr>
+          <tr>
+            <td class="border px-4 py-2">ราคาสูงสุด</td>
+            <td class="border px-4 py-2">
+              {{ compareDormitories?.maxprice.main === Math.min(compareDormitories?.maxprice.main, compareDormitories?.maxprice.secondary) ? '✔️' : '' }}
+              {{ compareDormitories?.maxprice.main || 'ยังไม่ได้เลือก' }}
+            </td>
+            <td class="border px-4 py-2">
+              {{ compareDormitories?.maxprice.secondary === Math.min(compareDormitories?.maxprice.main, compareDormitories?.maxprice.secondary) ? '✔️' : '' }}
+              {{ compareDormitories?.maxprice.secondary || 'ยังไม่ได้เลือก' }}
+            </td>
+          </tr>
 
-    </tbody>
-  </table>
-</div>
+          <tr>
+            <td class="border px-4 py-2">ขนาดห้อง</td>
+            <td class="border px-4 py-2">
+              {{ compareDormitories?.size.main === Math.max(compareDormitories?.size.main, compareDormitories?.size.secondary) ? '✔️' : '' }}
+              {{ compareDormitories?.size.main || 'ยังไม่ได้เลือก' }}
+            </td>
+            <td class="border px-4 py-2">
+              {{ compareDormitories?.size.secondary === Math.max(compareDormitories?.size.main, compareDormitories?.size.secondary) ? '✔️' : '' }}
+              {{ compareDormitories?.size.secondary || 'ยังไม่ได้เลือก' }}
+            </td>
+          </tr>
+
+          
+          <tr>
+            <td class="border px-4 py-2">สิ่งอำนวยความสะดวกภายในห้อง</td>
+            <td class="border px-4 py-2">
+            <ul>
+              <li v-if="compareDormitories?.mainDormRoomFacilities && compareDormitories.mainDormRoomFacilities.length" 
+                  v-for="facility in compareDormitories.mainDormRoomFacilities" :key="facility">
+                {{ facility }}
+              </li>
+              <li v-else>ยังไม่ได้เลือก</li>
+            </ul>
+          </td>
+
+          <td class="border px-4 py-2">
+            <ul>
+              <li v-if="compareDormitories?.secondaryDormRoomFacilities && compareDormitories.secondaryDormRoomFacilities.length" 
+                  v-for="facility in compareDormitories.secondaryDormRoomFacilities" :key="facility">
+                {{ facility }}
+              </li>
+              <li v-else>ยังไม่ได้เลือก</li>
+            </ul>
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="border px-4 py-2">สิ่งอำนวยความสะดวกภายนอกอาคาร</td>
+          <td class="border px-4 py-2">
+            <ul>
+              <li v-if="compareDormitories?.mainDormBuildingFacilities && compareDormitories.mainDormBuildingFacilities.length"  
+                  v-for="facility in compareDormitories?.mainDormBuildingFacilities" :key="facility">
+                {{ facility }}
+              </li>
+              <li v-else>ยังไม่ได้เลือก</li>
+            </ul>
+          </td>
+          <td class="border px-4 py-2">
+            <ul>
+              <li v-if="compareDormitories?.secondaryDormBuildingFacilities && compareDormitories.secondaryDormBuildingFacilities.length"  
+                  v-for="facility in compareDormitories?.secondaryDormBuildingFacilities" :key="facility">
+                {{ facility }}
+              </li>
+              <li v-else>ยังไม่ได้เลือก</li>
+            </ul>
+          </td>
+        </tr>
+
+        </tbody>
+      </table>
+    </div>
+    <!---------------------------------------------------------------------->
 
 </div>
 
@@ -554,7 +591,7 @@ hr{
   border-radius: 8px;
   width: 700px;
   max-width: 100%;
-  height: 95%;
+  height: 80%;
   position: relative;
 }
 
