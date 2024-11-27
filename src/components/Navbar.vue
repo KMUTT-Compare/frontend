@@ -42,6 +42,20 @@ const openRegisPopup = () => {
   uiStore.openRegisPopup();
 };
 
+const clickProfile = () => {
+  toggleDropdown()
+  router.push('/profile')
+}
+
+const clickDormlists = ()=>{
+  toggleDropdown()
+  router.push('/dormlists')
+}
+
+const clickSupport = ()=>{
+  toggleDropdown()
+  router.push('/support')
+}
 
 
 </script>
@@ -84,13 +98,13 @@ const openRegisPopup = () => {
             </div>
             <ul class="py-2 text-sm text-gray-700">
               <li>
-                <p @click="$router.push('/profile')"  class="block px-4 py-2 hover:bg-gray-100">โปรไฟล์</p>
+                <p @click="clickProfile"  class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">โปรไฟล์</p>
               </li>
               <li>
-                <p @click="$router.push('/dormlists')" class="block px-4 py-2 hover:bg-gray-100">รายการประกาศ</p>
+                <p @click="clickDormlists" class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">รายการประกาศ</p>
               </li>
               <li>
-                <p @click="$router.push('/support')" class="block px-4 py-2 hover:bg-gray-100">ความช่วยเหลือและการสนับสนุน</p>
+                <p @click="clickSupport" class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">ความช่วยเหลือและการสนับสนุน</p>
               </li>
             </ul>
             <div class="py-2">

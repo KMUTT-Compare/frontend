@@ -285,11 +285,11 @@ const formatAddress = (address) => {
             <td class="border px-4 py-2">ราคาต่ำสุด</td>
             <td class="border px-4 py-2">
               {{ compareDormitories?.minprice.main === Math.min(compareDormitories?.minprice.main, compareDormitories?.minprice.secondary) ? '✔️' : '' }}
-              {{ compareDormitories?.minprice.main || 'ยังไม่ได้เลือก' }}
+              {{ compareDormitories?.minprice.main+ ' ฿' || 'ยังไม่ได้เลือก' }}
             </td>
             <td class="border px-4 py-2">
               {{ compareDormitories?.minprice.secondary === Math.min(compareDormitories?.minprice.main, compareDormitories?.minprice.secondary) ? '✔️' : '' }}
-              {{ compareDormitories?.minprice.secondary || 'ยังไม่ได้เลือก' }}
+              {{ compareDormitories?.minprice.secondary+ ' ฿' || 'ยังไม่ได้เลือก' }}
             </td>
           </tr>
 
@@ -297,11 +297,11 @@ const formatAddress = (address) => {
             <td class="border px-4 py-2">ราคาสูงสุด</td>
             <td class="border px-4 py-2">
               {{ compareDormitories?.maxprice.main === Math.min(compareDormitories?.maxprice.main, compareDormitories?.maxprice.secondary) ? '✔️' : '' }}
-              {{ compareDormitories?.maxprice.main || 'ยังไม่ได้เลือก' }}
+              {{ compareDormitories?.maxprice.main+ ' ฿' || 'ยังไม่ได้เลือก' }}
             </td>
             <td class="border px-4 py-2">
               {{ compareDormitories?.maxprice.secondary === Math.min(compareDormitories?.maxprice.main, compareDormitories?.maxprice.secondary) ? '✔️' : '' }}
-              {{ compareDormitories?.maxprice.secondary || 'ยังไม่ได้เลือก' }}
+              {{ compareDormitories?.maxprice.secondary+ ' ฿' || 'ยังไม่ได้เลือก' }}
             </td>
           </tr>
 
@@ -309,13 +309,14 @@ const formatAddress = (address) => {
             <td class="border px-4 py-2">ขนาดห้อง</td>
             <td class="border px-4 py-2">
               {{ compareDormitories?.size.main === Math.max(compareDormitories?.size.main, compareDormitories?.size.secondary) ? '✔️' : '' }}
-              {{ compareDormitories?.size.main || 'ยังไม่ได้เลือก' }}
+              {{ compareDormitories?.size.main ? compareDormitories?.size.main + ' ตร.ม.' : 'ยังไม่ได้เลือก' }}
             </td>
             <td class="border px-4 py-2">
               {{ compareDormitories?.size.secondary === Math.max(compareDormitories?.size.main, compareDormitories?.size.secondary) ? '✔️' : '' }}
-              {{ compareDormitories?.size.secondary || 'ยังไม่ได้เลือก' }}
+              {{ compareDormitories?.size.secondary ? compareDormitories?.size.secondary + ' ตร.ม.' : 'ยังไม่ได้เลือก' }} 
             </td>
           </tr>
+
 
           
           <tr>
