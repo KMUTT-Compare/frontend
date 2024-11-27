@@ -6,12 +6,7 @@ import WhiteButton from '@/components/buttons/WhiteButton.vue';
 import BlackButton from '@/components/buttons/BlackButton.vue';
 import { getDormitoryById } from '@/composables/getDormitoryById';
 
-const dormImages = ref([
-  "/images/1.jpg",
-  "/images/2.jpg",
-  "/images/3.jpg",
-  "/images/4.jpg"
-]);
+const dormImages = ref([]);
 
 const showModal = ref(false);
 const selectedImage = ref("");
@@ -33,12 +28,17 @@ function closeModal() {
 onMounted(async () => {
   try {
     dormitoryDetaill.value = await getDormitoryById(params.id);
+    console.log(dormitoryDetaill.value)
+
+     // กำหนดค่า dormImages จากข้อมูลที่ได้จาก server
+     dormImages.value = dormitoryDetaill.value.image;
+     
     if (dormitoryDetaill.value.address) {
       const convertedAddress = convertAddressForGeocoding(dormitoryDetaill.value.address);  // แปลงที่อยู่ก่อน
       initMap(convertedAddress); // ส่งที่อยู่ที่แปลงแล้วไปยัง initMap
     }
   } catch (error) {
-    console.error('Error fetching dormitory:', error);
+    // console.error('Error fetching dormitory:', error);
   }
 });
 
@@ -83,13 +83,13 @@ function initMap(addressObject) {
   // สร้าง addressString ด้วยการใช้ข้อมูลจาก addressObject ที่แปลงแล้ว
   const addressString = `${addressObject.subpremise || ''} ${addressObject.street_number || ''} ${addressObject.route}, ${addressObject.sublocality_level_2}, ${addressObject.sublocality_level_1}, ${addressObject.administrative_area_level_1}, ${addressObject.postal_code}, ${addressObject.country}`;
 
-  console.log("Address String for Geocoding:", addressString);  // ตรวจสอบคำขอที่ส่งไปยัง Geocoding API
+  // console.log("Address String for Geocoding:", addressString);  // ตรวจสอบคำขอที่ส่งไปยัง Geocoding API
 
   geocoder.geocode({ address: addressString }, (results, status) => {
     if (status === google.maps.GeocoderStatus.OK) {
       const locationA = results[0].geometry.location;  // ตำแหน่งที่ได้จาก Geocoding
 
-      console.log("Geocoding results for A:", results);  // ดูผลลัพธ์ที่ได้จาก Geocoding API
+      // console.log("Geocoding results for A:", results);  // ดูผลลัพธ์ที่ได้จาก Geocoding API
 
       // สร้างแผนที่
       const map = new google.maps.Map(document.getElementById("map"), {
@@ -154,23 +154,47 @@ function initMap(addressObject) {
 
       <!-- รายละเอียดมุมขวาบน -->
       <div class="flex flex-col md:flex-row md:space-x-4 p-6 rounded-lg">
-        <!-- กรอบสำหรับรูป 3 รูปทางซ้าย -->
-        <div class="w-full md:w-1/5 flex flex-col space-y-2">
-          <img class="imgs object-cover w-full h-36 rounded-lg shadow-md hover:scale-105 transition-transform" :src="dormImages[0]" alt="Image 1">
-          <img class="imgs object-cover w-full h-36 rounded-lg shadow-md hover:scale-105 transition-transform" :src="dormImages[1]" alt="Image 2">
-          <div class="relative">
-            <img class="imgs object-cover w-full h-36 rounded-lg shadow-md hover:scale-105 transition-transform" :src="dormImages[2]" alt="Image 3">
-            <!-- ป้ายดูเพิ่มเติม -->
-            <div class="absolute top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-50 text-white font-semibold text-xl cursor-pointer" @click="openModal(dormImages)">
-              ดูเพิ่มเติม
-            </div>
-          </div>
-        </div>
+<!-- กรอบสำหรับรูป 3 รูปทางซ้าย -->
+<div class="w-full md:w-1/5 flex flex-col space-y-2">
+  <!-- ตรวจสอบว่ามีรูปใน dormImages[1] หรือไม่ -->
+  <img 
+    v-if="dormImages[1]" 
+    class="imgs object-cover w-full h-36 rounded-lg shadow-md hover:scale-105 transition-transform" 
+    :src="dormImages[1]" 
+    alt="Image 1">
 
-        <!-- กรอบสำหรับรูปเดียวทางขวา -->
-        <div class="w-full md:w-3/6 flex justify-center">
-          <img class="imgs object-cover w-full rounded-lg shadow-lg hover:scale-105 transition-transform" :src="dormImages[3]" alt="Main Image">
-        </div>
+  <!-- ตรวจสอบว่ามีรูปใน dormImages[2] หรือไม่ -->
+  <img 
+    v-if="dormImages[2]" 
+    class="imgs object-cover w-full h-36 rounded-lg shadow-md hover:scale-105 transition-transform" 
+    :src="dormImages[2]" 
+    alt="Image 2">
+
+  <!-- ตรวจสอบว่ามีรูปใน dormImages[3] หรือไม่ -->
+  <div class="relative" v-if="dormImages[3]">
+    <img 
+      class="imgs object-cover w-full h-36 rounded-lg shadow-md hover:scale-105 transition-transform" 
+      :src="dormImages[3]" 
+      alt="Image 3">
+    <!-- ป้ายดูเพิ่มเติม -->
+    <div 
+      class="absolute top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-50 text-white font-semibold text-xl cursor-pointer" 
+      @click="openModal(dormImages)">
+      ดูเพิ่มเติม
+    </div>
+  </div>
+</div>
+
+<!-- กรอบสำหรับรูปเดียวทางขวา -->
+<div class="w-full md:w-3/6 flex justify-center">
+  <!-- ตรวจสอบว่ามีรูปใน dormImages[0] หรือไม่ -->
+  <img 
+    v-if="dormImages[0]" 
+    class="imgs object-cover w-full rounded-lg shadow-lg hover:scale-105 transition-transform" 
+    :src="dormImages[0]" 
+    alt="Main Image">
+</div>
+
 
         <!-- รายละเอียดหอพัก -->
         <div class="w-full md:w-3/6 space-y-4 p-4 rounded-lg shadow-md">

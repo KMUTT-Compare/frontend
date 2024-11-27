@@ -411,7 +411,7 @@ const formatAddress = (address) => {
         <div class="items rounded-lg border-2">
           
           <div class="w-8/12">
-            <img src="@/components/photos/new.svg" class="object-cover h-full rounded-2xl" alt="Dormitory Image" />
+            <img :src="dorm.image[0]" class="object-cover h-full rounded-2xl" alt="Dormitory Image" />
           </div>
 
 

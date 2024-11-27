@@ -205,16 +205,16 @@ function calculateDistance(destination) {
 
 const selectedImages = ref([]);  // เก็บ URL ของรูปภาพที่เลือก
 
-const handleFiles = (event) => {
-  console.log(address.value);
+const handleFiles = async (event) => {
   const files = event.target.files;
   const imagePreview = document.getElementById('imagePreview');
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
-    const imageUrl = URL.createObjectURL(file);  // สร้าง URL สำหรับแสดงรูปภาพ
+    const imageUrl = URL.createObjectURL(file);  // สร้าง URL สำหรับแสดงรูปภาพในหน้าเว็บเบราว์เซอร์
     console.log(imageUrl);  // ตรวจสอบ URL ที่สร้างจากไฟล์
 
+    // สร้างกรอบแสดงตัวอย่างภาพและปุ่มลบ
     const imgContainer = document.createElement('div');
     imgContainer.className = 'relative m-1';
 
@@ -239,11 +239,40 @@ const handleFiles = (event) => {
     
     // ใช้ .value ในการเพิ่ม URL เข้าไปใน array
     selectedImages.value.push(imageUrl);  // เก็บ URL ของไฟล์
+
+    // อัปโหลดไฟล์ไปยังเซิร์ฟเวอร์
+    await uploadImage(file);
   }
 
   console.log(selectedImages.value);  // ตรวจสอบค่าของ selectedImages หลังจากการเพิ่ม URL
 };
 
+// ฟังก์ชันสำหรับอัปโหลดภาพไปยังเซิร์ฟเวอร์
+const uploadImage = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);  // เพิ่มไฟล์ที่เลือกลงใน formData
+
+  try {
+    const response = await fetch('http://cp24kk2.sit.kmutt.ac.th:8080/api/images/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Upload failed');
+    }
+
+    const data = await response.json();  // สมมติว่าเซิร์ฟเวอร์จะตอบกลับเป็น JSON
+    const uploadedImageUrl = `http://cp24kk2.sit.kmutt.ac.th:8080/api/images/${data.fileName}`;  // ใช้ชื่อไฟล์จาก response
+
+    // เพิ่ม URL ของภาพที่อัปโหลดไปใน selectedImages
+    selectedImages.value.push(uploadedImageUrl);
+
+    console.log('Image uploaded successfully:', uploadedImageUrl);
+  } catch (error) {
+    console.error('Error uploading image:', error);
+  }
+};
 
 
 
