@@ -202,75 +202,82 @@ function calculateDistance(destination) {
 
 // --------------------------------- Manage Images ---------------------------------
 
+const selectedImages = ref([]);
 
-const selectedImages = ref([]);  // เก็บ URL ของรูปภาพที่เลือก
-
+// Handle file selection and preview the images
 const handleFiles = async (event) => {
   const files = event.target.files;
-  const imagePreview = document.getElementById('imagePreview');
-
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
-    const imageUrl = URL.createObjectURL(file);  // สร้าง URL สำหรับแสดงรูปภาพในหน้าเว็บเบราว์เซอร์
-    console.log(imageUrl);  // ตรวจสอบ URL ที่สร้างจากไฟล์
+    const imageUrl = URL.createObjectURL(file);  // Create a URL for the image file
+    selectedImages.value.push({ file, imageUrl });  // Add image URL to the selectedImages array
 
-    // สร้างกรอบแสดงตัวอย่างภาพและปุ่มลบ
-    const imgContainer = document.createElement('div');
-    imgContainer.className = 'relative m-1';
-
-    const img = document.createElement('img');
-    img.src = imageUrl;  // ใช้ URL ที่สร้างจากไฟล์
-    img.className = 'w-24 h-24 object-cover';
-
-    const removeButton = document.createElement('button');
-    removeButton.innerText = 'ลบ';
-    removeButton.className = 'absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full';
-    removeButton.onclick = () => {
-      imgContainer.remove();
-      const index = selectedImages.value.indexOf(imageUrl);
-      if (index > -1) {
-        selectedImages.value.splice(index, 1); // ลบ URL ของไฟล์
-      }
-    };
-
-    imgContainer.appendChild(img);
-    imgContainer.appendChild(removeButton);
-    imagePreview.appendChild(imgContainer);
-    
-    // ใช้ .value ในการเพิ่ม URL เข้าไปใน array
-    selectedImages.value.push(imageUrl);  // เก็บ URL ของไฟล์
-
-    // อัปโหลดไฟล์ไปยังเซิร์ฟเวอร์
+    // Upload the image to the server
     await uploadImage(file);
   }
-
-  console.log(selectedImages.value);  // ตรวจสอบค่าของ selectedImages หลังจากการเพิ่ม URL
 };
 
-// ฟังก์ชันสำหรับอัปโหลดภาพไปยังเซิร์ฟเวอร์
+
+// Upload the image to the server
 const uploadImage = async (file) => {
   const formData = new FormData();
-  formData.append('file', file);  // เพิ่มไฟล์ที่เลือกลงใน formData
+  formData.append('files', file);  // Add the selected file to the FormData
 
   try {
     const response = await fetch('http://cp24kk2.sit.kmutt.ac.th:8080/api/images/upload', {
       method: 'POST',
       body: formData,
+      headers: {
+        'x-api-key': '2',  // ส่งค่า x-api-key ให้ตรงตามที่ backend คาดหวัง
+      },
     });
 
     if (!response.ok) {
       throw new Error('Upload failed');
     }
 
-    const data = await response.json();  // สมมติว่าเซิร์ฟเวอร์จะตอบกลับเป็น JSON
-    const uploadedImageUrl = `http://cp24kk2.sit.kmutt.ac.th:8080/api/images/${data.fileName}`;  // ใช้ชื่อไฟล์จาก response
+    const data = await response.json();  // Assuming the server responds with JSON
+    data.forEach(image => {
+      const uploadedImageUrl = image.fileUrl;  // Get the URL of the uploaded image from response
+      const index = selectedImages.value.findIndex(img => img.file === file);
+      if (index !== -1) {
+        selectedImages.value[index].uploadedImageUrl = uploadedImageUrl;  // Update the image URL after upload
+      }
+    });
 
-    // เพิ่ม URL ของภาพที่อัปโหลดไปใน selectedImages
-    selectedImages.value.push(uploadedImageUrl);
+    console.log('Image uploaded successfully:', data);
 
-    console.log('Image uploaded successfully:', uploadedImageUrl);
   } catch (error) {
     console.error('Error uploading image:', error);
+  }
+};
+
+
+// ลบภาพจากเซิร์ฟเวอร์
+const deleteImage = async (imageUrl) => {
+  // แยก URL เพื่อดึง ID ของภาพ
+  const imageId = imageUrl.split('/').pop(); // แยก string และดึงส่วนที่เป็น ID ที่อยู่หลัง `/`
+  console.log(imageId)
+
+  try {
+    const response = await fetch(`http://cp24kk2.sit.kmutt.ac.th:8080/api/images/${imageId}`, {
+      method: 'DELETE',  // ใช้คำขอลบ (DELETE)
+    });
+
+    if (!response.ok) {
+      throw new Error('Delete failed');
+    }
+
+    const data = await response.json();  // เซิร์ฟเวอร์อาจจะตอบกลับข้อมูลหลังการลบ
+    console.log('Image deleted successfully:', data);
+
+    // ลบภาพออกจาก selectedImages array
+    const index = selectedImages.value.findIndex(img => img.uploadedImageUrl === imageUrl);
+    if (index !== -1) {
+      selectedImages.value.splice(index, 1);  // ลบภาพออกจากอาร์เรย์
+    }
+  } catch (error) {
+    console.error('Error deleting image:', error);
   }
 };
 
@@ -450,7 +457,7 @@ const handleSubmit = async () => {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         distance: parseFloat(distance.value),
-        image: selectedImages.value,
+        image: selectedImages.value.map(img => img.uploadedImageUrl), // ส่ง URL ของภาพที่อัปโหลด
         building_facility: insideAmenities.value,
         room_facility: outsideAmenities.value,
       };
@@ -813,8 +820,7 @@ const handleSubmit = async () => {
     </div>
 
 
-
-    <div class="pt-10 space-y-5">
+    <div>
       <h2>อัปโหลดรูปภาพ</h2>
       <div class="flex flex-col items-start">
         <label class="flex flex-col items-center cursor-pointer">
@@ -824,7 +830,22 @@ const handleSubmit = async () => {
           <input type="file" class="hidden" multiple @change="handleFiles" />
         </label>
       </div>
-      <div class="flex flex-wrap mt-4" id="imagePreview"></div>
+
+
+
+        <div class="flex flex-wrap mt-4" id="imagePreview">
+            <!-- แสดงตัวอย่างภาพที่เลือก -->
+            <div v-for="(image, index) in selectedImages" :key="index" class="relative m-1">
+              <img :src="image" class="w-28 h-28 object-cover" />
+              <button
+                @click="deleteImage(image)"
+                class="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full"
+              >
+                ลบ
+              </button>
+            </div>
+          </div>
+      
     </div>
 
     <div class="w-full flex items-center justify-end space-x-2 h-20">
@@ -832,7 +853,7 @@ const handleSubmit = async () => {
           {{ isEditMode ? 'อัปเดตหอพัก' : 'เพิ่มหอพัก' }}
         </button>
         <button @click="router.push('/')" class="btn w-28">ยกเลิก</button>
-</div>
+    </div>
 
 
 

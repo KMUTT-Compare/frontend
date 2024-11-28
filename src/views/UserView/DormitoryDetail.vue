@@ -186,7 +186,7 @@ function initMap(addressObject) {
 </div>
 
 <!-- กรอบสำหรับรูปเดียวทางขวา -->
-<div class="w-full md:w-3/6 flex justify-center">
+<div class="first-img w-full md:w-3/6 flex justify-center">
   <!-- ตรวจสอบว่ามีรูปใน dormImages[0] หรือไม่ -->
   <img 
     v-if="dormImages[0]" 
@@ -274,6 +274,8 @@ function initMap(addressObject) {
           </ul>
         </div>
 
+        <h3 class="text-2xl font-semibold">ห่างกับมหาวิทยาลัยพระจอมเกล้าธนบุรีประมาณ : {{dormitoryDetaill.distance }} กม.</h3>
+
           <!-- แผนที่ -->
         <div class="w-full h-80 my-8">
           <div id="map" class="w-full h-full rounded-lg shadow-lg"></div>
@@ -326,6 +328,10 @@ function initMap(addressObject) {
 
 .imgs:hover {
   transform: scale(1.05);
+}
+
+.first-img{
+  height: 448px;
 }
 
 /* ปรับแต่งตาราง facility */

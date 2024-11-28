@@ -78,8 +78,8 @@ const deleteDormitory = async () => {
         <div v-if="dormitories.length > 0" class="container">
           <div v-for="dorm in dormitories" :key="dorm.dormId" class="holding-items">
             <div class="items rounded-lg border-2">
-              <div class="w-8/12">
-                <img :src="dorm.image[0]" class="object-cover h-full rounded-2xl" alt="Dormitory Image" />
+              <div class="w-8/12 flex h-64 justify-center items-center">
+                <img :src="dorm.image[0]" class="h-full bg-cover bg-center rounded-2xl" alt="Dormitory Image" />
               </div>
 
               <div class="flex flex-col w-full h-full p-3 justify-center">
