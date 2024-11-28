@@ -457,8 +457,8 @@ const handleSubmit = async () => {
         updated_at: new Date().toISOString(),
         distance: parseFloat(distance.value),
         image: selectedImages.value, // ส่ง URL ของภาพที่อัปโหลด
-        building_facility: insideAmenities.value,
-        room_facility: outsideAmenities.value,
+        room_facility: insideAmenities.value,
+        building_facility: outsideAmenities.value,
       };
 
       try {
