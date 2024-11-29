@@ -29,19 +29,9 @@ const router = createRouter({
       component: () => import('../views/UserView/FAQ.vue')
     },
     {
-      path: '/*',
-      name: '404',
-      component: () => import('../views/Notfound.vue')
-    },
-    {
       path: '/dormitory/:id',
       name: 'dormitoryDetail',
       component: () => import('../views/UserView/DormitoryDetail.vue')
-    },
-    {
-      path: '/dormManagement',
-      name: 'dormManagement',
-      component: () => import('../views/AdminView/DormManagement.vue')
     },
     {
       path: '/addEditDormitory/:id?',
@@ -62,6 +52,12 @@ const router = createRouter({
       path: '/support',
       name: 'support',
       component: () => import('../views/UserView/Setting/Support.vue')
+    },
+    // 404 route - ใช้ pathMatch(.*)* สำหรับจับทุก URL
+    {
+      path: '/:pathMatch(.*)*',
+      name: '404',
+      component: () => import('../views/Notfound.vue')
     }
   ]
 })

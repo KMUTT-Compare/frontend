@@ -129,7 +129,7 @@ const clickSupport = ()=>{
           <p @click="$router.push('/faq')" class="cursor-pointer hover hover:bg-gray-100 active:bg-gray-200">ช่วยเหลือ</p>
         </li>
         <li>
-          <p @click="$router.push('/contact')" class="cursor-pointer hover hover:bg-gray-100 active:bg-gray-200">ติดต่อเว็บ</p>
+          <p @click="$router.push('/contact')" class="cursor-pointer hover hover:bg-gray-100 active:bg-gray-200">ติดต่อเรา</p>
         </li>
       </ul>
     </div>

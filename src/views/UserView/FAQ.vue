@@ -1,62 +1,58 @@
 <script setup>
-
 </script>
- 
+
 <template>
 <section class="text-2xl py-32 min-h-screen mt-20">
   <div class="container flex flex-col justify-center p-4 mx-auto md:p-8">
     <h2 class="mb-12 text-4xl font-bold leadi text-center sm:text-5xl">คำถามที่พบบ่อย</h2>
     <div class="flex flex-col divide-y sm:px-8 lg:px-12 xl:px-32 divide-gray-700 space-y-7">
       <details>
-        <summary class="py-2 outline-none cursor-pointer focus:underline">ฉันสามารถจองหอพักได้อย่างไร?</summary>
+        <summary class="py-2 outline-none cursor-pointer focus:underline">ฉันสามารถเปรียบเทียบหอพักได้อย่างไร?</summary>
         <div class="px-4 pb-4">
-          <p>คุณสามารถจองหอพักโดยการไปที่หน้าหลัก, แล้วทำการเลือกหอพักที่คุณสนใจ, จากนั้นกดจองหอพัก. ระบบจะทำการส่งการแจ้งเตือนไปให้เจ้าของหอพัก, ซึ่งหากเจ้าของทำการอนุมัติให้คุณเรียบร้อยแล้ว คุณสามารถสอบถามเพิ่มเติมกับเจ้าของได้เลย.</p>
+          <p>คุณสามารถเปรียบเทียบหอพักได้ง่ายๆ โดยเลือกหอพักจากรายการที่เราแสดง และเลือกคุณสมบัติที่คุณต้องการ เช่น ราคา, สถานที่ตั้ง, สิ่งอำนวยความสะดวก และอื่นๆ ระบบจะทำการแสดงรายการหอพักที่ตรงกับความต้องการของคุณ.</p>
         </div>
       </details>
       <details>
-        <summary class="py-2 outline-none cursor-pointer focus:underline">What payment methods do you accept?</summary>
+        <summary class="py-2 outline-none cursor-pointer focus:underline">ฉันสามารถดูข้อมูลหอพักได้จากที่ไหนบ้าง?</summary>
         <div class="px-4 pb-4">
-          <p>We accept various payment methods, including credit cards, debit cards, net banking, and mobile wallet payments. You can choose the payment option that is most convenient for you during the checkout process.</p>
+          <p>คุณสามารถดูข้อมูลหอพักได้จากหน้า "ค้นหาหอพัก" หรือเลือกหอพักจากรายการที่มีอยู่ในเว็บไซต์ โดยคลิกที่หอพักแต่ละแห่งเพื่อดูรายละเอียดเพิ่มเติม เช่น ราคา, ขนาดห้อง, สิ่งอำนวยความสะดวก, และการให้คะแนนจากผู้เข้าพัก.</p>
         </div>
       </details>
       <details>
-        <summary class="py-2 outline-none cursor-pointer focus:underline">How long does shipping take?</summary>
+        <summary class="py-2 outline-none cursor-pointer focus:underline">ฉันสามารถติดต่อเจ้าของหอพักได้อย่างไร?</summary>
         <div class="px-4 pb-4">
-          <p>Shipping times may vary depending on your location and the shipping method chosen. Typically, orders are processed within 1-2 business days, and delivery can take 3-7 business days within India. You will receive a tracking notification once your order is shipped.</p>
+          <p>หากคุณสนใจหอพักใดๆ คุณสามารถติดต่อเจ้าของหอพักได้ผ่านข้อมูลติดต่อที่มีให้ในหน้า "รายละเอียดหอพัก". โดยทั่วไปจะมีข้อมูลติดต่อทางโทรศัพท์หรืออีเมล หรือบางครั้งอาจมีระบบแชทในเว็บไซต์เพื่อให้คุณติดต่อได้ทันที.</p>
         </div>
       </details>
       <details>
-        <summary class="py-2 outline-none cursor-pointer focus:underline">Can I return a product if I'm not satisfied?</summary>
+        <summary class="py-2 outline-none cursor-pointer focus:underline">หากฉันพบข้อมูลหอพักไม่ตรงกับความเป็นจริง ควรทำอย่างไร?</summary>
         <div class="px-4 pb-4">
-          <p>Yes, we have a hassle-free return policy. If you are not satisfied with your purchase, you can initiate a return within 30 days of receiving the product. Please contact our customer support at <a href="" class="underline">example@gmail.com</a> for assistance.</p>
+          <p>หากคุณพบข้อมูลหอพักที่ไม่ตรงกับความเป็นจริง เช่น ราคา หรือสิ่งอำนวยความสะดวกที่ไม่ได้ระบุไว้ในหน้าเว็บไซต์ คุณสามารถแจ้งเราได้ที่อีเมล <a href="mailto:jipjip.kmutt.compare@gmail.com" class="underline">jipjip.kmutt.compare@gmail.com</a> หรือดูรายละเอียดช่องทางการติดต่อได้ที่หน้า "ติดต่อเรา". เราจะดำเนินการตรวจสอบข้อมูลให้เร็วที่สุด.</p>
         </div>
       </details>
       <details>
-        <summary class="py-2 outline-none cursor-pointer focus:underline">Do you offer international shipping?</summary>
+        <summary class="py-2 outline-none cursor-pointer focus:underline">มีค่าธรรมเนียมในการใช้งานเว็บไซต์หรือไม่?</summary>
         <div class="px-4 pb-4">
-          <p>Currently, we only provide shipping services within India. However, we may consider expanding our shipping options to international locations in the future. Please stay updated with our website for any changes in shipping destinations.</p>
+          <p>ไม่, การใช้งานเว็บไซต์ของเราเพื่อเปรียบเทียบหอพักทั้งหมดเป็นบริการฟรี. คุณสามารถค้นหาและเปรียบเทียบหอพักได้โดยไม่ต้องเสียค่าธรรมเนียมใดๆ.</p>
         </div>
       </details>
       <details>
-        <summary class="py-2 outline-none cursor-pointer focus:underline">What is your customer support contact?</summary>
+        <summary class="py-2 outline-none cursor-pointer focus:underline">เว็บไซต์มีการอัปเดตข้อมูลหอพักบ่อยแค่ไหน?</summary>
         <div class="px-4 pb-4">
-          <p>If you have any questions, concerns, or need assistance, you can reach our customer support team at 9911083755 during our business hours, Monday to Saturday from 10 am to 6 pm. You can also contact us via email at <a href="" class="underline">example@gmail.com</a>.</p>
+          <p>เราอัปเดตข้อมูลหอพักอย่างสม่ำเสมอ โดยการตรวจสอบข้อมูลจากเจ้าของหอพักเพื่อให้มั่นใจว่าข้อมูลที่แสดงเป็นข้อมูลที่ถูกต้องและทันสมัย. คุณสามารถเช็คข้อมูลหอพักใหม่ๆ ได้ทุกเมื่อผ่านหน้าเว็บไซต์ของเรา.</p>
         </div>
       </details>
       <details>
-        <summary class="py-2 outline-none cursor-pointer focus:underline">What are your terms and conditions?</summary>
+        <summary class="py-2 outline-none cursor-pointer focus:underline">ฉันสามารถแสดงความคิดเห็นเกี่ยวกับหอพักได้หรือไม่?</summary>
         <div class="px-4 pb-4">
-          <p>You can find our detailed terms and conditions by visiting our 
-            <a href="" class="underline">Terms of Service</a> 
-            page on our website. It includes information about our policies, user guidelines, and more.</p>
+          <p>ใช่, คุณสามารถแสดงความคิดเห็นเกี่ยวกับหอพักที่คุณเคยพักได้ โดยการกรอกรีวิวในหน้ารายละเอียดของหอพักนั้นๆ การให้คะแนนและความคิดเห็นจะช่วยให้ผู้ใช้คนอื่นๆ ได้ข้อมูลในการตัดสินใจเลือกหอพักที่เหมาะสม.</p>
         </div>
       </details>
     </div>
   </div>
 </section>
-
 </template>
- 
+
 <style scoped>
 
 </style>
