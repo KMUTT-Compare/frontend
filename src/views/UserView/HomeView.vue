@@ -257,6 +257,7 @@ const formatAddress = (address) => {
         :dormitoryName="mainDormitory ? dormitories.find(dorm => dorm.dormId === mainDormitory).name : 'ยังไม่ได้เลือก'"
         :distance="mainDormitory ? dormitories.find(dorm => dorm.dormId === mainDormitory).distance : 0"
         :address="mainDormitory ? formatAddress(dormitories.find(dorm => dorm.dormId === mainDormitory).address) : ''"
+        
       />
       <Card
         title="หอพักรอง"

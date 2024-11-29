@@ -9,7 +9,6 @@ const dormitoryId = params.id
 const oldDormitory = ref({})
 
 //จัดการตัวแปรแผนที่
-const address = ref({});
 const houseNumber1 = ref('');
 const houseNumber2 = ref('');
 
@@ -223,7 +222,7 @@ const uploadImage = async (file) => {
   formData.append('files', file);
 
   try {
-    const response = await fetch('http://cp24kk2.sit.kmutt.ac.th:8080/api/images/upload', {
+    const response = await fetch(`${API_ROOT}/images/upload`, {
       method: 'POST',
       body: formData,
       headers: {
@@ -261,7 +260,7 @@ const deleteImage = async (imageUrl) => {
   
 
   try {
-    const response = await fetch(`http://cp24kk2.sit.kmutt.ac.th:8080/api/images/${imageId}`, {
+    const response = await fetch(`${API_ROOT}/images/${imageId}`, {
       method: 'DELETE',
     });
 
@@ -347,11 +346,29 @@ const insideAmenitiesError = ref()
 const outsideAmenitiesError = ref()
   // --------------------------------- Add/Edit ---------------------------------
 
-// ฟังก์ชันเพิ่มหรืออัปเดตหอพัก
+import ConfirmModal from '@/components/modals/ConfirmModal.vue';
+import SuccessModal from '@/components/modals/SuccessModal.vue';
+
+const isModalVisible = ref(false);
+const modalContext = ref('');
+
+const isModalSuccessVisible = ref(false)
+const modalProps = ref({ title: '', message: '' });
+
+// Function to open the modal with the correct context
+const showModal = (context) => {
+  modalContext.value = context;
+  isModalVisible.value = true;
+};
+
+// Function to close the modal
+const closeModal = () => {
+  isModalVisible.value = false;
+};  
+
+// Function to handle the submit logic
 const handleSubmit = async () => {
-
-
-  // รีเซ็ตข้อความ error ทุกฟิลด์ก่อนการตรวจสอบใหม่
+  // Reset error messages before validation
   nameError.value = '';
   distanceError.value = '';
   minPriceError.value = '';
@@ -364,65 +381,64 @@ const handleSubmit = async () => {
   provinceError.value = '';
   postalCodeError.value = '';
   sizeError.value = '';
-  insideAmenitiesError.value = ''
-  outsideAmenitiesError.value = ''
+  insideAmenitiesError.value = '';
+  outsideAmenitiesError.value = '';
 
-  // ตัวแปรที่ใช้ในการตรวจสอบข้อผิดพลาด
+  // Validation flag
   let isValid = true;
 
-  // ตรวจสอบความครบถ้วนของข้อมูล
-    if (!name.value) {
-    nameError.value = ''
-    isValid = false;
+  // Validate form data
+  if (!name.value) {
     nameError.value = 'กรุณากรอกชื่อที่พัก';
+    isValid = false;
   }
   if (!distance.value || isNaN(distance.value)) {
-    distanceError.value = ''
-    isValid = false;
     distanceError.value = 'กรุณากรอกระยะทางเป็นตัวเลข';
+    isValid = false;
   }
   if (!min_price.value || isNaN(min_price.value)) {
-
-    isValid = false;
     minPriceError.value = 'กรุณากรอกราคาเริ่มต้นเป็นตัวเลข';
+    isValid = false;
   }
   if (!max_price.value || isNaN(max_price.value)) {
-    isValid = false;
     maxPriceError.value = 'กรุณากรอกราคาสูงสุดเป็นตัวเลข';
+    isValid = false;
   }
   if (roomCount.value <= 0) {
-    isValid = false;
     roomCountError.value = 'กรุณาระบุจำนวนห้องพักที่เหลือให้เช่า';
+    isValid = false;
   }
   if (!dormNumber.value) {
-    isValid = false;
     dormNumberError.value = 'กรุณากรอกเลขที่หอพัก';
+    isValid = false;
   }
   if (!street.value) {
-    isValid = false;
     streetError.value = 'กรุณากรอกถนน ซอย';
+    isValid = false;
   }
   if (!subDistrict.value) {
-    isValid = false;
     subDistrictError.value = 'กรุณากรอกตำบล/แขวง';
+    isValid = false;
   }
   if (!district.value) {
-    isValid = false;
     districtError.value = 'กรุณากรอกอำเภอ/เขต';
+    isValid = false;
   }
   if (!province.value) {
-    isValid = false;
     provinceError.value = 'กรุณากรอกจังหวัด';
+    isValid = false;
   }
   if (!postalCode.value) {
-    isValid = false;
     postalCodeError.value = 'กรุณากรอกรหัสไปรษณีย์';
-  }
-  if (!size.value || isNaN(size.value)) {
     isValid = false;
+} else if (!/^\d{1,5}$/.test(postalCode.value)) {
+    postalCodeError.value = 'กรุณากรอกรหัสไปรษณีย์เป็นตัวเลข ไม่เกิน 5 ตัว';
+    isValid = false;
+}
+  if (!size.value || isNaN(size.value)) {
     sizeError.value = 'กรุณากรอกขนาดห้องเป็นตัวเลข';
+    isValid = false;
   }
-  // ตรวจสอบสิ่งอำนวยความสะดวก
   if (insideAmenities.value.length === 0) {
     insideAmenitiesError.value = 'กรุณาเพิ่มเฟอร์นิเจอร์ภายในห้องพัก';
     isValid = false;
@@ -432,67 +448,80 @@ const handleSubmit = async () => {
     isValid = false;
   }
 
-  // ถ้าไม่มีข้อผิดพลาดก็ทำการเพิ่มหอพัก
+  // If validation passes, open the confirmation modal
   if (isValid) {
-    const isConfirm = confirm(isEditMode.value ? 'ยืนยันการอัปเดตหอพัก?' : 'ยืนยันการเพิ่มหอพัก?');
-    if (isConfirm) {
-      dormitoryData.value = {
-        staffId: 2,
-        name: name.value,
-        status: status.value,
-        address: {
-          dormNumber: dormNumber.value,
-          street: street.value,
-          subdistrict: subDistrict.value,
-          district: district.value,
-          province: province.value,
-          postalCode: postalCode.value,
-        },
-        roomCount: parseInt(roomCount.value),
-        type: type.value,
-        size: size.value,
-        min_price: min_price.value,
-        max_price: max_price.value,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        distance: parseFloat(distance.value),
-        image: selectedImages.value, // ส่ง URL ของภาพที่อัปโหลด
-        room_facility: insideAmenities.value,
-        building_facility: outsideAmenities.value,
-      };
-
-      try {
-        let res;
-        if (isEditMode.value) {
-          res = await fetch(`${API_ROOT}/dormitories/${dormitoryId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dormitoryData.value),
-          });
-        } else {
-          res = await fetch(`${API_ROOT}/dormitories`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dormitoryData.value),
-          });
-        }
-
-        if (res.ok) {
-          const responseJson = await res.json();
-          alert(isEditMode.value ? 'อัปเดตหอพักสำเร็จ' : 'เพิ่มหอพักสำเร็จ');
-          router.push('/');
-        } else {
-          const errorResponse = await res.json();
-          alert(`ไม่สามารถ ${isEditMode.value ? 'อัปเดต' : 'เพิ่ม'} หอพักได้: ${errorResponse.message || 'โปรดลองใหม่อีกครั้ง'}`);
-        }
-      } catch (error) {
-        console.error('เกิดข้อผิดพลาดในการส่งข้อมูล:', error);
-        alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
-      }
-    }
+    showModal(isEditMode.value ? 'update' : 'add');
   }
 };
 
+// ฟังก์ชันที่จัดการกับการยืนยันใน modal
+const handleConfirmAction = async (context) => {
+  console.log('Confirm action for:', context);
+
+  dormitoryData.value = {
+    staffId: 2,
+    name: name.value,
+    status: status.value,
+    address: {
+      dormNumber: dormNumber.value,
+      street: street.value,
+      subdistrict: subDistrict.value,
+      district: district.value,
+      province: province.value,
+      postalCode: postalCode.value,
+    },
+    roomCount: parseInt(roomCount.value),
+    type: type.value,
+    size: size.value,
+    min_price: min_price.value,
+    max_price: max_price.value,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    distance: parseFloat(distance.value),
+    image: selectedImages.value, // Image URLs
+    room_facility: insideAmenities.value,
+    building_facility: outsideAmenities.value,
+  };
+
+  try {
+    let res;
+    if (context === 'update') {  // Handle update case
+      res = await fetch(`${API_ROOT}/dormitories/${dormitoryId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dormitoryData.value),
+      });
+    } else if (context === 'add') {  // Handle add case
+      res = await fetch(`${API_ROOT}/dormitories`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dormitoryData.value),
+      });
+    }
+
+    if (res.ok) {
+      const responseJson = await res.json();
+      const successMessage = context === 'update' 
+        ? { title: 'อัปเดตหอพักสำเร็จ', message: 'ข้อมูลหอพักถูกอัปเดตเรียบร้อยแล้ว' }
+        : { title: 'เพิ่มหอพักสำเร็จ', message: 'ข้อมูลหอพักถูกเพิ่มเรียบร้อยแล้ว' };
+
+      // ส่งข้อมูลไปยัง modal
+      isModalSuccessVisible.value = true; // ให้แสดง modal
+      modalProps.value = successMessage; // ส่งข้อมูล props ไปที่ modal
+      console.log(modalContext.value)
+
+    } else {
+      const errorResponse = await res.json();
+      alert(`ไม่สามารถ ${context === 'update' ? 'อัปเดต' : 'เพิ่ม'} หอพักได้: ${errorResponse.message || 'โปรดลองใหม่อีกครั้ง'}`);
+    }
+  } catch (error) {
+    console.error('เกิดข้อผิดพลาดในการส่งข้อมูล:', error);
+    alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
+  }
+
+  // Close the modal after action
+  closeModal();
+};
  
 </script>
 
@@ -645,7 +674,7 @@ const handleSubmit = async () => {
 
   <div>
     <label for="distance" class="block mb-2 text-lg text-gray-900 dark:text-white">
-      ระยะทาง
+      ระยะทาง (กม.)
       <span class="text-red-500">*</span>
     </label>
     <input 
@@ -855,12 +884,24 @@ const handleSubmit = async () => {
         </button>
         <button @click="router.push('/')" class="btn w-28">ยกเลิก</button>
     </div>
-
-
-
-
     </div>
   </div>
+       <!-- Confirmation Modal -->
+       <ConfirmModal
+        :isVisible="isModalVisible"
+        :context="modalContext"
+        @close="closeModal"
+        @confirm="handleConfirmAction"
+      />
+
+          <!-- เมื่อ isModalVisible เป็น true จะทำให้แสดง SuccessModal -->
+      <SuccessModal
+        v-if="isModalSuccessVisible"
+        :title="modalProps.title"
+        :message="modalProps.message"
+        @close="isModalSuccessVisible = false" 
+        :context="modalContext"
+      />
 </template>
 
 <style scoped>

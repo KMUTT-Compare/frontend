@@ -3,7 +3,7 @@ import Sidebar from '@/components/Sidebar.vue';
 import { getDormitories } from '@/composables/getDormitories';
 import { onMounted, ref } from 'vue';
 import router from '@/router';
-import DeleteModal from '@/components/modals/DeleteModal.vue';
+import DeleteModal from '@/components/modals/ConfirmModal.vue';
 import SuccessModal from '@/components/modals/SuccessModal.vue';
 
 
@@ -115,7 +115,14 @@ const deleteDormitory = async () => {
   </div>
 
   <!-- Modal for deletion -->
-  <DeleteModal :isVisible="isModalVisible" :dormId="dormIdToDelete" @close="closeModal" @delete="deleteDormitory" context="dormitory"/>
+    <!-- DeleteModal for deletion -->
+    <DeleteModal 
+    :isVisible="isModalVisible" 
+    :dormId="dormIdToDelete" 
+    @close="closeModal" 
+    @delete="deleteDormitory" 
+    context="delete" 
+  />
   <SuccessModal v-if="isSuccessModalVisible" @close="closeSuccessModal"/>
 </template>
 
