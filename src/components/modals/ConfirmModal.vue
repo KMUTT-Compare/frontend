@@ -57,25 +57,25 @@ const confirmDelete = () => {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 2H8a2 2 0 00-2 2v16a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2z"></path>
           </svg>
           <h3 class="text-xl font-normal text-gray-500 mt-5 mb-6">
-            <span v-if="context === 'delete'">Do you really want to delete this dormitory? This process cannot be undone.</span>
-            <span v-if="context === 'add'">Are you sure you want to add this dormitory?</span>
-            <span v-if="context === 'update'">Are you sure you want to update this dormitory?</span>
+            <span v-if="context === 'delete'">คุณต้องการลบหอพักนี้จริงๆ หรือไม่? กระบวนการนี้ไม่สามารถย้อนกลับได้</span>
+            <span v-if="context === 'add'">คุณแน่ใจหรือไม่ว่าต้องการเพิ่มหอพักนี้ ?</span>
+            <span v-if="context === 'update'">คุณแน่ใจหรือไม่ว่าต้องการอัปเดตข้อมูลหอพักนี้ ?</span>
           </h3>
-            <div class="flex flex-row items-center justify-between">
+            <div class="flex flex-row items-center justify-center">
               <div class="w-1/2">
                 <a href="#" @click="confirmDelete" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-10 py-3 text-center mr-2" v-if="context === 'delete'">
-                  Yes, I'm sure
+                  ใช่, ฉันแน่ใจ
                 </a>
-                <a href="#" @click="confirmAction" class="text-white bg-green-600 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-base inline-flex items-center px-10 py-3 text-center mr-2" v-if="context === 'add'">
-                  Yes, add it
+                <a href="#" @click="confirmAction" class="text-white bg-green-600 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-base inline-flex items-center px-12 py-3 text-center mr-2" v-if="context === 'add'">
+                  ยืนยัน
                 </a>
-                <a href="#" @click="confirmAction" class="text-white bg-blue-600 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-base inline-flex items-center px-10 py-3 text-center mr-2" v-if="context === 'update'">
-                  Yes, update it
+                <a href="#" @click="confirmAction" class="text-white bg-blue-600 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-base inline-flex items-center px-12 py-3 text-center mr-2" v-if="context === 'update'">
+                  ยืนยัน
                 </a>
               </div>
-              <div class="w-1/2 ">
-                <a href="#" @click="closeModal" class="text-gray-900 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-base inline-flex items-center px-10 py-3 text-center mr-2">
-                  No, cancel
+              <div class="w-1/2">
+                <a href="#" @click="closeModal" class="text-gray-900 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-base inline-flex items-center px-12 py-3 text-center mr-2">
+                  ยกเลิก
                 </a>
               </div>
           </div>

@@ -6,11 +6,11 @@ const emit = defineEmits(['close']);
 const props = defineProps({
   title: {
     type: String,
-    default: 'Successfully Completed!',
+    default: 'ลบหอพักสำเร็จ',
   },
   message: {
     type: String,
-    default: 'Operation completed successfully.',
+    default: 'ข้อมูลหอพักถูกลบเรียบร้อยแล้ว.',
   },
   context:{
     type: String,
