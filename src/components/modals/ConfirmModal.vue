@@ -28,6 +28,11 @@ const confirmAction = () => {
   closeModal();
 };
 
+
+const confirmDelete = () => {
+  emit('delete');  // ส่ง event 'delete' เมื่อกดยืนยัน
+  closeModal();
+};
 </script>
 
 <template>
@@ -58,7 +63,7 @@ const confirmAction = () => {
           </h3>
             <div class="flex flex-row items-center justify-between">
               <div class="w-1/2">
-                <a href="#" @click="confirmAction" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-10 py-3 text-center mr-2" v-if="context === 'delete'">
+                <a href="#" @click="confirmDelete" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-10 py-3 text-center mr-2" v-if="context === 'delete'">
                   Yes, I'm sure
                 </a>
                 <a href="#" @click="confirmAction" class="text-white bg-green-600 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-base inline-flex items-center px-10 py-3 text-center mr-2" v-if="context === 'add'">
