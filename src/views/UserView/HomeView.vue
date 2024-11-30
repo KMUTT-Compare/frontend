@@ -222,7 +222,7 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
         <!-- ตัวเลือก "รวม" -->
         <div class="flex flex-row space-x-2">
           <input v-model="selectTypes" checked name="default-radio" type="radio" value="all" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
-          <p>ไม่แยกชายหญิง</p>
+          <p>รวม</p>
         </div>
       </div>
     </div>
@@ -353,7 +353,7 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
                 <h2>ระยะทาง <span>{{ dorm.distance }} กม.</span></h2>
                 <h2>
                   ประเภทหอพัก:
-                  <span v-if="dorm.type === 'all'">ไม่แยกชายหญิง</span>
+                  <span v-if="dorm.type === 'all'">รวม</span>
                   <span v-else-if="dorm.type === 'f'">หญิง</span>
                   <span v-else-if="dorm.type === 'm'">ชาย</span>
                   <span v-else>{{ dorm.type }}</span>
