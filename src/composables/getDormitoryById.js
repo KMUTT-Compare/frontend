@@ -3,7 +3,7 @@ const API_ROOT = import.meta.env.VITE_API_ROOT
 // ฟังก์ชันสำหรับดึงข้อมูลหอพักตาม id
 const getDormitoryById = async (id) => {
   try {
-    const res = await fetch(`${API_ROOT}/dormitories/${id}`); // URL สำหรับดึงข้อมูลหอพักโดยใช้ id
+    const res = await fetch(`${API_ROOT}/dormitories/${id}`);
     if (res.ok) {
       const data = await res.json();
       return data;

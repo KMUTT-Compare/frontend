@@ -10,6 +10,7 @@ const dormitories = ref([])
 
 onMounted(async () => {
   dormitories.value = await getDormitories();
+  console.log(dormitories.value)
   
 })
 
@@ -24,7 +25,7 @@ const showDetail = (dormitoryId) =>{
 
 
 
-//---------------------------------- Filter ----------------------------------
+//---------------------------------- Search & Filter ----------------------------------
 
 const IsfilterShowing = ref(false)
 
@@ -82,6 +83,9 @@ const filteredDormitories = computed(() => {
     return inPriceRange && nameMatches && typeMatches && inDistanceRange;
   });
 });
+
+
+
 // ---------------------------------- เปรียบเทียบหอพัก ----------------------------------
 const mainDormitory = ref(null);
 const secondaryDormitory = ref(null);
@@ -91,7 +95,6 @@ const setMainDormitory = (dormId) => {
     secondaryDormitory.value = null; // ลบหอพักรองถ้ามันตรงกับหอพักหลัก
   }
   mainDormitory.value = dormId;
-  console.log(mainDormitory.value)
 };
 
 const setSecondaryDormitory = (dormId) => {
@@ -99,56 +102,14 @@ const setSecondaryDormitory = (dormId) => {
     mainDormitory.value = null; // ลบหอพักหลักถ้ามันตรงกับหอพักรอง
   }
   secondaryDormitory.value = dormId;
-  console.log(secondaryDormitory.value)
 };
 
+// ค่าของหอพักหลัก
+const mainDormitoryData = computed(() => dormitories.value.find(dorm => dorm.dormId === mainDormitory.value));
 
-const compareDormitories = computed(() => {
-  const mainDorm = dormitories.value.find(dorm => dorm.dormId === mainDormitory.value);
-  const secondaryDorm = dormitories.value.find(dorm => dorm.dormId === secondaryDormitory.value);
-
-  if (!mainDorm || !secondaryDorm) return null;
-
-  const minPrice = mainDorm.min_price !== undefined && secondaryDorm.min_price !== undefined
-    ? Math.min(mainDorm.min_price, secondaryDorm.min_price)
-    : 'ไม่ระบุ';
-
-  const maxPrice = mainDorm.max_price !== undefined && secondaryDorm.max_price !== undefined
-    ? Math.max(mainDorm.max_price, secondaryDorm.max_price)
-    : 'ไม่ระบุ';
-
-  const minSize = mainDorm.size !== undefined && secondaryDorm.size !== undefined
-    ? Math.min(mainDorm.size, secondaryDorm.size)
-    : 'ไม่ระบุ';
-
-  return {
-    minprice: {
-      main: mainDorm.min_price || 'ไม่ระบุ',
-      secondary: secondaryDorm.min_price || 'ไม่ระบุ',
-      minPrice: minPrice
-    },
-    maxprice: {
-      main: mainDorm.max_price || 'ไม่ระบุ',
-      secondary: secondaryDorm.max_price || 'ไม่ระบุ',
-      maxPrice: maxPrice
-    },
-    size: {
-      main: mainDorm.size || 'ไม่ระบุ',
-      secondary: secondaryDorm.size || 'ไม่ระบุ',
-      minSize: minSize,  // ขนาดห้องน้อยที่สุด
-    },
-    distance: {
-      main: mainDorm.distance || 'ยังไม่มีข้อมูล',
-      secondary: secondaryDorm.distance || 'ยังไม่มีข้อมูล',
-      better: mainDorm.distance < secondaryDorm.distance ? mainDorm : secondaryDorm
-    },
-    mainDormRoomFacilities: mainDorm.room_facility || [],
-    secondaryDormRoomFacilities: secondaryDorm.room_facility || [],
-    mainDormBuildingFacilities: mainDorm.building_facility || [],
-    secondaryDormBuildingFacilities: secondaryDorm.building_facility || []
-  };
-});
-
+// ค่าของหอพักรอง
+const secondaryDormitoryData = computed(() => dormitories.value.find(dorm => dorm.dormId === secondaryDormitory.value));
+console.log(mainDormitoryData.roomFacilities)
 // ฟังก์ชันสำหรับแปลง address ให้เป็น string
 const formatAddress = (address) => {
   if (typeof address === 'object' && address !== null) {
@@ -157,15 +118,67 @@ const formatAddress = (address) => {
   }
   return address || 'ยังไม่มีที่อยู่';
 }
+
+// ฟังก์ชันเปรียบเทียบและคืนค่าความแตกต่าง
+const getCheckMark = (mainValue, secondaryValue, category) => {
+
+  if (mainValue === null || secondaryValue === null) {
+    return '';
+  }
+
+  if (category === 'minprice') {
+    // ระยะทางและราคาน้อยสุดดีกว่า
+    if (mainValue < secondaryValue) {
+      return '   ❤️️' // หอพักหลักดีกว่า
+    } else if (mainValue > secondaryValue) {
+      return ' ' // หอพักรองดีกว่า
+    }
+  } else if (category === 'maxprice') {
+    // ขนาดห้องใหญ่สุดดีกว่า
+    if (mainValue < secondaryValue) {
+      return '   ❤️️' // หอพักหลักดีกว่า
+    } else if (mainValue > secondaryValue) {
+      return '' // หอพักรองดีกว่า
+    }
+  } else if (category === 'size') {
+    // ขนาดห้องใหญ่สุดดีกว่า
+    if (mainValue > secondaryValue) {
+      return '   ❤️️' // หอพักหลักดีกว่า
+    } else if (mainValue < secondaryValue) {
+      return '' // หอพักรองดีกว่า
+    }
+  } else if (category === 'distance') {
+    // ขนาดห้องใหญ่สุดดีกว่า
+    if (mainValue < secondaryValue) {
+      return '  ❤️️' // หอพักหลักดีกว่า
+    } else if (mainValue > secondaryValue) {
+      return '' // หอพักรองดีกว่า
+    }
+  }
+  
+  return ''
+}
+
+
+
 </script>
 
 <template>
 
 
-    <header>
-        <div class="background">
-          <img src="@/components/photos/backgroud.svg" alt="">
+    <!-- Hero Section -->
+    <header class="hero">
+      <div class="background">
+        <img src="@/components/photos/dorm.jpg" alt="Dorm Hero" class="hero-image">
+      </div>
+      <div class="hero-content">
+        <!-- ส่วนหัวเรื่อง -->
+        <div class="text-center py-5 mt-5 text-4xl font-semibold">
+          <!-- ตรวจสอบว่า mainDormitory และ secondaryDormitory มีค่า -->
+          <h2 v-if="mainDormitoryData && secondaryDormitoryData">ผลลัพธ์การเปรียบเทียบ</h2>
+          <h2 v-else>เลือกเพื่อเปรียบเทียบ</h2>
         </div>
+      </div>
     </header>
 
 
@@ -241,137 +254,46 @@ const formatAddress = (address) => {
 
 
    
-<!------------------------------- COMPARE Dormitories ------------------------------->
-<div class="w-8/12 flex flex-row justify-between">
 
-<!------------------------------- CARD Dormitories ---------------------------------->
-    <div class="w-8/12 flex flex-col items-center justify-center">
-      <!-- ส่วนหัวเรื่อง -->
-      <div class="text-center py-5 mt-5 text-2xl font-semibold">
-          <h2>เลือกเพื่อเปรียบเทียบ</h2>
-      </div>
-
-      <div class="flex flex-row items-center w-full justify-around mt-5 h-full pr-2 space-x-2">
-        <Card
-        title="หอพักหลัก"
-        :dormitoryName="mainDormitory ? dormitories.find(dorm => dorm.dormId === mainDormitory).name : 'ยังไม่ได้เลือก'"
-        :distance="mainDormitory ? dormitories.find(dorm => dorm.dormId === mainDormitory).distance : 0"
-        :address="mainDormitory ? formatAddress(dormitories.find(dorm => dorm.dormId === mainDormitory).address) : ''"
-        
-      />
-      <Card
-        title="หอพักรอง"
-        :dormitoryName="secondaryDormitory ? dormitories.find(dorm => dorm.dormId === secondaryDormitory).name : 'ยังไม่ได้เลือก'"
-        :distance="secondaryDormitory ? dormitories.find(dorm => dorm.dormId === secondaryDormitory).distance : 0"
-        :address="secondaryDormitory ? formatAddress(dormitories.find(dorm => dorm.dormId === secondaryDormitory).address) : ''"
-      />
-      </div>
-
+<!------------------------------- CARD Dormitories -------------------------------> 
+<div class="w-8/12 flex flex-col items-center justify-center">
+  <div class="w-full flex flex-row items-center justify-around mt-5 h-full space-x-4">
+    <!-- หอพักหลัก -->
+    <Card
+      v-if="mainDormitory"
+      title="หอพักหลัก"
+      :dormitoryName="mainDormitoryData.name"
+      :distance="mainDormitoryData.distance + ' กม.' + getCheckMark(mainDormitoryData.distance, secondaryDormitoryData?.distance, 'distance')"
+      :address="formatAddress(mainDormitoryData.address)"
+      :minprice="mainDormitoryData.min_price + getCheckMark(mainDormitoryData.min_price, secondaryDormitoryData?.min_price, 'minprice')"
+      :maxprice="mainDormitoryData.max_price + getCheckMark(mainDormitoryData.max_price, secondaryDormitoryData?.max_price, 'maxprice')"
+      :size="mainDormitoryData.size + ' ตร.ม.' + getCheckMark(mainDormitoryData.size, secondaryDormitoryData?.size, 'size')"
+      :roomFacilities="mainDormitoryData.room_facility"
+      :buildingFacilities="mainDormitoryData.building_facility"
+      :imageUrl="mainDormitoryData.image[0]"
+    />
+    <div v-else class="w-full flex flex-col items-center justify-center bg-gray-200 h-80 rounded-lg shadow-md">
+      <span class="text-3xl font-semibold text-center text-gray-600">ยังไม่ได้เลือกหอพักหลัก</span>
     </div>
 
-
-<!--------------------------------- ตารางเปรียบเทียบ --------------------------------->
-    <div class="w-8/12 flex flex-col items-center">
-      <div class="text-center py-5 mt-5 text-2xl font-semibold">
-        <h2>ตารางเปรียบเทียบ</h2>
-      </div>
-
-      <table class="table w-full mt-5 h-full">
-        <thead>
-          <tr>
-            <th class="border px-4 py-2">คุณสมบัติ</th>
-            <th class="border px-4 py-2">หอพักหลัก</th>
-            <th class="border px-4 py-2">หอพักรอง</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="border px-4 py-2">ราคาต่ำสุด</td>
-            <td class="border px-4 py-2">
-              {{ compareDormitories?.minprice.main === Math.min(compareDormitories?.minprice.main, compareDormitories?.minprice.secondary) ? '✔️' : '' }}
-              {{ compareDormitories?.minprice.main || 'ยังไม่ได้เลือก' }}
-            </td>
-            <td class="border px-4 py-2">
-              {{ compareDormitories?.minprice.secondary === Math.min(compareDormitories?.minprice.main, compareDormitories?.minprice.secondary) ? '✔️' : '' }}
-              {{ compareDormitories?.minprice.secondary || 'ยังไม่ได้เลือก' }}
-            </td>
-          </tr>
-
-          <tr>
-            <td class="border px-4 py-2">ราคาสูงสุด</td>
-            <td class="border px-4 py-2">
-              {{ compareDormitories?.maxprice.main === Math.min(compareDormitories?.maxprice.main, compareDormitories?.maxprice.secondary) ? '✔️' : '' }}
-              {{ compareDormitories?.maxprice.main || 'ยังไม่ได้เลือก' }}
-            </td>
-            <td class="border px-4 py-2">
-              {{ compareDormitories?.maxprice.secondary === Math.min(compareDormitories?.maxprice.main, compareDormitories?.maxprice.secondary) ? '✔️' : '' }}
-              {{ compareDormitories?.maxprice.secondary || 'ยังไม่ได้เลือก' }}
-            </td>
-          </tr>
-
-          <tr>
-            <td class="border px-4 py-2">ขนาดห้อง</td>
-            <td class="border px-4 py-2">
-              {{ compareDormitories?.size.main === Math.max(compareDormitories?.size.main, compareDormitories?.size.secondary) ? '✔️' : '' }}
-              {{ compareDormitories?.size.main ? compareDormitories?.size.main + ' ตร.ม.' : 'ยังไม่ได้เลือก' }}
-            </td>
-            <td class="border px-4 py-2">
-              {{ compareDormitories?.size.secondary === Math.max(compareDormitories?.size.main, compareDormitories?.size.secondary) ? '✔️' : '' }}
-              {{ compareDormitories?.size.secondary ? compareDormitories?.size.secondary + ' ตร.ม.' : 'ยังไม่ได้เลือก' }} 
-            </td>
-          </tr>
-
-
-          
-          <tr>
-            <td class="border px-4 py-2">สิ่งอำนวยความสะดวกภายในห้อง</td>
-            <td class="border px-4 py-2">
-            <ul>
-              <li v-if="compareDormitories?.mainDormRoomFacilities && compareDormitories.mainDormRoomFacilities.length" 
-                  v-for="facility in compareDormitories.mainDormRoomFacilities" :key="facility">
-                {{ facility }}
-              </li>
-              <li v-else>ยังไม่ได้เลือก</li>
-            </ul>
-          </td>
-
-          <td class="border px-4 py-2">
-            <ul>
-              <li v-if="compareDormitories?.secondaryDormRoomFacilities && compareDormitories.secondaryDormRoomFacilities.length" 
-                  v-for="facility in compareDormitories.secondaryDormRoomFacilities" :key="facility">
-                {{ facility }}
-              </li>
-              <li v-else>ยังไม่ได้เลือก</li>
-            </ul>
-          </td>
-        </tr>
-        
-        <tr>
-          <td class="border px-4 py-2">สิ่งอำนวยความสะดวกภายนอกอาคาร</td>
-          <td class="border px-4 py-2">
-            <ul>
-              <li v-if="compareDormitories?.mainDormBuildingFacilities && compareDormitories.mainDormBuildingFacilities.length"  
-                  v-for="facility in compareDormitories?.mainDormBuildingFacilities" :key="facility">
-                {{ facility }}
-              </li>
-              <li v-else>ยังไม่ได้เลือก</li>
-            </ul>
-          </td>
-          <td class="border px-4 py-2">
-            <ul>
-              <li v-if="compareDormitories?.secondaryDormBuildingFacilities && compareDormitories.secondaryDormBuildingFacilities.length"  
-                  v-for="facility in compareDormitories?.secondaryDormBuildingFacilities" :key="facility">
-                {{ facility }}
-              </li>
-              <li v-else>ยังไม่ได้เลือก</li>
-            </ul>
-          </td>
-        </tr>
-
-        </tbody>
-      </table>
-    </div>
-    <!---------------------------------------------------------------------->
+    <!-- หอพักรอง -->
+    <Card
+      v-if="secondaryDormitory"
+      title="หอพักรอง"
+      :dormitoryName="secondaryDormitoryData.name"
+      :distance="secondaryDormitoryData.distance + ' กม.' + getCheckMark(secondaryDormitoryData.distance, mainDormitoryData.distance, 'distance')"
+      :address="formatAddress(secondaryDormitoryData.address)"
+      :minprice="secondaryDormitoryData.min_price + getCheckMark(secondaryDormitoryData.min_price, mainDormitoryData.min_price, 'minprice')"
+      :maxprice="secondaryDormitoryData.max_price + getCheckMark(secondaryDormitoryData.max_price, mainDormitoryData.max_price, 'maxprice')"
+      :size="secondaryDormitoryData.size + ' ตร.ม.' + getCheckMark(secondaryDormitoryData.size, mainDormitoryData.size, 'size')"
+      :roomFacilities="secondaryDormitoryData.room_facility"
+      :buildingFacilities="secondaryDormitoryData.building_facility"
+      :imageUrl="secondaryDormitoryData.image[0]"
+    />
+  <div v-else class="w-full flex flex-col items-center justify-center bg-gray-200 h-80 rounded-lg shadow-md">
+    <span class="text-3xl font-semibold text-center text-gray-600">ยังไม่ได้เลือกหอพักรอง</span>
+  </div>
+</div>
 
 </div>
 
@@ -379,7 +301,9 @@ const formatAddress = (address) => {
 
 
 
-<!--------------------------- Search Button -------------------------------------->
+
+
+<!--------------------------- Search Button & Filter -------------------------------------->
    
       <div class="flex flex-row w-8/12 justify-center items-center mt-5">
           <div class="relative flex-grow">
@@ -500,7 +424,7 @@ const formatAddress = (address) => {
 /* ภาพพื้นหลังด้านบน */
 .background img {
   width: 100%;
-  height: 200px; 
+  height: 1000px; 
   object-fit: cover; 
 }
 
@@ -713,4 +637,36 @@ input[type="range"]:focus {
   transition: transform 0.3s ease; /* เพิ่มการขยายขนาดอย่างนุ่มนวล */
 }
 
+.hero {
+  position: relative;
+  height: 20vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  color: #eeeeee;
+  text-shadow: 4px 4px 6px rgba(0, 0, 0, 0.7); 
+}
+
+
+.hero .background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 200px;
+  z-index: -1;
+}
+
+.hero .hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.7); /* Darken the image for better text contrast */
+}
+
+.hero-content {
+  z-index: 1;
+}
 </style>
