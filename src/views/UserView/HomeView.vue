@@ -5,6 +5,7 @@ import WhiteButton from '@/components/buttons/WhiteButton.vue';
 import BlackButton from '@/components/buttons/BlackButton.vue';
 import Card from '@/components/Card.vue';
 import { getDormitories } from '@/composables/getDormitories';
+import { formatPrice } from '@/composables/formatPrice';
 
 const dormitories = ref([])
 
@@ -349,7 +350,7 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
             <div class="flex w-full">
               <div class="item">
                 <h1 @click="showDetail(dorm.dormId)" class="dormname cursor-pointer">{{ dorm.name }}</h1>
-                <h2><span style="color: green; font-size: larger;">{{ dorm.min_price }} - {{ dorm.max_price }}</span> บาท/เดือน</h2>
+                <h2><span style="color: green; font-size: larger;">{{ formatPrice(dorm.min_price) }} - {{ formatPrice(dorm.max_price) }}</span> บาท/เดือน</h2>
                 <h2>ระยะทาง <span>{{ dorm.distance }} กม.</span></h2>
                 <h2>
                   ประเภทหอพัก:

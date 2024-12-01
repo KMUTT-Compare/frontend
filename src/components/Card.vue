@@ -72,11 +72,11 @@ onMounted(() => {
       
       <div class="flex w-full p-4 space-x-2">
         <div class="bg-base-200 rounded-box grid h-10 flex-grow place-items-center hover:bg-gray-200">
-          <h3>ราคาต่ำสุด: <span class="text-green-500">{{ minprice || 'ยังไม่ได้เลือก' }}</span></h3>
+          <h3>ราคาต่ำสุด: <span class="text-green-500">{{ minprice || 'ยังไม่ได้เลือก' }}</span>  บาท/เดือน</h3>
         </div>
 
         <div class="bg-base-200 rounded-box grid h-10 flex-grow place-items-center hover:bg-gray-200">
-          <h3>ราคาสูงสุด: <span class="text-green-500">{{ maxprice || 'ยังไม่ได้เลือก' }}</span></h3>
+          <h3>ราคาสูงสุด: <span class="text-green-500">{{ maxprice || 'ยังไม่ได้เลือก' }}</span>  บาท/เดือน</h3>
         </div>
       </div>
 

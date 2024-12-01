@@ -5,6 +5,7 @@ import { formatDate } from '@/composables/formatDate';
 import WhiteButton from '@/components/buttons/WhiteButton.vue';
 import BlackButton from '@/components/buttons/BlackButton.vue';
 import { getDormitoryById } from '@/composables/getDormitoryById';
+import { formatPrice } from '@/composables/formatPrice';
 
 const dormImages = ref([]);
 
@@ -148,7 +149,9 @@ function initMap(addressObject) {
       <!-- เมนูด้านบน -->
       <div class="flex text-gray-700 px-6 justify-between text-lg">
         <p>ประกาศโดย : {{ dormitoryDetaill.staffName }}</p>
-        <p>สถานะ : {{ dormitoryDetaill.status }}</p>
+        <p>สถานะ : 
+          {{ dormitoryDetaill.status === 'empty' ? 'ว่าง' : dormitoryDetaill.status === 'full' ? 'ไม่ว่าง' : dormitoryDetaill.status }}
+        </p>
         <p>อัปเดตล่าสุด : {{ formatDate(dormitoryDetaill.updated_at) }}</p>
       </div>
 
@@ -201,7 +204,7 @@ function initMap(addressObject) {
           <h1 class="text-5xl font-semibold">{{ dormitoryDetaill.name }}</h1>
           <div class="pt-4">
             <p class="font-semibold">ราคา</p>
-            <h2 class="text-2xl font-semibold"><span class="text-4xl text-green-500 font-semibold">{{ dormitoryDetaill.min_price }} - {{ dormitoryDetaill.max_price }}</span> บาท / เดือน</h2>
+            <h2 class="text-2xl font-semibold"><span class="text-4xl text-green-500 font-semibold">{{ formatPrice(dormitoryDetaill.min_price) }} - {{ formatPrice(dormitoryDetaill.max_price) }}</span> บาท / เดือน</h2>
           </div>
           <div class="flex flex-col pt-4 space-y-2">
             <BlackButton @click="setMainDormitory(dorm.dormId)" context="ตั้งเป็นหอพักหลัก" />
@@ -227,12 +230,12 @@ function initMap(addressObject) {
         <div class="flex space-x-4">
           <!-- ภายในห้องพัก -->
           <div class="w-full md:w-1/2 space-y-4">
-            <h3 class="text-2xl font-semibold">เฟอร์นิเจอร์ภายในห้องพัก</h3>
+            <h3 class="text-2xl font-semibold">สิ่งอำนวยความสะดวกภายในห้องพัก</h3>
             <div class="overflow-x-auto">
               <table class="min-w-full table-auto text-left border-collapse">
                 <thead>
                   <tr class="bg-gray-200">
-                    <th class="px-4 py-2 font-semibold text-xl text-gray-700">รายการเฟอร์นิเจอร์</th>
+                    <th class="px-4 py-2 font-semibold text-xl text-gray-700">รายการสิ่งอำนวยความสะดวก</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -246,12 +249,12 @@ function initMap(addressObject) {
 
           <!-- ภายนอกอาคาร -->
           <div class="w-full md:w-1/2 space-y-4">
-            <h3 class="text-2xl font-semibold">เฟอร์นิเจอร์ภายนอกอาคาร</h3>
+            <h3 class="text-2xl font-semibold">สิ่งอำนวยความสะดวกภายใน และ ภายนอกอาคาร</h3>
             <div class="overflow-x-auto">
               <table class="min-w-full table-auto text-left border-collapse">
                 <thead>
                   <tr class="bg-gray-200">
-                    <th class="px-4 py-2 font-semibold text-xl text-gray-700">รายการเฟอร์นิเจอร์</th>
+                    <th class="px-4 py-2 font-semibold text-xl text-gray-700">รายการสิ่งอำนวยความสะดวก</th>
                   </tr>
                 </thead>
                 <tbody>

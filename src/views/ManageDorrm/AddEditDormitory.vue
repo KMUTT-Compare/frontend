@@ -720,14 +720,14 @@ const handleConfirmAction = async (context) => {
       <div class="flex flex-row space-x-8">
         <div class="flex flex-col">
           <div class="flex flex-row items-center">
-            <p for="min-price" class="w-24 text-lg">ราคาเริ่มต้น:<span class="text-red-500">*</span></p>
+            <p for="min-price" class="w-44 text-lg">ราคาเริ่มต้น: (ต่อเดือน)<span class="text-red-500">*</span></p>
             <input v-model="min_price" type="text" id="min_price" class="ml-2 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-42 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="โปรดระบุเป็นตัวเลข" required />
           </div>
           <p v-if="minPriceError" class="pl-24 ml-2 text-red-500 text-sm">{{ minPriceError }}</p>
         </div>
         <div class="flex flex-col">
         <div class="flex flex-row items-center">
-          <p for="max-price" class="w-24 text-lg">ราคาสูงสุด:<span class="text-red-500">*</span></p>
+          <p for="max-price" class="w-44 text-lg">ราคาสูงสุด: (ต่อเดือน)<span class="text-red-500">*</span></p>
           <input v-model="max_price" type="text" id="max_price" class="border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-42 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="โปรดระบุเป็นตัวเลข" required />
         </div>
         <p v-if="maxPriceError" class="pl-24 ml-2 text-red-500 text-sm">{{ maxPriceError }}</p>
@@ -762,8 +762,8 @@ const handleConfirmAction = async (context) => {
 
         <div class="flex flex-row items-center">
           <div class="flex flex-col">
-            <div class="flex flex-row">
-              <p for="max-price" class="w-24 text-lg">ขนาดห้อง: (ตร.ม.)<span class="text-red-500">*</span></p>
+            <div class="flex flex-row items-center">
+              <p for="max-price" class="w-36 text-lg">ขนาดห้อง: (ตร.ม.)<span class="text-red-500">*</span></p>
               <input v-model="size" type="text" id="size" class="border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-42 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="โปรดระบุเป็นตัวเลข" required />
             </div>
             <p v-if="sizeError" class="pl-24 ml-2 text-red-500 text-sm">{{ sizeError }}</p>
@@ -772,13 +772,10 @@ const handleConfirmAction = async (context) => {
 
 
 
-
-    <h2 class="pt-5">สิ่งอำนวยความสะดวกต่างๆ</h2>
-
      <!-- สิ่งอำนวยความสะดวกต่างๆ -->
-    <div class="grid gap-6 md:grid-cols-2">
+    <div class="grid gap-6 md:grid-cols-2 pt-5">
         <div class="room space-y-5">
-          <h3>ภายในห้อง<span class="text-red-500">*</span></h3>
+          <h3>สิ่งอำนวยความสะดวกภายในห้องพัก<span class="text-red-500">*</span></h3>
 
              <!-- สิ่งอำนวยความสะดวกภายในห้อง -->
           <div class="room space-y-5">
@@ -811,7 +808,7 @@ const handleConfirmAction = async (context) => {
         </div>
 
         <div class="outside space-y-5">
-          <h3>ภายนอกอาคาร<span class="text-red-500">*</span></h3>
+          <h3>สิ่งอำนวยความสะดวกภายใน และ ภายนอกอาคาร<span class="text-red-500">*</span></h3>
 
                         <!-- สิ่งอำนวยความสะดวกภายนอกอาคาร -->
               <div class="outside space-y-5">
@@ -848,7 +845,7 @@ const handleConfirmAction = async (context) => {
     </div>
 
 
-    <div>
+    <div class="pt-5">
       <h2>อัปโหลดรูปภาพ</h2>
       <div class="flex flex-col items-start">
         <label class="flex flex-col items-center cursor-pointer">
