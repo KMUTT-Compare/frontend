@@ -215,7 +215,7 @@ function initMap(addressObject) {
 
       <!-- รายละเอียดต่างๆ -->
       <div class="flex flex-col space-y-6 px-6">
-        <h2 class="text-3xl font-semibold">รายละเอียดหอพัก</h2>
+        <h2 class="text-3xl font-semibold pt-8">รายละเอียดหอพัก</h2>
         <div class="space-y-4">
           <p><span style="font-weight:500;">จำนวนห้องพักที่เหลือให้เช่า:</span> {{ dormitoryDetaill.roomCount }} ห้อง</p>
           <p><span style="font-weight:500;">ประเภทหอพัก: </span> 
@@ -227,7 +227,7 @@ function initMap(addressObject) {
         </div>
         
         <!-- Facility: ภายในห้องพัก และ ภายนอกอาคาร -->
-        <div class="flex space-x-4">
+        <div class="flex space-x-4 pt-8">
           <!-- ภายในห้องพัก -->
           <div class="w-full md:w-1/2 space-y-4">
             <h3 class="text-2xl font-semibold">สิ่งอำนวยความสะดวกภายในห้องพัก</h3>
@@ -248,7 +248,7 @@ function initMap(addressObject) {
           </div>
 
           <!-- ภายนอกอาคาร -->
-          <div class="w-full md:w-1/2 space-y-4">
+          <div class="w-full md:w-1/2 space-y-4 pt-8">
             <h3 class="text-2xl font-semibold">สิ่งอำนวยความสะดวกภายใน และ ภายนอกอาคาร</h3>
             <div class="overflow-x-auto">
               <table class="min-w-full table-auto text-left border-collapse">
@@ -268,7 +268,7 @@ function initMap(addressObject) {
         </div>
 
         <!-- ที่อยู่ -->
-        <div class="space-y-4">
+        <div class="space-y-4 pt-8">
           <h3 class="text-2xl font-semibold">ที่อยู่หอพัก</h3>
           <ul class="space-y-2">
             <p v-for="(address, index) in dormitoryDetaill" :key="index">
@@ -277,7 +277,7 @@ function initMap(addressObject) {
           </ul>
         </div>
 
-        <h3 class="text-2xl font-semibold">ห่างกับมหาวิทยาลัยพระจอมเกล้าธนบุรีประมาณ : {{dormitoryDetaill.distance }} กม.</h3>
+        <h3 class="text-2xl font-semibold pt-8">ห่างกับมหาวิทยาลัยพระจอมเกล้าธนบุรีประมาณ : {{dormitoryDetaill.distance }} กม.</h3>
 
           <!-- แผนที่ -->
         <div class="w-full h-80 my-8">

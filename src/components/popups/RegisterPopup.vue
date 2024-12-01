@@ -61,7 +61,7 @@ const register = async() =>{
                         Register
                     </p>
                     <p class="mt-2 text-sm leading-4 text-slate-600">
-                        KMUTT Comfort - JIP.
+                        KMUTT Compare - JIP.
                     </p>
                 </div>
 

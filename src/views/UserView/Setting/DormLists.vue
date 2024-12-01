@@ -5,6 +5,7 @@ import { onMounted, ref } from 'vue';
 import router from '@/router';
 import DeleteModal from '@/components/modals/ConfirmModal.vue';
 import SuccessModal from '@/components/modals/SuccessModal.vue';
+import { formatPrice } from '@/composables/formatPrice';
 
 
 const API_ROOT = import.meta.env.VITE_API_ROOT;
@@ -101,7 +102,7 @@ const deleteDormitory = async () => {
                     </div>
                   </div>
 
-                  <h2><span style="color: green; font-size: larger;">{{ dorm.min_price }} - {{ dorm.max_price }}</span> บาท/เดือน</h2>
+                  <h2><span style="color: green; font-size: larger;">{{ formatPrice(dorm.min_price) }} - {{ formatPrice(dorm.max_price) }}</span> บาท/เดือน</h2>
                   <p>ที่อยู่: {{ dorm.address.street }}, {{ dorm.address.subdistrict }}, {{ dorm.address.district }}, {{ dorm.address.province }} {{ dorm.address.postalCode }}</p>
                 </div>
               </div>
