@@ -6,44 +6,43 @@
     <div class="footer">
         <div class="text-footer space-y-2">
             <h3>About Us</h3>
-            <p>Dormitory in the university area</p>
+            <p >We help you find the best dormitory options near KMUTT with ease and convenience.</p>
         </div>
         <div class="text-footer space-y-2">
             <h3>Support</h3>
-            <p>ORDER TRACKING</p>
-            <p>PRIVACY POLICY</p>
-            <p>FAQ</p>
-            <p>CONTACT US</p>
+            <a href="/faq" class="text-white hover:underline">FAQ</a>
+            <a href="/support" class="text-white hover:underline">GET IN TOUCH</a>
         </div>
         <div class="text-footer space-y-2">
-            <h3>Follow Us</h3>
-
-        <div class="flex flex-row space-x-2">          
-            <textarea id="chat" rows="1" class="block p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Your email..."></textarea>
-            <button class="btn bg-orange-600 border-orange-600 hover:bg-orange-700 hover:border-orange-700">SUBMIT</button>
-        </div>  
-
+            <h3>Contact Us</h3>
+            <a href="mailto:jipjip.kmutt.compare@gmail.com" class="text-white hover:underline">
+                jipjip.kmutt.compare@gmail.com
+                </a>
+            <div class="flex flex-row space-x-2">          
+                
+            </div>  
         </div>
     </div>
 </template>
- 
+
 <style scoped>
 .footer{
-    margin-top: 50px;
+    margin-top: 100px;
     display: grid;
     grid-template-columns: repeat(3,1fr);
     grid-template-rows: auto;
     column-gap: 30px;
     row-gap: 20px;
     justify-items: center;
-    height: 400px;
+    height: 260px;
     width: 100%;
     color: white;
     background-color: black;
 }
 
 h3{
-    font-size: 20px;
+    font-size: 25px;
+    padding-bottom: 10px;
 }
 
 .text-footer{
