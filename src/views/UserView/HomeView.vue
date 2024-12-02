@@ -11,7 +11,7 @@ const dormitories = ref([])
 
 onMounted(async () => {
   dormitories.value = await getDormitories();
-  console.log(dormitories.value)
+  // console.log(dormitories.value)
   
 })
 
@@ -88,29 +88,17 @@ const filteredDormitories = computed(() => {
 
 
 // ---------------------------------- เปรียบเทียบหอพัก ----------------------------------
-const mainDormitory = ref(null);
-const secondaryDormitory = ref(null);
+import { useDormitoryStore } from '@/stores/useDormitoryStore';
 
-const setMainDormitory = (dormId) => {
-  if (secondaryDormitory.value === dormId) {
-    secondaryDormitory.value = null; // ลบหอพักรองถ้ามันตรงกับหอพักหลัก
-  }
-  mainDormitory.value = dormId;
-};
+// เข้าถึง store
+const dormitoryStore = useDormitoryStore();
 
-const setSecondaryDormitory = (dormId) => {
-  if (mainDormitory.value === dormId) {
-    mainDormitory.value = null; // ลบหอพักหลักถ้ามันตรงกับหอพักรอง
-  }
-  secondaryDormitory.value = dormId;
-};
+// ดึง computed properties จาก store
+const mainDormitoryData = computed(() => dormitoryStore.mainDormitoryData);
+const secondaryDormitoryData = computed(() => dormitoryStore.secondaryDormitoryData);
 
-// ค่าของหอพักหลัก
-const mainDormitoryData = computed(() => dormitories.value.find(dorm => dorm.dormId === mainDormitory.value));
 
-// ค่าของหอพักรอง
-const secondaryDormitoryData = computed(() => dormitories.value.find(dorm => dorm.dormId === secondaryDormitory.value));
-console.log(mainDormitoryData.roomFacilities)
+
 // ฟังก์ชันสำหรับแปลง address ให้เป็น string
 const formatAddress = (address) => {
   if (typeof address === 'object' && address !== null) {
@@ -261,7 +249,7 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
   <div class="w-full flex flex-row items-center justify-around mt-5 h-full space-x-4">
     <!-- หอพักหลัก -->
     <Card
-      v-if="mainDormitory"
+      v-if="mainDormitoryData"
       title="หอพักหลัก"
       :dormitoryName="mainDormitoryData.name"
       :distance="mainDormitoryData.distance + ' กม.' + getCheckMark(mainDormitoryData.distance, secondaryDormitoryData?.distance, 'distance')"
@@ -279,7 +267,7 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
 
     <!-- หอพักรอง -->
     <Card
-      v-if="secondaryDormitory"
+      v-if="secondaryDormitoryData"
       title="หอพักรอง"
       :dormitoryName="secondaryDormitoryData.name"
       :distance="secondaryDormitoryData.distance + ' กม.' + getCheckMark(secondaryDormitoryData.distance, mainDormitoryData.distance, 'distance')"
@@ -340,7 +328,7 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
         <div class="items rounded-lg border-2">
           
           <div class="w-8/12 flex h-64 justify-center items-center">
-            <div class="w-full h-full bg-cover bg-center rounded-2xl" :style="{ backgroundImage: `url(${dorm.image[0]})` }" alt="Dormitory Image"></div>
+            <div class="w-full h-full bg-cover bg-center rounded-2xl" :style="{ backgroundImage: `url(${dorm.image[0] || '/images/no_image.jpg'})` }" alt="Dormitory Image"></div>
           </div>
 
 
@@ -366,8 +354,8 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
 
             <!-- Button -->
           <div class="flex justify-around space-x-2 mt-2 items-center">
-            <BlackButton @click="setMainDormitory(dorm.dormId)" context="ตั้งเป็นหอพักหลัก"/>
-            <WhiteButton @click="setSecondaryDormitory(dorm.dormId)" context="ตั้งเป็นหอพักรอง"/>
+            <BlackButton @click="dormitoryStore.setMainDormitory(dorm.dormId)" context="ตั้งเป็นหอพักหลัก"/>
+            <WhiteButton @click="dormitoryStore.setSecondaryDormitory(dorm.dormId)" context="ตั้งเป็นหอพักรอง"/>
           </div>
 
 

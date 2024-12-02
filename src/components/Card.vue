@@ -59,7 +59,7 @@ onMounted(() => {
       <div class="img">
         <figure class="relative">
           <!-- แสดงภาพที่ได้รับมาจาก imageUrl -->
-          <img :src="imageUrl" alt="หอพัก" class="w-full h-24 object-cover" />
+          <img :src="imageUrl || '/images/no_image.jpg'" alt="หอพัก" class="w-full h-24 object-cover" />
           <div class="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 text-white">
             <span class="text-3xl font-semibold">{{ dormitoryName || 'ยังไม่ได้เลือก' }}</span>
           </div>

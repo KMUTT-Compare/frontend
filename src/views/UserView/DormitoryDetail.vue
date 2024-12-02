@@ -6,6 +6,23 @@ import WhiteButton from '@/components/buttons/WhiteButton.vue';
 import BlackButton from '@/components/buttons/BlackButton.vue';
 import { getDormitoryById } from '@/composables/getDormitoryById';
 import { formatPrice } from '@/composables/formatPrice';
+import router from '@/router';
+
+import { useDormitoryStore } from '@/stores/useDormitoryStore';
+
+// เข้าถึง store
+const dormitoryStore = useDormitoryStore();
+
+const setMainDormitory = (dormId) => {
+  dormitoryStore.setMainDormitory(dormId);
+  router.push('/');
+};
+
+const setSecondaryDormitory = (dormId) => {
+  dormitoryStore.setSecondaryDormitory(dormId);
+  router.push('/');
+};
+
 
 const dormImages = ref([]);
 
@@ -156,47 +173,44 @@ function initMap(addressObject) {
       </div>
 
       <!-- รายละเอียดมุมขวาบน -->
-      <div class="flex flex-col md:flex-row md:space-x-4 p-6 rounded-lg">
-<!-- กรอบสำหรับรูป 3 รูปทางซ้าย -->
-<div class="w-full md:w-1/5 flex flex-col space-y-2">
-  <!-- ตรวจสอบว่ามีรูปใน dormImages[1] หรือไม่ -->
-  <img 
-    v-if="dormImages[1]" 
-    class="imgs object-cover w-full h-36 rounded-lg shadow-md hover:scale-105 transition-transform" 
-    :src="dormImages[1]" 
-    alt="Image 1">
+    <div class="flex flex-col md:flex-row md:space-x-4 p-6 rounded-lg">
+      <!-- กรอบสำหรับรูป 3 รูปทางซ้าย -->
+      <div class="w-full md:w-1/5 flex flex-col space-y-2">
+        <!-- ตรวจสอบว่ามีรูปใน dormImages[1] หรือไม่ -->
+        <img  
+          class="imgs object-cover w-full h-36 rounded-lg shadow-md hover:scale-105 transition-transform" 
+          :src="dormImages[1] || '/images/no_image.jpg'" 
+          alt="Image 1">
 
-  <!-- ตรวจสอบว่ามีรูปใน dormImages[2] หรือไม่ -->
-  <img 
-    v-if="dormImages[2]" 
-    class="imgs object-cover w-full h-36 rounded-lg shadow-md hover:scale-105 transition-transform" 
-    :src="dormImages[2]" 
-    alt="Image 2">
+        <!-- ตรวจสอบว่ามีรูปใน dormImages[2] หรือไม่ -->
+        <img  
+          class="imgs object-cover w-full h-36 rounded-lg shadow-md hover:scale-105 transition-transform" 
+          :src="dormImages[2] || '/images/no_image.jpg'" 
+          alt="Image 2">
 
-  <!-- ตรวจสอบว่ามีรูปใน dormImages[3] หรือไม่ -->
-  <div class="relative" v-if="dormImages[3]">
-    <img 
-      class="imgs object-cover w-full h-36 rounded-lg shadow-md hover:scale-105 transition-transform" 
-      :src="dormImages[3]" 
-      alt="Image 3">
-    <!-- ป้ายดูเพิ่มเติม -->
-    <div 
-      class="absolute top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-50 text-white font-semibold text-xl cursor-pointer" 
-      @click="openModal(dormImages)">
-      ดูเพิ่มเติม
-    </div>
-  </div>
-</div>
+        <!-- ตรวจสอบว่ามีรูปใน dormImages[3] หรือไม่ -->
+        <div class="relative">
+          <img 
+            class="imgs object-cover w-full h-36 rounded-lg shadow-md hover:scale-105 transition-transform" 
+            :src="dormImages[3] || '/images/no_image.jpg'" 
+            alt="Image 3">
+          <!-- ป้ายดูเพิ่มเติม -->
+          <div 
+            class="absolute top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-50 text-white font-semibold text-xl cursor-pointer" 
+            @click="openModal(dormImages)">
+            ดูเพิ่มเติม
+          </div>
+        </div>
+      </div>
 
-<!-- กรอบสำหรับรูปเดียวทางขวา -->
-<div class="first-img w-full md:w-3/6 flex justify-center">
-  <!-- ตรวจสอบว่ามีรูปใน dormImages[0] หรือไม่ -->
-  <img 
-    v-if="dormImages[0]" 
-    class="imgs object-cover w-full rounded-lg shadow-lg hover:scale-105 transition-transform" 
-    :src="dormImages[0]" 
-    alt="Main Image">
-</div>
+      <!-- กรอบสำหรับรูปเดียวทางขวา -->
+      <div class="first-img w-full md:w-3/6 flex justify-center">
+        <!-- ตรวจสอบว่ามีรูปใน dormImages[0] หรือไม่ -->
+        <img 
+          class="imgs object-cover w-full rounded-lg shadow-lg hover:scale-105 transition-transform" 
+          :src="dormImages[0] || '/images/no_image.jpg'" 
+          alt="Main Image">
+      </div>
 
 
         <!-- รายละเอียดหอพัก -->
@@ -207,8 +221,8 @@ function initMap(addressObject) {
             <h2 class="text-2xl font-semibold"><span class="text-4xl text-green-500 font-semibold">{{ formatPrice(dormitoryDetaill.min_price) }} - {{ formatPrice(dormitoryDetaill.max_price) }}</span> บาท / เดือน</h2>
           </div>
           <div class="flex flex-col pt-4 space-y-2">
-            <BlackButton @click="setMainDormitory(dorm.dormId)" context="ตั้งเป็นหอพักหลัก" />
-            <WhiteButton @click="setSecondaryDormitory(dorm.dormId)" context="ตั้งเป็นหอพักรอง" />
+            <BlackButton @click="setMainDormitory(dormitoryDetaill.dormId)" context="ตั้งเป็นหอพักหลัก" />
+            <WhiteButton @click="setSecondaryDormitory(dormitoryDetaill.dormId)" context="ตั้งเป็นหอพักรอง" />
           </div>
         </div>
       </div>
@@ -248,7 +262,7 @@ function initMap(addressObject) {
           </div>
 
           <!-- ภายนอกอาคาร -->
-          <div class="w-full md:w-1/2 space-y-4 pt-8">
+          <div class="w-full md:w-1/2 space-y-4">
             <h3 class="text-2xl font-semibold">สิ่งอำนวยความสะดวกภายใน และ ภายนอกอาคาร</h3>
             <div class="overflow-x-auto">
               <table class="min-w-full table-auto text-left border-collapse">
@@ -290,19 +304,23 @@ function initMap(addressObject) {
 
   
 
-  <!-- Modal แสดงรูปภาพเพิ่มเติม -->
-  <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div class="bg-white p-4 rounded-lg w-4/5 h-4/5 overflow-auto">
-      <div class="flex justify-end">
-        <button @click="closeModal" class="text-xl font-bold text-gray-700">X</button>
-      </div>
-      <div class="grid grid-cols-3 gap-4">
-        <div v-for="(image, index) in dormImages" :key="index" class="relative">
-          <img :src="image" alt="Gallery Image" class="w-full h-48 object-cover rounded-lg shadow-md">
-        </div>
+<!-- Modal แสดงรูปภาพเพิ่มเติม -->
+<div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+  <div class="bg-white p-4 rounded-lg w-4/5 h-4/5 overflow-auto">
+    <div class="flex justify-end">
+      <button @click="closeModal" class="text-xl font-bold text-gray-700">X</button>
+    </div>
+    <div v-if="dormImages.length > 0" class="grid grid-cols-3 gap-4">
+      <div v-for="(image, index) in dormImages" :key="index" class="relative">
+        <img :src="image" alt="Gallery Image" class="w-full h-48 object-cover rounded-lg shadow-md">
       </div>
     </div>
+    <div v-else class="flex items-center justify-center h-full">
+      <div class="text-4xl text-gray-700">ไม่มีรูปภาพในแกลลอรี่</div>
+    </div>
   </div>
+</div>
+
 </template>
 
 <style scoped>

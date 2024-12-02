@@ -80,7 +80,7 @@ const deleteDormitory = async () => {
           <div v-for="dorm in dormitories" :key="dorm.dormId" class="holding-items">
             <div class="items rounded-lg border-2">
               <div class="w-8/12 flex h-64 justify-center items-center">
-                <img :src="dorm.image[0]" class="h-full bg-cover bg-center rounded-2xl" alt="Dormitory Image" />
+                <img :src="dorm.image[0] || '/images/no_image.jpg'" class="h-full bg-cover bg-center rounded-2xl" alt="Dormitory Image" />
               </div>
 
               <div class="flex flex-col w-full h-full p-3 justify-center">
@@ -103,6 +103,14 @@ const deleteDormitory = async () => {
                   </div>
 
                   <h2><span style="color: green; font-size: larger;">{{ formatPrice(dorm.min_price) }} - {{ formatPrice(dorm.max_price) }}</span> บาท/เดือน</h2>
+                  <h2>ระยะทาง <span>{{ dorm.distance }} กม.</span></h2>
+                  <h2>
+                    ประเภทหอพัก:
+                    <span v-if="dorm.type === 'all'">รวม</span>
+                    <span v-else-if="dorm.type === 'f'">หญิง</span>
+                    <span v-else-if="dorm.type === 'm'">ชาย</span>
+                    <span v-else>{{ dorm.type }}</span>
+                  </h2>
                   <p>ที่อยู่: {{ dorm.address.street }}, {{ dorm.address.subdistrict }}, {{ dorm.address.district }}, {{ dorm.address.province }} {{ dorm.address.postalCode }}</p>
                 </div>
               </div>
