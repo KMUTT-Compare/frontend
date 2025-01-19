@@ -282,17 +282,35 @@ const deleteImage = async (imageUrl) => {
 
 
 // --------------------------------- Manage Facilities ---------------------------------
-
 const insideAmenities = ref([]);
 const outsideAmenities = ref([]);
 
 const newInsideAmenity = ref('');
 const newOutsideAmenity = ref('');
 
+const insideSuggestions = ref(["เตียงเดี่ยว","เตียงคู่","เครื่องปรับอากาศ", "เฟอร์นิเจอร์-ตู้", "เครื่องทำน้ำอุ่น", "พัดลม", "ทีวี/TV", "ตู้เย็น","โซฟา","โต๊ะ - เก้าอี้ทำงาน","เตาปรุงอาหาร","โทรศัพท์สายตรง","อินเทอร์เน็ตไร้สาย (WIFI) ในห้อง","เคเบิลทีวี / ดาวเทียม"]);
+const filteredInsideSuggestions = ref([]);
+
+const outsideSuggestions = ref(["ที่จอดรถ","ที่จอดรถมอเตอร์ไซด์/จักรยาน","ลิฟต์", "กล้องวงจรปิด", "โรงยิม / ฟิตเนส", "สระว่ายน้ำ", "สนามเด็กเล่น","มีระบบรักษาความปลอดภัย (keycard)","มีระบบรักษาความปลอดภัย (สแกนลายนิ้วมือ)","กล้องวงจรปิด (CCTV)","รปภ.","ร้านขายอาหาร","ร้านค้า สะดวกซื้อ","ร้านซัก-รีด / มีบริการเครื่องซักผ้า","ร้านทำผม-เสริมสวย","สถานี charge รถไฟฟ้า"]);
+const filteredOutsideSuggestions = ref([]);
+
+// Inside Amenities
+const filterInsideSuggestions = () => {
+  filteredInsideSuggestions.value = insideSuggestions.value.filter((suggestion) =>
+    suggestion.includes(newInsideAmenity.value.trim())
+  );
+};
+
+const selectInsideSuggestion = (suggestion) => {
+  newInsideAmenity.value = suggestion;
+  filteredInsideSuggestions.value = [];
+};
+
 const addInsideAmenity = () => {
   if (newInsideAmenity.value.trim() !== '') {
     insideAmenities.value.push(newInsideAmenity.value.trim());
     newInsideAmenity.value = '';
+    filteredInsideSuggestions.value = [];
   }
 };
 
@@ -300,10 +318,23 @@ const removeInsideAmenity = (index) => {
   insideAmenities.value.splice(index, 1);
 };
 
+// Outside Amenities
+const filterOutsideSuggestions = () => {
+  filteredOutsideSuggestions.value = outsideSuggestions.value.filter((suggestion) =>
+    suggestion.includes(newOutsideAmenity.value.trim())
+  );
+};
+
+const selectOutsideSuggestion = (suggestion) => {
+  newOutsideAmenity.value = suggestion;
+  filteredOutsideSuggestions.value = [];
+};
+
 const addOutsideAmenity = () => {
   if (newOutsideAmenity.value.trim() !== '') {
     outsideAmenities.value.push(newOutsideAmenity.value.trim());
     newOutsideAmenity.value = '';
+    filteredOutsideSuggestions.value = [];
   }
 };
 
@@ -342,8 +373,8 @@ const provinceError = ref('')
 const postalCodeError = ref('')
 const roomCountError = ref('')
 const sizeError = ref('')
-const insideAmenitiesError = ref()
-const outsideAmenitiesError = ref()
+const insideAmenitiesError = ref([])
+const outsideAmenitiesError = ref([])
   // --------------------------------- Add/Edit ---------------------------------
 
 import ConfirmModal from '@/components/modals/ConfirmModal.vue';
@@ -773,76 +804,113 @@ const handleConfirmAction = async (context) => {
 
 
      <!-- สิ่งอำนวยความสะดวกต่างๆ -->
-    <div class="grid gap-6 md:grid-cols-2 pt-5">
-        <div class="room space-y-5">
-          <h3>สิ่งอำนวยความสะดวกภายในห้องพัก<span class="text-red-500">*</span></h3>
+     <div class="grid gap-6 md:grid-cols-2 pt-5">
+      <!-- สิ่งอำนวยความสะดวกภายในห้องพัก -->
+      <div class="room space-y-5">
+        <h3>สิ่งอำนวยความสะดวกภายในห้องพัก<span class="text-red-500">*</span></h3>
+        <div class="flex flex-row w-full">
+        <div class="relative w-full">
+          <input 
+            v-model="newInsideAmenity" 
+            type="text" 
+            class="border border-gray-300 text-lg rounded-lg p-2 w-full"
+            placeholder="เพิ่มสิ่งอำนวยความสะดวกภายในห้อง"
+            @input="filterInsideSuggestions"
+          />
+          <!-- Suggestion List -->
+          <ul 
+            v-if="filteredInsideSuggestions.length" 
+            class="absolute bg-white border border-gray-300 w-2/3 mt-1 rounded-lg shadow-lg z-10"
+          >
+            <li 
+              v-for="(suggestion, index) in filteredInsideSuggestions" 
+              :key="index" 
+              class="p-2 hover:bg-gray-100 cursor-pointer"
+              @click="selectInsideSuggestion(suggestion)"
+            >
+              {{ suggestion }}
+            </li>
+          </ul>
+        </div>
+        <button 
+          @click="addInsideAmenity" 
+          class="ml-2 bg-blue-500 text-white rounded-lg p-2 px-8"
+        >
+          เพิ่ม
+        </button>
+      </div>
+        <ul class="border">
+          <li 
+            v-for="(amenity, index) in insideAmenities" 
+            :key="index" 
+            class="text-lg flex justify-between p-2"
+          >
+            <span>{{ amenity }}</span>
+            <button 
+              @click="removeInsideAmenity(index)" 
+              class="text-red-500 hover:text-red-700"
+            >
+              ลบ
+            </button>
+          </li>
+        </ul>
+      </div>
 
-             <!-- สิ่งอำนวยความสะดวกภายในห้อง -->
-          <div class="room space-y-5">
-            <div class="flex flex-col space-y-2">
-              <!-- ช่องกรอกข้อมูลและปุ่มเพิ่มสำหรับภายในห้อง -->
-              <div class="flex items-center ">
-                <input v-model="newInsideAmenity" type="text" class="border border-gray-300 text-lg rounded-lg p-2 w-2/3" placeholder="เพิ่มสิ่งอำนวยความสะดวกภายในห้อง" 
-                />
-                <button 
-                  @click="addInsideAmenity" 
-                  class="ml-2 bg-blue-500 text-white rounded-lg p-2 px-8"
-                >
-                  เพิ่ม
-                </button>
-              </div>
-
-              <!-- แสดงรายการสิ่งอำนวยความสะดวกภายในห้อง -->
-              <div class="border-2 rouded-lg w-2/3">
-                  <ul>
-                    <li v-for="(amenity, index) in insideAmenities" :key="index" class="text-lg flex flex-row justify-between p-2">
-                      <span>{{ amenity }}</span> 
-                      <button @click="removeInsideAmenity(index)" class="text-red-500 hover:text-red-700">ลบ</button>
-                    </li>
-                  </ul>
-              </div>
-
-              <p v-if="insideAmenitiesError" class="ml-2 text-red-500 text-sm">{{ insideAmenitiesError }}</p>
-            </div>
-          </div>
+      <!-- สิ่งอำนวยความสะดวกภายนอกอาคาร -->
+      <div class="outside space-y-5">
+        <h3>สิ่งอำนวยความสะดวกภายนอกอาคาร<span class="text-red-500">*</span></h3>
+        <div class="flex flex-row w-full">
+        
+          <div class="relative w-full">
+          <input 
+            v-model="newOutsideAmenity" 
+            type="text" 
+            class="border border-gray-300 text-lg rounded-lg p-2 w-full"
+            placeholder="เพิ่มสิ่งอำนวยความสะดวกภายนอกอาคาร"
+            @input="filterOutsideSuggestions"
+          />
+          <!-- Suggestion List -->
+          <ul 
+            v-if="filteredOutsideSuggestions.length" 
+            class="absolute bg-white border border-gray-300 w-full mt-1 rounded-lg shadow-lg z-10"
+          >
+            <li 
+              v-for="(suggestion, index) in filteredOutsideSuggestions" 
+              :key="index" 
+              class="p-2 hover:bg-gray-100 cursor-pointer"
+              @click="selectOutsideSuggestion(suggestion)"
+            >
+              {{ suggestion }}
+            </li>
+          </ul>
         </div>
 
-        <div class="outside space-y-5">
-          <h3>สิ่งอำนวยความสะดวกภายใน และ ภายนอกอาคาร<span class="text-red-500">*</span></h3>
+            <button 
+              @click="addOutsideAmenity" 
+              class="ml-2 bg-blue-500 text-white rounded-lg p-2 px-8"
+            >
+              เพิ่ม
+            </button>
 
-                        <!-- สิ่งอำนวยความสะดวกภายนอกอาคาร -->
-              <div class="outside space-y-5">
-                <div class="flex flex-col space-y-2">
-                  <!-- ช่องกรอกข้อมูลและปุ่มเพิ่มสำหรับภายนอกอาคาร -->
-                  <div class="flex items-center">
-                    <input 
-                      v-model="newOutsideAmenity" 
-                      type="text" 
-                      class="border border-gray-300 text-lg rounded-lg p-2 w-2/3" 
-                      placeholder="เพิ่มสิ่งอำนวยความสะดวกภายนอกอาคาร" 
-                    />
-                    <button 
-                      @click="addOutsideAmenity" 
-                      class="ml-2 bg-blue-500 text-white rounded-lg p-2 px-8"
-                    >
-                      เพิ่ม
-                    </button>
-                  </div>
+      </div>
+        <ul class="border">
+          <li 
+            v-for="(amenity, index) in outsideAmenities" 
+            :key="index" 
+            class="text-lg flex justify-between p-2"
+          >
+            <span>{{ amenity }}</span>
+            <button 
+              @click="removeOutsideAmenity(index)" 
+              class="text-red-500 hover:text-red-700"
+            >
+              ลบ
+            </button>
+          </li>
+        </ul>
+      </div>
 
-                  <!-- แสดงรายการสิ่งอำนวยความสะดวกภายนอกอาคาร -->
-                  <div class="border-2 w-2/3">
-                      <ul>
-                        <li v-for="(amenity, index) in outsideAmenities" :key="index" class="text-lg flex flex-row justify-between p-2">
-                          <span>{{ amenity }}</span> 
-                          <button @click="removeOutsideAmenity(index)" class="text-red-500 hover:text-red-700">ลบ</button>
-                        </li>
-                      </ul>
-                  </div>
-                  <p v-if="outsideAmenitiesError" class="ml-2 text-red-500 text-sm">{{ outsideAmenitiesError }}</p>
-                </div>
-              </div>
-        </div>
-    </div>
+  </div>
 
 
     <div class="pt-5">

@@ -42,7 +42,7 @@ const selectTypes = ref('')
 
 // ตัวแปรที่เก็บค่าที่ผู้ใช้กรอก
 const minPrice = ref(0);  // ราคาต่ำสุดเริ่มต้น
-const maxPrice = ref(30000);  // ราคาสูงสุดเริ่มต้น
+const maxPrice = ref(50000);  // ราคาสูงสุดเริ่มต้น
 
 const selectedDistance = ref(0) // เก็บระยะทางที่ผู้ใช้เลือก
 
@@ -149,6 +149,19 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
 }
 
 
+import { useFavoritesStore } from '@/stores/favoriteStore';
+
+const favoritesStore = useFavoritesStore();
+
+// ฟังก์ชันสำหรับจัดการการคลิก
+function handleToggleFavorite(dormId) {
+  favoritesStore.toggleFavorite(dormId);
+}
+
+// ใช้ฟังก์ชันตรวจสอบสถานะ favorite
+function isFavorite(dormId) {
+  return favoritesStore.isFavorite(dormId);
+}
 
 </script>
 
@@ -331,13 +344,21 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
             <div class="w-full h-full bg-cover bg-center rounded-2xl" :style="{ backgroundImage: `url(${dorm.image[0] || '/images/no_image.jpg'})` }" alt="Dormitory Image"></div>
           </div>
 
-
-
           <div class="flex flex-col w-full h-full p-3 justify-center">
-
             <div class="flex w-full">
               <div class="item">
-                <h1 @click="showDetail(dorm.dormId)" class="dormname cursor-pointer">{{ dorm.name }}</h1>
+                <div class="flex flex-row justify-between">
+                  <h1 @click="showDetail(dorm.dormId)" class="dormname cursor-pointer">{{ dorm.name }}</h1>
+                    <!-- ปุ่ม Favorite -->
+                    <button 
+                      @click="handleToggleFavorite(dorm.dormId)" 
+                      class="p-2 rounded-full border border-gray-300 hover:bg-red-100 transition-colors"
+                    >
+                      <span :class="isFavorite(dorm.dormId) ? 'text-red-500' : 'text-gray-500'">
+                        {{ isFavorite(dorm.dormId) ? '❤️' : '🤍' }}
+                      </span>
+                    </button>
+                </div>
                 <h2><span style="color: green; font-size: larger;">{{ formatPrice(dorm.min_price) }} - {{ formatPrice(dorm.max_price) }}</span> บาท/เดือน</h2>
                 <h2>ระยะทาง <span>{{ dorm.distance }} กม.</span></h2>
                 <h2>
@@ -350,19 +371,14 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
                 <p class="text-sm">ที่อยู่: {{ dorm.address.street }}, {{ dorm.address.subdistrict }}, {{ dorm.address.district }}, {{ dorm.address.province }} {{ dorm.address.postalCode }}</p>      
               </div>
             </div>
-
-
-            <!-- Button -->
-          <div class="flex justify-around space-x-2 mt-2 items-center">
-            <BlackButton @click="dormitoryStore.setMainDormitory(dorm.dormId)" context="ตั้งเป็นหอพักหลัก"/>
-            <WhiteButton @click="dormitoryStore.setSecondaryDormitory(dorm.dormId)" context="ตั้งเป็นหอพักรอง"/>
-          </div>
-
-
-
+              <!-- Button -->
+            <div class="flex justify-around space-x-2 mt-2 items-center">
+              <BlackButton @click="dormitoryStore.setMainDormitory(dorm.dormId)" context="ตั้งเป็นหอพักหลัก"/>
+              <WhiteButton @click="dormitoryStore.setSecondaryDormitory(dorm.dormId)" context="ตั้งเป็นหอพักรอง"/>
+            </div>
           </div>
             
-          </div>
+        </div>
 
             
         
