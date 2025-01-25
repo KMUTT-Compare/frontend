@@ -1,17 +1,22 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed,watch } from 'vue'
 import router from '@/router';
 import WhiteButton from '@/components/buttons/WhiteButton.vue';
 import BlackButton from '@/components/buttons/BlackButton.vue';
 import Card from '@/components/Card.vue';
 import { getDormitories } from '@/composables/getDormitories';
 import { formatPrice } from '@/composables/formatPrice';
+import { getFavorites } from '@/composables/getFavorites';
+import SortComponent from '@/components/SortComponent.vue';
 
+const API_ROOT = import.meta.env.VITE_API_ROOT
 const dormitories = ref([])
+const favorites = ref([]); // เก็บรายการโปรด
 
 onMounted(async () => {
   dormitories.value = await getDormitories();
-  // console.log(dormitories.value)
+  console.log(dormitories.value)
+  favorites.value = await getFavorites();
   
 })
 
@@ -25,28 +30,128 @@ const showDetail = (dormitoryId) =>{
 }
 
 
+//---------------------------------- Sort ----------------------------------
+// ตัวแปรสำหรับเก็บวิธีการจัดเรียง
+const sortBy = ref('name'); // ค่าเริ่มต้นคือการจัดเรียงตามชื่อ
+
+// ฟังก์ชันสำหรับจัดเรียงข้อมูล
+const sortDormitories = (sortType) => {
+  if (sortType === 'min_price') {
+    dormitories.value.sort((a, b) => a.max_price - b.max_price); // เรียงจากราคาต่ำสุด
+  } else if (sortType === 'max_price') {
+    dormitories.value.sort((a, b) => b.min_price - a.min_price); // เรียงจากราคาสูงสุด
+  } else if (sortType === 'distance') {
+    dormitories.value.sort((a, b) => a.distance - b.distance); // เรียงตามระยะทาง
+  } else if (sortType === 'name') {
+    dormitories.value.sort((a, b) => a.dormName.localeCompare(b.dormName)); // เรียงตามชื่อ A-Z
+  }
+};
+
+// การเฝ้าติดตามการเปลี่ยนแปลงของ sortBy
+watch(sortBy, (newSortType) => {
+  sortDormitories(newSortType);
+});
+
+
+
+//---------------------------------- Favorite ----------------------------------
+
+// เช็คว่าหอพักอยู่ใน Favorites หรือไม่
+const isFavorite = (id) => {
+  return favorites.value.some((favorite) => favorite.dormId === id);
+};
+
+// เพิ่ม/ลบรายการโปรด
+const handleToggleFavorite = async (id) => {
+
+  const userId = 1;
+
+  try {
+    if (isFavorite(id)) {
+      // ลบรายการโปรด
+      const res = await fetch(`${API_ROOT}/favorites/dorm/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (res.ok) {
+        favorites.value = favorites.value.filter((fav) => fav.dormId !== id);
+      } else {
+        console.error('Error removing favorite:', res.status);
+      }
+    } else {
+      // เพิ่มรายการโปรด
+      const res = await fetch(`${import.meta.env.VITE_API_ROOT}/favorites`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, dormId: id }),
+      });
+      if (res.ok) {
+        favorites.value.push({ userId, dormId: id });
+      } else {
+        console.error('Error adding favorite:', res.status);
+      }
+    }
+  } catch (error) {
+    console.error('Error toggling favorite:', error);
+  }
+};
+
 
 //---------------------------------- Search & Filter ----------------------------------
 
-const IsfilterShowing = ref(false)
-
-const openCloseFilter=()=>{
-  IsfilterShowing.value=!IsfilterShowing.value
-}
-
-
 const searchInput = ref('')
-
 const selectTypes = ref('')
 
 
 // ตัวแปรที่เก็บค่าที่ผู้ใช้กรอก
 const minPrice = ref(0);  // ราคาต่ำสุดเริ่มต้น
-const maxPrice = ref(50000);  // ราคาสูงสุดเริ่มต้น
+const maxPrice = ref(20000);  // ราคาสูงสุดเริ่มต้น
 
 const selectedDistance = ref(0) // เก็บระยะทางที่ผู้ใช้เลือก
 
 const filteredDormitories = computed(() => {
+  // หากไม่มี searchInput ก็ให้แสดง dormitories ทั้งหมด
+  if (!searchInput.value) {
+    return dormitories.value.filter(dorm => {
+      // กรองตามช่วงราคา
+      const inPriceRange = dorm.min_price >= minPrice.value && dorm.max_price <= maxPrice.value;
+
+      // กรองตามประเภทหอพัก
+      const typeMatches = dorm.type === selectTypes.value || selectTypes.value === '';
+
+      // กรองตามระยะทาง
+      let inDistanceRange = false;
+      switch (selectedDistance.value) {
+        case '1': // น้อยกว่า 1 กม.
+          inDistanceRange = dorm.distance < 1;
+          break;
+        case '2': // 1 -> 2 กม.
+          inDistanceRange = dorm.distance >= 1 && dorm.distance < 2;
+          break;
+        case '3': // 2 -> 3 กม.
+          inDistanceRange = dorm.distance >= 2 && dorm.distance < 3;
+          break;
+        case '4': // 3 -> 4 กม.
+          inDistanceRange = dorm.distance >= 3 && dorm.distance < 4;
+          break;
+        case '5': // 4 -> 5 กม.
+          inDistanceRange = dorm.distance >= 4 && dorm.distance < 5;
+          break;
+        case '6': // 5 กม. ขึ้นไป
+          inDistanceRange = dorm.distance >= 5;
+          break;
+        case '0': // ไม่จำกัด
+        default:
+          inDistanceRange = true;
+          break;
+      }
+
+      return inPriceRange && typeMatches && inDistanceRange;
+    });
+  }
+
+  // หากมี searchInput กรองตามชื่อหอพักหรือที่อยู่
+  const searchTerm = searchInput.value.toLowerCase();
   return dormitories.value.filter(dorm => {
     // กรองตามช่วงราคา
     const inPriceRange = dorm.min_price >= minPrice.value && dorm.max_price <= maxPrice.value;
@@ -54,25 +159,25 @@ const filteredDormitories = computed(() => {
     // กรองตามประเภทหอพัก
     const typeMatches = dorm.type === selectTypes.value || selectTypes.value === '';
 
-    // กรองตามชื่อหอพัก
-    const nameMatches = dorm.name.toLowerCase().includes(searchInput.value.toLowerCase());
-
     // กรองตามระยะทาง
     let inDistanceRange = false;
     switch (selectedDistance.value) {
       case '1': // น้อยกว่า 1 กม.
         inDistanceRange = dorm.distance < 1;
         break;
-      case '2': // 2 -> 3 กม.
+      case '2': // 1 -> 2 กม.
+        inDistanceRange = dorm.distance >= 1 && dorm.distance < 2;
+        break;
+      case '3': // 2 -> 3 กม.
         inDistanceRange = dorm.distance >= 2 && dorm.distance < 3;
         break;
-      case '3': // 3 -> 4 กม.
+      case '4': // 3 -> 4 กม.
         inDistanceRange = dorm.distance >= 3 && dorm.distance < 4;
         break;
-      case '4': // 4 -> 5 กม.
+      case '5': // 4 -> 5 กม.
         inDistanceRange = dorm.distance >= 4 && dorm.distance < 5;
         break;
-      case '5': // 5 กม. ขึ้นไป
+      case '6': // 5 กม. ขึ้นไป
         inDistanceRange = dorm.distance >= 5;
         break;
       case '0': // ไม่จำกัด
@@ -81,9 +186,18 @@ const filteredDormitories = computed(() => {
         break;
     }
 
-    return inPriceRange && nameMatches && typeMatches && inDistanceRange;
+    // กรองตามชื่อหอพักหรือที่อยู่
+    const nameMatches = dorm.dormName.toLowerCase().includes(searchTerm);
+    const addressMatches =
+      dorm.address.street.toLowerCase().includes(searchTerm) ||
+      dorm.address.subdistrict.toLowerCase().includes(searchTerm) ||
+      dorm.address.district.toLowerCase().includes(searchTerm) ||
+      dorm.address.province.toLowerCase().includes(searchTerm);
+
+    return inPriceRange && typeMatches && inDistanceRange && (nameMatches || addressMatches);
   });
 });
+
 
 
 
@@ -149,20 +263,6 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
 }
 
 
-import { useFavoritesStore } from '@/stores/favoriteStore';
-
-const favoritesStore = useFavoritesStore();
-
-// ฟังก์ชันสำหรับจัดการการคลิก
-function handleToggleFavorite(dormId) {
-  favoritesStore.toggleFavorite(dormId);
-}
-
-// ใช้ฟังก์ชันตรวจสอบสถานะ favorite
-function isFavorite(dormId) {
-  return favoritesStore.isFavorite(dormId);
-}
-
 </script>
 
 <template>
@@ -187,75 +287,6 @@ function isFavorite(dormId) {
 
     <div class="w-full h-full flex flex-col justify-center items-center">
 
- <!-- filter -->
-<div v-show="IsfilterShowing" class="popup-overlay">
-  <div class="filter">
-    <!-------------------------------- 1 --------------------------------->
-    <div class="w-80">
-      <label for="minPrice">ราคาเริ่มต้น: {{ minPrice }} ฿</label>
-      <input id="minPrice" type="range" v-model="minPrice" min="0" max="30000" step="100" />
-
-      <label for="maxPrice">ราคาสูงสุด: {{ maxPrice }} ฿</label>
-      <input id="maxPrice" type="range" v-model="maxPrice" min="0" max="30000" step="100" />
-    </div>
-
-    <div class="mt-4 max-w-72"><hr></div>
-    <!-------------------------------- 2 --------------------------------->
-    <div class="type">
-      <h2 class="my-4">ประเภทหอพัก</h2>
-      <div class="flex flex-col space-y-2">
-        <!-- ตัวเลือก "ทั้งหมด" -->
-          <div class="flex flex-row space-x-2">
-          <input v-model="selectTypes" name="default-radio" type="radio" value="" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
-          <p>ทั้งหมด</p>
-        </div>
-        <!-- ตัวเลือก "ชาย" -->
-        <div class="flex flex-row space-x-2">
-          <input v-model="selectTypes" name="default-radio" type="radio" value="m" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
-          <p>ชาย</p>
-        </div>
-
-        <!-- ตัวเลือก "หญิง" -->
-        <div class="flex flex-row space-x-2">
-          <input v-model="selectTypes" name="default-radio" type="radio" value="f" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
-          <p>หญิง</p>
-        </div>
-
-        <!-- ตัวเลือก "รวม" -->
-        <div class="flex flex-row space-x-2">
-          <input v-model="selectTypes" checked name="default-radio" type="radio" value="all" class="mt-1 w-4 h-4 dark:bg-gray-700 dark:border-gray-600">
-          <p>รวม</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="mt-4 max-w-72"><hr></div>
-      <!-- ตัวกรองระยะทาง -->
-      <div class="mt-4">
-        <h2 class="my-4">ระยะทาง</h2>
-        <label for="distanceSelect">เลือกระยะทาง</label>
-        <select id="distanceSelect" v-model="selectedDistance" class="block w-full p-2 mt-2 border rounded-lg bg-gray-50 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-          <option value="0">ไม่จำกัด</option>
-          <option value="1">น้อยกว่า 1 กม.</option>
-          <option value="2">2 -> 3 กม.</option>
-          <option value="3">3 -> 4 กม.</option>
-          <option value="4">4 -> 5 กม.</option>
-          <option value="5">5 กม. ขึ้นไป</option>
-        </select>
-      </div>
-
-    <!-------------------------------- 5 --------------------------------->
-
-      <div class="flex justify-end items-end space-x-1 mt-10">
-        <button class="btn bg-orange-500 text-white hover:bg-orange-600 px-8" @click="openCloseFilter">ยืนยัน</button>
-        <button class="btn bg-zinc-300 text-white hover:bg-zinc-400 px-8" @click="openCloseFilter">ยกเลิก</button>
-      </div>
-
-  </div>
-</div>
-
-
-   
 
 <!------------------------------- CARD Dormitories -------------------------------> 
 <div class="w-8/12 flex flex-col items-center justify-center">
@@ -264,7 +295,7 @@ function isFavorite(dormId) {
     <Card
       v-if="mainDormitoryData"
       title="หอพักหลัก"
-      :dormitoryName="mainDormitoryData.name"
+      :dormitoryName="mainDormitoryData.dormName"
       :distance="mainDormitoryData.distance + ' กม.' + getCheckMark(mainDormitoryData.distance, secondaryDormitoryData?.distance, 'distance')"
       :address="formatAddress(mainDormitoryData.address)"
       :minprice="mainDormitoryData.min_price + getCheckMark(mainDormitoryData.min_price, secondaryDormitoryData?.min_price, 'minprice')"
@@ -282,7 +313,7 @@ function isFavorite(dormId) {
     <Card
       v-if="secondaryDormitoryData"
       title="หอพักรอง"
-      :dormitoryName="secondaryDormitoryData.name"
+      :dormitoryName="secondaryDormitoryData.dormName"
       :distance="secondaryDormitoryData.distance + ' กม.' + getCheckMark(secondaryDormitoryData.distance, mainDormitoryData?.distance, 'distance')"
       :address="formatAddress(secondaryDormitoryData.address)"
       :minprice="secondaryDormitoryData.min_price + getCheckMark(secondaryDormitoryData.min_price, mainDormitoryData?.min_price, 'minprice')"
@@ -307,25 +338,17 @@ function isFavorite(dormId) {
 
 <!--------------------------- Search Button & Filter -------------------------------------->
    
-      <div class="flex flex-row w-8/12 justify-center items-center mt-5">
+      <div class="flex flex-row w-8/12 justify-center items-center mt-5 space-x-2">
           <div class="relative flex-grow">
             <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
               <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
               </svg>
             </div>
-            <input v-model="searchInput" type="search" id="default-search" class="block w-full p-4 ps-10 text-lg text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ค้นหาหอพัก..." required />
+            <input v-model="searchInput" type="search" id="default-search" class="block w-full p-2 ps-10 text-lg text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ค้นหาหอพัก..." required />
           </div>
-
-          <div @click="openCloseFilter" class="icons cursor-pointer px-2"><img src="../../components/icons/filter.png" alt=""></div>
        
-            <div class="max-w-sm mx-auto">
-              <select id="countries" class="cursor-pointer bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                <option selected>เรียงโดย: ราคาต่ำสุด</option>
-                <option value="US">ราคาสูงสุด</option>
-                <option value="CA">ระยะทาง</option>
-              </select>
-            </div>
+          <SortComponent :dormitories="dormitories" />
 
       </div>   
 
@@ -333,8 +356,115 @@ function isFavorite(dormId) {
 
 <div class="w-8/12  flex flex-col items-center mt-5">
 
-  <!-- ส่วนไอเทม -->
-    <div v-if="dormitories !== null && dormitories.length !== 0" class="container">
+  <div class="flex flex-row items-start gap-6 w-full pb-4">
+
+  <!-- ราคา (ชิดซ้าย) -->
+  <div class="flex flex-col space-y-4 w-1/3 min-w-[250px]">
+    <h2 class="text-lg font-semibold text-gray-800 text-center">ราคา</h2>
+    <div class="flex flex-row justify-between space-x-4">
+      <div class="flex flex-col space-y-2 w-1/2">
+        <label for="minPrice" class="text-sm font-medium text-gray-600">ราคาเริ่มต้น: {{ minPrice }} ฿</label>
+        <input
+          id="minPrice"
+          type="range"
+          v-model="minPrice"
+          min="0"
+          max="20000"
+          step="100"
+          class="w-full rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <div class="flex flex-col space-y-2 w-1/2">
+        <label for="maxPrice" class="text-sm font-medium text-gray-600">ราคาสูงสุด: {{ maxPrice }} ฿</label>
+        <input
+          id="maxPrice"
+          type="range"
+          v-model="maxPrice"
+          min="0"
+          max="20000"
+          step="100"
+          class="w-full rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+    </div>
+  </div>
+
+
+
+<!-- ประเภทหอพัก (กึ่งกลาง) -->
+<div class="w-1/3 flex flex-col text-center">
+  <h2 class="text-lg font-semibold mb-4 text-gray-800">ประเภทหอพัก</h2>
+  <div class="grid grid-cols-2 gap-4 justify-items-center">
+    <label class="flex items-center space-x-2">
+      <input
+        v-model="selectTypes"
+        name="default-radio"
+        type="radio"
+        value=""
+        class="form-radio w-5 h-5 text-blue-500 focus:ring-blue-500"
+      />
+      <span class="text-sm">ทั้งหมด</span>
+    </label>
+    <label class="flex items-center space-x-2">
+      <input
+        v-model="selectTypes"
+        name="default-radio"
+        type="radio"
+        value="m"
+        class="form-radio w-5 h-5 text-blue-500 focus:ring-blue-500"
+      />
+      <span class="text-sm">ชาย</span>
+    </label>
+    <label class="flex items-center space-x-2">
+      <input
+        v-model="selectTypes"
+        name="default-radio"
+        type="radio"
+        value="f"
+        class="form-radio w-5 h-5 text-blue-500 focus:ring-blue-500"
+      />
+      <span class="text-sm">หญิง</span>
+    </label>
+    <label class="flex items-center space-x-2">
+      <input
+        v-model="selectTypes"
+        name="default-radio"
+        type="radio"
+        value="all"
+        class="form-radio w-5 h-5 text-blue-500 focus:ring-blue-500"
+      />
+      <span class="text-sm">รวม</span>
+    </label>
+  </div>
+</div>
+
+
+
+
+  <!-- ระยะทาง (ชิดขวา) -->
+  <div class="w-1/3 min-w-[250px] text-center">
+    <h2 class="text-lg font-semibold mb-4 text-gray-800">ระยะทาง</h2>
+    <select
+      id="distanceSelect"
+      v-model="selectedDistance"
+      class="block w-full p-3 mt-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+    >
+      <option value="0">ไม่จำกัด</option>
+      <option value="1">น้อยกว่า 1 กม.</option>
+      <option value="2">1 -> 2 กม.</option>
+      <option value="3">2 -> 3 กม.</option>
+      <option value="4">3 -> 4 กม.</option>
+      <option value="5">4 -> 5 กม.</option>
+      <option value="6">5 กม. ขึ้นไป</option>
+    </select>
+  </div>
+</div>
+
+
+
+<!-------------------------------- Items --------------------------------->
+    <div v-if="filteredDormitories !== null && filteredDormitories.length !== 0" class="container">
       <div v-for="dorm in filteredDormitories" :key="dorm.dormId" class="holding-items">
         
         
@@ -348,7 +478,7 @@ function isFavorite(dormId) {
             <div class="flex w-full">
               <div class="item">
                 <div class="flex flex-row justify-between">
-                  <h1 @click="showDetail(dorm.dormId)" class="dormname cursor-pointer">{{ dorm.name }}</h1>
+                  <h1 @click="showDetail(dorm.dormId)" class="dormname cursor-pointer">{{ dorm.dormName }}</h1>
                     <!-- ปุ่ม Favorite -->
                     <button 
                       @click="handleToggleFavorite(dorm.dormId)" 
@@ -404,6 +534,22 @@ function isFavorite(dormId) {
 </template>
 
 <style scoped>
+  input[type="radio"] {
+    appearance: none; /* ลบสไตล์ดีฟอลต์ของเบราว์เซอร์ */
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid #ccc; /* กำหนดเส้นขอบของวงกลม */
+    border-radius: 50%; /* ทำให้เป็นวงกลม */
+    outline: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+  }
+
+  input[type="radio"]:checked {
+    background-color: black; /* สีภายในวงกลมเมื่อถูกเลือก */
+    border-color: black; /* เปลี่ยนสีเส้นขอบเมื่อถูกเลือก */
+  }
+
 .items{
   display: flex;
   flex-direction: row;
@@ -609,7 +755,7 @@ input[type="range"]::-webkit-slider-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #ff9c4a;
+  background: #000000;
   cursor: pointer;
   transition: background 0.3s ease;
   /* เลื่อน thumb ขึ้นไปข้างบนเล็กน้อย */
@@ -617,7 +763,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 input[type="range"]:hover::-webkit-slider-thumb {
-  background: #ff7b00;
+  background: #3d3d3d;
 }
 
 input[type="range"]:focus {

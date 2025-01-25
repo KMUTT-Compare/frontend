@@ -215,7 +215,7 @@ function initMap(addressObject) {
 
         <!-- รายละเอียดหอพัก -->
         <div class="w-full md:w-3/6 space-y-4 p-4 rounded-lg shadow-md">
-          <h1 class="text-5xl font-semibold">{{ dormitoryDetaill.name }}</h1>
+          <h1 class="text-5xl font-semibold">{{ dormitoryDetaill.dormName }}</h1>
           <div class="pt-4">
             <p class="font-semibold">ราคา</p>
             <h2 class="text-2xl font-semibold"><span class="text-4xl text-green-500 font-semibold">{{ formatPrice(dormitoryDetaill.min_price) }} - {{ formatPrice(dormitoryDetaill.max_price) }}</span> บาท / เดือน</h2>

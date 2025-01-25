@@ -25,7 +25,7 @@ const distance = ref()
 
 
 //รายละเอียด
-const name = ref('');
+const dormName = ref('');
 const status = ref('empty'); // เก็บค่าสถานะหอพัก (ว่าง, ไม่ว่าง)
 const roomCount = ref(0);
 const type = ref('all'); // เก็บค่าประเภทหอพัก (รวม, หญิง, ชาย)
@@ -54,7 +54,7 @@ onMounted(async () => {
       console.log(oldDormitory.value); // แสดงผลข้อมูลที่ได้จาก API
 
       // นำข้อมูลจาก oldDormitory มาใส่ในตัวแปรที่เกี่ยวข้อง
-      name.value = oldDormitory.value.name || '';
+      dormName.value = oldDormitory.value.dormName || '';
       status.value = oldDormitory.value.status || 'empty';
       roomCount.value = oldDormitory.value.roomCount || 0;
       type.value = oldDormitory.value.type || 'all';
@@ -344,7 +344,7 @@ const removeOutsideAmenity = (index) => {
 
 const dormitoryData = {
     staffId: 0,
-    name: '',
+    dormName: '',
     status: '',
     address: '',
     roomCount: 0,
@@ -419,7 +419,7 @@ const handleSubmit = async () => {
   let isValid = true;
 
   // Validate form data
-  if (!name.value) {
+  if (!dormName.value) {
     nameError.value = 'กรุณากรอกชื่อที่พัก';
     isValid = false;
   }
@@ -491,7 +491,7 @@ const handleConfirmAction = async (context) => {
 
   dormitoryData.value = {
     staffId: 2,
-    name: name.value,
+    dormName: dormName.value,
     status: status.value,
     address: {
       dormNumber: dormNumber.value,
@@ -576,8 +576,8 @@ const handleConfirmAction = async (context) => {
             type="text" 
             class="rounded-md ml-2 w-full text-lg" 
             placeholder="ระบุชื่อที่พัก.." 
-            v-model="name"
-            :class="{'border-red-500': !name}"
+            v-model="dormName"
+            :class="{'border-red-500': !dormName}"
             required 
           />
           <p v-if="nameError" class="pl-2 text-red-500 text-sm mt-1">{{ nameError }}</p>

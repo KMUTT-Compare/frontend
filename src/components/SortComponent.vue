@@ -1,0 +1,54 @@
+<template>
+    <div class="max-w-sm mx-auto">
+      <select v-model="sortBy" @change="handleSortChange"
+              class="cursor-pointer bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+        <option value="name">เรียงตามชื่อ</option>
+        <option value="min_price">ราคาต่ำสุด</option>
+        <option value="max_price">ราคาสูงสุด</option>
+        <option value="distance">ระยะทาง</option>
+      </select>
+    </div>
+  </template>
+  
+  <script setup>
+  import { ref, watch } from 'vue';
+  
+  // รับ props จาก parent component
+  const props = defineProps({
+    dormitories: {
+      type: Array,
+      required: true,
+    },
+  });
+  
+  const sortBy = ref('name'); // ค่าเริ่มต้น
+  
+  // ฟังก์ชันจัดเรียงข้อมูล
+  const sortDormitories = (sortType) => {
+    if (sortType === 'min_price') {
+      props.dormitories.sort((a, b) => a.max_price - b.max_price); // เรียงจากราคาต่ำสุด
+    } else if (sortType === 'max_price') {
+      props.dormitories.sort((a, b) => b.min_price - a.min_price); // เรียงจากราคาสูงสุด
+    } else if (sortType === 'distance') {
+      props.dormitories.sort((a, b) => a.distance - b.distance); // เรียงตามระยะทาง
+    } else if (sortType === 'name') {
+      props.dormitories.sort((a, b) => a.dormName.localeCompare(b.dormName)); // เรียงตามชื่อ A-Z
+    }
+  };
+  
+  // ฟังก์ชันเมื่อมีการเปลี่ยนแปลงการเลือก
+  const handleSortChange = () => {
+    sortDormitories(sortBy.value);
+  };
+  
+  // การเฝ้าติดตามการเปลี่ยนแปลงของ sortBy
+  watch(sortBy, (newSortType) => {
+    sortDormitories(newSortType);
+  });
+  </script>
+  
+  <style scoped>
+  /* ใส่สไตล์ที่ต้องการสำหรับ select */
+  
+  </style>
+  

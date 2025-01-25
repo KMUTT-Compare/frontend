@@ -1,12 +1,13 @@
 <script setup>
 import Sidebar from '@/components/Sidebar.vue';
 import { getDormitories } from '@/composables/getDormitories';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import router from '@/router';
 import DeleteModal from '@/components/modals/ConfirmModal.vue';
 import SuccessModal from '@/components/modals/SuccessModal.vue';
 import { formatPrice } from '@/composables/formatPrice';
-
+import SortComponent from '@/components/SortComponent.vue';
+import SearchComponent from '@/components/SearchComponent.vue';
 
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 const dormitories = ref([]);
@@ -24,6 +25,26 @@ const showDetail = (dormitoryId) => {
     params: { id: dormitoryId }
   });
 };
+
+
+//---------------------------------- Search ----------------------------------
+const searchInput = ref('');
+
+const filteredDormitories = computed(() => {
+  if (!searchInput.value) return dormitories.value;
+
+  const searchTerm = searchInput.value.toLowerCase();
+  return dormitories.value.filter(dorm =>
+    dorm.dormName.toLowerCase().includes(searchTerm) ||
+    dorm.address.street.toLowerCase().includes(searchTerm) ||
+    dorm.address.subdistrict.toLowerCase().includes(searchTerm) ||
+    dorm.address.district.toLowerCase().includes(searchTerm) ||
+    dorm.address.province.toLowerCase().includes(searchTerm)
+  );
+});
+
+
+//---------------------------------- Manage ----------------------------------
 
 const editDormitory = (dormitoryId) => {
   router.push({
@@ -74,10 +95,18 @@ const deleteDormitory = async () => {
 <template>
   <div class="flex flex-row w-full justify-center p-20">
     <Sidebar />
+
     <div class="pl-2 w-1/2 h-full flex rounded-xl">
       <div class="w-full flex flex-col items-center justify-center">
-        <div v-if="dormitories.length > 0" class="container">
-          <div v-for="dorm in dormitories" :key="dorm.dormId" class="holding-items">
+
+        <div class="flex flex-row items-center w-full space-x-2 mb-2">
+          
+          <SearchComponent v-model:search="searchInput" />
+          <SortComponent :dormitories="dormitories" />
+
+        </div>
+        <div v-if="filteredDormitories.length > 0" class="container">
+          <div v-for="dorm in filteredDormitories" :key="dorm.dormId" class="holding-items">
             <div class="items rounded-lg border-2">
               <div class="w-8/12 flex h-64 justify-center items-center">
                 <img :src="dorm.image[0] || '/images/no_image.jpg'" class="h-full bg-cover bg-center rounded-2xl" alt="Dormitory Image" />
@@ -88,7 +117,7 @@ const deleteDormitory = async () => {
                   <div class="icons flex flex-row justify-between items-center">
                     <!-- ชื่อหอพัก -->
                     <div class="flex justify-start w-full">
-                      <h1 class="cursor-pointer" @click="showDetail(dorm.dormId)">{{ dorm.name }}</h1>
+                      <h1 class="cursor-pointer" @click="showDetail(dorm.dormId)">{{ dorm.dormName }}</h1>
                     </div>
 
                     <!-- ไอคอน Edit -->

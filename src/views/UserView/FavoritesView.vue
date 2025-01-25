@@ -1,250 +1,266 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { getFavorites } from '@/composables/getFavorites';
+import router from '@/router';
 const API_ROOT = import.meta.env.VITE_API_ROOT
+import SortComponent from '@/components/SortComponent.vue';
+const dormitories = ref([]); // เก็บรายการโปรด
 
 
-let userid = 1
 
+// ดูรายละเอียดหอพัก
+const showDetail = (dormitoryId) =>{
+  router.push({
+    name : 'dormitoryDetail',
+    params : {id : dormitoryId}
+  })
+}
+
+// โหลดข้อมูลรายการโปรดเมื่อเริ่มต้น
 onMounted(async () => {
-  dormitories.value = await getFavorites(userid);
-  // console.log(dormitories.value)
-  
-})
-
-const favorites = ref([
-  { id: 1, name: "หอพัก ABC", score: 4.8, size: 20, min_price: 3000, max_price: 5000, },
-  { id: 2, name: "หอพัก XYZ", score: 4.6, size: 10, min_price: 4000, max_price: 6000, },
-  { id: 3, name: "หอพัก 123", score: 4.4, size: 30, min_price: 5000, max_price: 7000,},
-]);
-
-// Sorting
-const sortBy = ref("score");
-const sortedFavorites = computed(() => {
-  return [...favorites.value].sort((a, b) => {
-    if (sortBy.value === "score") return b.score - a.score;
-    return a.name.localeCompare(b.name);
-  });
+  dormitories.value = await getFavorites();
 });
 
-// ฟังก์ชันสำหรับดึงข้อมูล Favorite Dormitories
-const getFavorites = async (userId = null) => {
-  try {
-    // กำหนด URL โดยเพิ่ม query parameter `user_id` ถ้ามี
-    const url = userId ? `${API_ROOT}/favorites/${userId}` : `${API_ROOT}/favorites`;
 
-    const res = await fetch(url, {
-      method: 'GET',
+
+// คำนวณหอพักที่มีคะแนนสูงสุด
+const topDorm = computed(() => {
+  if (dormitories.value.length === 0) return null;
+  return [...dormitories.value].sort((a, b) => b.score - a.score)[0];
+});
+
+// ฟังก์ชันลบออกจากรายการโปรด
+const removeFromFavorites = async (dormId) => {
+  try {
+    const response = await fetch(`${API_ROOT}/favorites/dorm/${dormId}`, {
+      method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
-    if (!res.ok) {
-      throw new Error(`Error: ${res.status} - ${res.statusText}`);
+    if (response.ok) {
+      dormitories.value = await getFavorites();
+      
+    } else {
+      console.error('Failed to delete dorm:', response.statusText);
     }
-
-    const data = await res.json();
-
-    // ตรวจสอบว่ามีข้อมูลหรือไม่ ถ้าไม่มีส่งกลับ array ว่าง
-    return Array.isArray(data) ? data : [];
   } catch (error) {
-    console.error('Error fetching favorite dormitories:', error);
-    return []; // Return empty array on error
+    console.error('Error deleting dorm:', error);
   }
 };
-
-const topDorm = computed(() => {
-  if (favorites.value.length === 0) return null; // ถ้าไม่มีรายการ favorite ให้คืนค่า null
-  return [...favorites.value].sort((a, b) => b.score - a.score)[0]; // คืนหอพักที่มี score สูงสุด
-});
-
 </script>
- 
+
 <template>
-  <div class="favorites-page">
-    <h1 class="title text-center">🏆 Ranking</h1>
+  <div class="outborder flex flex-col items-center justify-center w-full h-full p-10">
 
-    <!-- Rank 1 -->
-    <div class="rank1-container">
-      <div class="image-container">
-        <img :src="topDorm.image || '/images/no_image.jpg'" alt="Dorm Image" class="main-image">
-        <div class="rank-badge">
-          <img src="/images/rank.png" alt="Rank 1">
+    <div class="favorites-page">
+      
+      <!-- Rank 1 Section -->
+      <div class="rank1-container" v-if="topDorm">
+        <div class="rank1-image-left">
+          <img src="../../components/icons/rank.png" alt="Rank Image" class="w-60 animate-scale">
+        </div>
+        <div class="rank1-details">
+          <div class="details text-left pl-3">
+            <h2 class="text-3xl font-bold text-blue-800">{{ topDorm.dormName }}</h2>
+            <p class="score pt-2">Rating: <span class="font-semibold">{{ topDorm.score }}</span></p>
+          </div>
+        </div>
+        <div class="rank1-image-right p-4">
+          <img src="../../components/icons/jip2.gif" alt="Rank 1 GIF" class="w-72 rounded-full">
         </div>
       </div>
-      <div class="details text-center">
-        <h2 class="text-2xl font-bold text-blue-800">{{ topDorm.name }}</h2>
-        <p class="score">คะแนน: <span>{{ topDorm.score }}</span></p>
-      </div>
-    </div>
+      <p v-else class="text-red-500 text-center">ยังไม่มีรายการโปรด</p>
 
-    <!-- Header -->
-    <header class="header flex w-full mt-5 mb-5">
-      <div class="flex w-full items-center">
-        <h2 class="text-xl">💖 รายการโปรด</h2>
-      </div>
-      <div class="flex w-44">
-        <select v-model="sortBy" class="cursor-pointer bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-        <option value="score">คะแนนสูงสุด</option>
-        <option value="name">เรียงตามชื่อ</option>
-      </select>
-      </div>
-
-    </header>
-
-    <!-- Favorite List -->
-    <div class="dorm-list">
-      <div v-for="(dorm, index) in sortedFavorites" :key="dorm.id" class="dorm-card">
-        <div class="card-image">
-          <img :src="dorm.image || '/images/no_image.jpg'" alt="Dorm Image" />
+      <!-- Header -->
+      <header class="header flex w-full mt-5 mb-5">
+        <div class="flex w-full items-center justify-between">
+          <h2 class="text-xl font-semibold">💖 รายการโปรด</h2>
+          <div class="w-44">
+            <SortComponent :dormitories="dormitories" />
+          </div>
         </div>
-        <div class="card-details">
-          <h3 class="dorm-name">{{ index + 1 }}. {{ dorm.name }}</h3>
-          <p class="dorm-score">คะแนน: {{ dorm.score }}</p>
-        </div>
-      </div>
+      </header>
+
+      <!-- Table for Favorite List -->
+      <table class="favorite-table w-full text-left">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>ชื่อหอพัก</th>
+            <th>คะแนน</th>
+            <th>ขนาดห้อง</th>
+            <th>ราคาต่ำสุด</th>
+            <th>ราคาสูงสุด</th>
+            <th>ระยะทาง</th>
+            <th>ลบ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(dorm, index) in dormitories" :key="dorm.id">
+            <td>{{ index + 1 }}</td>
+            <td @click="showDetail(dorm.dormId)" class="cursor-pointer animated-hover">
+              {{ dorm.dormName }}
+            </td>
+            <td>{{ dorm.score }}</td>
+            <td>{{ dorm.size }} ตร.ม.</td>
+            <td>{{ dorm.min_price }} บาท</td>
+            <td>{{ dorm.max_price }} บาท</td>
+            <td>{{ dorm.distance }} กม.</td>
+            <td>
+              <button 
+                @click="removeFromFavorites(dorm.dormId)" 
+                class="transition-transform transform hover:scale-110 hover:rotate-6">
+                <img src="../../components/icons/bin.png" alt="" class="w-8">
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* General Styles */
-.favorites-page {
-  max-width: 900px;
-  margin: 20px auto;
-  padding: 20px;
-  font-family: 'Arial', sans-serif;
-  background: linear-gradient(135deg, #f7f9fc, #ffffff);
-  border-radius: 12px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+
+.animated-hover {
+    transition: transform 0.3s ease, color 0.3s ease;
+  }
+
+  .animated-hover:hover {
+    transform: scale(1.05); /* Scale the element slightly */
+    color: #ff6600; /* Change text color when hovered */
+  }
+
+
+@keyframes scaleUpDown {
+  0% {
+    transform: scale(0.9); /* ขนาดเริ่มต้น */
+  }
+  50% {
+    transform: scale(1); /* ขยายเป็น 1.2 เท่า */
+  }
+  100% {
+    transform: scale(0.9); /* ย่อกลับไปที่ขนาดเริ่มต้น */
+  }
 }
 
-/* Title */
-.title {
-  font-size: 2.5rem;
-  margin-bottom: 30px;
-  color: #4a90e2;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-  font-weight: bold;
+.animate-scale {
+  animation: scaleUpDown 1s ease-in-out infinite; /* ปรับเวลาเป็น 1 วินาที */
 }
 
-/* Dropdown */
-.sort-dropdown {
-  padding: 10px 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+/* เพิ่มความน่าสนใจสำหรับชื่อหอพัก */
+.rank1-container .details h2 {
+  animation: textGlow 1.5s ease-in-out infinite alternate;
 }
 
-.sort-dropdown:hover {
-  background-color: rgb(241, 241, 241);
-  border: 1px solid #ddd; /* เพิ่มกรอบเมื่อ hover */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* เพิ่มเงาเล็กน้อย */
-  color: #333; /* เพิ่มสีตัวอักษรเมื่อ hover */
-  cursor: pointer; /* เพิ่ม pointer เมื่อ hover */
-}
-
-/* Rank 1 Section */
+/* Rank 1 Container */
 .rank1-container {
-  background: #fff7e6;
-  border-radius: 15px;
-  padding: 20px;
-  margin-bottom: 30px;
-  box-shadow: 0 8px 20px rgba(255, 165, 0, 0.2);
-  cursor: pointer;
-}
-
-.image-container {
-  position: relative;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
 }
 
-.main-image {
-  width: 100%;
-  max-width: 300px;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+.rank1-details {
+  flex: 1;
+  text-align: left;
 }
 
-.rank-badge {
-  position: absolute;
-  top: -20px;
-  right: -20px;
-  background: #ffffff;
+.rank1-container .details h2 {
+  font-size: 2.5rem;
+  color: #ff5e00;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3), /* เงานุ่มๆ */
+               0 0 10px rgba(255, 255, 255, 0.4); /* เงาขาวเบาๆ */
+  -webkit-text-stroke: 0.5px rgba(255, 255, 255, 0.3); /* ขอบนุ่มๆ */
+}
+
+.rank1-container .details p {
+  font-size: 1.2rem;
+  color: #444;
+  margin-top: 10px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.rank1-image-left,
+.rank1-image-right {
+  flex-shrink: 0;
   border-radius: 50%;
-  width: 120px;
-  height: 120px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-.rank-badge img {
-  width: 100px;
+.rank1-image-left img,
+.rank1-image-right img {
+  max-width: 100%;
+  height: auto;
 }
 
-.details {
-  text-align: center;
-}
-
-.details h2 {
-  font-size: 1.8rem;
-  color: #333;
-}
-
-.details .score {
-  font-size: 1.2rem;
-  color: #4caf50;
+/* สไตล์ปุ่ม */
+.btn {
+  padding: 8px 15px;
+  border: none;
+  background-color: #e74c3c;
+  color: white;
   font-weight: bold;
-}
-
-/* Favorite List Section */
-.dorm-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-}
-
-.dorm-card {
-  background: #fff;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
-.dorm-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+.btn:hover {
+  background-color: #c0392b;
+  transform: scale(1.05);
 }
 
-.card-image img {
+/* General Styles */
+.outborder {
+  background: linear-gradient(135deg,#f9ffa4, #ff4800, #fff495);
+}
+
+.favorites-page {
+  max-width: 1000px;
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+
+
+/* Table Styles */
+.favorite-table {
   width: 100%;
-  height: 150px;
-  object-fit: cover;
+  border-collapse: collapse;
+  margin-top: 20px;
 }
 
-.card-details {
-  padding: 15px;
-  text-align: center;
+.favorite-table th,
+.favorite-table td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: left;
 }
 
-.card-details .dorm-name {
+.favorite-table th {
+  background-color: #ff5e00;
+  color: white;
   font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 5px;
-  color: #333;
+  border-radius: 3px;
 }
 
-.card-details .dorm-score {
-  font-size: 1rem;
-  color: #4caf50;
+.favorite-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.favorite-table tr:hover {
+  background-color: #f1f1f1;
 }
 </style>
-
