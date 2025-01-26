@@ -158,6 +158,15 @@ function initMap(addressObject) {
   });
 }
 
+//---------------------------------- Reservation ----------------------------------
+
+// ดูรายละเอียดหอพัก
+const reserveDorm = (dormitoryId) =>{
+  router.push({
+    name : 'reservation',
+    params : {id : dormitoryId}
+  })
+}
 </script>
 
 <template>
@@ -229,7 +238,15 @@ function initMap(addressObject) {
 
       <!-- รายละเอียดต่างๆ -->
       <div class="flex flex-col space-y-6 px-6">
+      <div class="flex flex-row justify-between items-center">
         <h2 class="text-3xl font-semibold pt-8">รายละเอียดหอพัก</h2>
+        <img src="../../components/icons/jip.gif" alt="loading" class="w-32 fixed-booking" />
+        <button @click="reserveDorm(dormitoryDetaill.dormId)" class="fixed-booking-button justify-center flex flex-col items-center">
+          จองเลย
+        </button>
+
+      </div>
+        
         <div class="space-y-4">
           <p><span style="font-weight:500;">จำนวนห้องพักที่เหลือให้เช่า:</span> {{ dormitoryDetaill.roomCount }} ห้อง</p>
           <p><span style="font-weight:500;">ประเภทหอพัก: </span> 
@@ -384,6 +401,48 @@ td {
 
 p{
   font-size: 1.2rem;
+}
+
+
+
+@keyframes bounce {
+  0% { transform: translateY(0); }
+  30% { transform: translateY(-10px); }
+  50% { transform: translateY(0); }
+  70% { transform: translateY(-5px); }
+  100% { transform: translateY(0); }
+}
+
+.fixed-booking-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #ff6600;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  z-index: 100;
+  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.fixed-booking-button:hover {
+  transform: scale(1.1); /* ทำให้ปุ่มขยาย */
+  background-color: #e65c00; /* เปลี่ยนสีเมื่อ hover */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* เพิ่มเงาให้ดูเด่น */
+}
+
+.fixed-booking {
+  position: fixed;
+  bottom: 70px;
+  right: 14px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 100;
 }
 
 </style>

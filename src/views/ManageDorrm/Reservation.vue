@@ -1,24 +1,49 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+const API_ROOT = import.meta.env.VITE_API_ROOT;
+import { useRoute } from 'vue-router';
+const { params } = useRoute();
+import SuccessModal from '@/components/modals/SuccessModal.vue';
 
-const API_ROOT = import.meta.env.VITE_API_ROOT
+const isModalSuccessVisible = ref(false);
+const modalProps = ref({ title: '', message: '' });
+const modalContext = ref('');
+
+const isUpdating = ref(false);
 
 // สร้างตัวแปรสำหรับฟอร์ม
 const form = ref({
+  dormId: params.id, // ห้องพัก
+  form_date: new Date().toISOString(),
   username: '',
   email: '',
   phone: '',
   date_in: '',
-  date_out: '',
-  dormId: 1, // ห้องพัก
-  specialRequests: ''
+  date_out: ''
+});
+
+// โหลดข้อมูลฟอร์มหากเป็นการอัปเดต
+onMounted(async () => {
+  if (params.formId) {  // หากมี formId ใน params URL
+    isUpdating.value = true;
+    try {
+      const response = await fetch(`${API_ROOT}/forms/${params.formId}`);
+      const formData = await response.json();
+      form.value = { ...formData };
+    } catch (error) {
+      console.error('ไม่สามารถโหลดข้อมูลฟอร์มได้:', error);
+    }
+  }
 });
 
 // ฟังก์ชันการส่งฟอร์ม
 const submitForm = async () => {
   try {
-    const response = await fetch(`${API_ROOT}/form`, {
-      method: 'POST',
+    const url = isUpdating.value ? `${API_ROOT}/forms/${params.formId}` : `${API_ROOT}/forms`;
+    const method = isUpdating.value ? 'PUT' : 'POST';
+
+    const response = await fetch(url, {
+      method: method,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -27,7 +52,14 @@ const submitForm = async () => {
 
     if (response.ok) {
       const data = await response.json();
-      console.log('การจองสำเร็จ:', data);
+      console.log('การบันทึกข้อมูลสำเร็จ:', data);
+
+      const successMessage = isUpdating.value
+        ? { title: 'อัปเดตฟอร์มสำเร็จ', message: 'ฟอร์มถูกอัปเดตเรียบร้อยแล้ว' }
+        : { title: 'ส่งฟอร์มสำเร็จ', message: 'ส่งฟอร์มจองหอพักเรียบร้อยแล้ว' };
+
+      isModalSuccessVisible.value = true;
+      modalProps.value = successMessage;
     } else {
       console.error('ไม่สามารถส่งข้อมูลได้');
     }
@@ -38,6 +70,7 @@ const submitForm = async () => {
 </script>
 
 
+
 <template>
     <div class="min-h-screen flex justify-center items-center bg-gray-100 p-4">
       <div class="w-full max-w-xl bg-white p-8 rounded-lg shadow-lg">
@@ -46,7 +79,7 @@ const submitForm = async () => {
         <form @submit.prevent="submitForm">
           <!-- ชื่อเต็ม -->
           <div class="mb-4">
-            <label for="fullName" class="block text-sm font-medium text-gray-700">ชื่อเต็ม</label>
+            <label for="fullName" class="block text-sm font-medium text-gray-700">ชื่อ-นามสกุล</label>
             <input type="text" id="fullName" v-model="form.username" class="input input-bordered w-full" required />
           </div>
           
@@ -73,30 +106,28 @@ const submitForm = async () => {
             <label for="dateOut" class="block text-sm font-medium text-gray-700">วันที่ออก</label>
             <input type="date" id="dateOut" v-model="form.date_out" class="input input-bordered w-full" required />
           </div>
-          
-          <!-- ห้องพัก -->
-          <div class="mb-4">
-            <label for="roomType" class="block text-sm font-medium text-gray-700">ประเภทห้องพัก</label>
-            <select id="roomType" v-model="form.dormId" class="select select-bordered w-full">
-              <option value="1">ห้องเดี่ยว</option>
-              <option value="2">ห้องคู่</option>
-              <option value="3">ห้องสวีท</option>
-            </select>
-          </div>
-          
-          <!-- ข้อความพิเศษ -->
-          <div class="mb-4">
-            <label for="specialRequests" class="block text-sm font-medium text-gray-700">ข้อกำหนดพิเศษ</label>
-            <textarea id="specialRequests" v-model="form.specialRequests" class="textarea textarea-bordered w-full" placeholder="ระบุข้อกำหนดพิเศษหากมี"></textarea>
-          </div>
+
           
           <!-- ปุ่มส่ง -->
-          <div class="text-center">
-            <button type="submit" class="btn btn-primary w-full">ยืนยันการจอง</button>
+          <div class="text-center mt-10">
+            <button type="submit" class="btn btn-primary w-full">
+              {{ isUpdating ? 'อัปเดตการจอง' : 'ยืนยันการจอง' }}
+            </button>
           </div>
+
         </form>
       </div>
     </div>
+
+      <!-- เมื่อ isModalVisible เป็น true จะทำให้แสดง SuccessModal -->
+      <SuccessModal
+        v-if="isModalSuccessVisible"
+        :title="modalProps.title"
+        :message="modalProps.message"
+        @close="isModalSuccessVisible = false" 
+        :context="modalContext"
+      />
+      
   </template>
   
 
