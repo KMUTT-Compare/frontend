@@ -49,6 +49,11 @@ const router = createRouter({
       component: () => import('../views/UserView/Setting/DormLists.vue')
     },
     {
+      path: '/reservation',
+      name: 'reservation',
+      component: () => import('../views/ManageDorrm/Reservation.vue')
+    },
+    {
       path: '/support',
       name: 'support',
       component: () => import('../views/UserView/Setting/Support.vue')

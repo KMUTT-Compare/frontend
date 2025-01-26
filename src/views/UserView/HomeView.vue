@@ -356,46 +356,44 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
 
 <div class="w-8/12  flex flex-col items-center mt-5">
 
-  <div class="flex flex-row items-start gap-6 w-full pb-4">
+  <div class="flex flex-row items-stretch gap-6 w-full pb-4">
 
-  <!-- ราคา (ชิดซ้าย) -->
-  <div class="flex flex-col space-y-4 w-1/3 min-w-[250px]">
-    <h2 class="text-lg font-semibold text-gray-800 text-center">ราคา</h2>
-    <div class="flex flex-row justify-between space-x-4">
-      <div class="flex flex-col space-y-2 w-1/2">
-        <label for="minPrice" class="text-sm font-medium text-gray-600">ราคาเริ่มต้น: {{ minPrice }} ฿</label>
-        <input
-          id="minPrice"
-          type="range"
-          v-model="minPrice"
-          min="0"
-          max="20000"
-          step="100"
-          class="w-full rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
+<!-- ราคา (ชิดซ้าย) -->
+<div class="flex flex-col space-y-4 flex-1 min-w-[250px] border border-gray-300 rounded-lg shadow-md p-4">
+  <h2 class="text-lg font-semibold text-gray-800 text-center">ราคา</h2>
+  <div class="flex flex-row justify-between space-x-4">
+    <div class="flex flex-col space-y-2 w-1/2">
+      <label for="minPrice" class="text-sm font-medium text-gray-600">ราคาเริ่มต้น: {{ minPrice }} ฿</label>
+      <input
+        id="minPrice"
+        type="range"
+        v-model="minPrice"
+        min="0"
+        max="20000"
+        step="100"
+        class="w-full rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
 
-      <div class="flex flex-col space-y-2 w-1/2">
-        <label for="maxPrice" class="text-sm font-medium text-gray-600">ราคาสูงสุด: {{ maxPrice }} ฿</label>
-        <input
-          id="maxPrice"
-          type="range"
-          v-model="maxPrice"
-          min="0"
-          max="20000"
-          step="100"
-          class="w-full rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
+    <div class="flex flex-col space-y-2 w-1/2">
+      <label for="maxPrice" class="text-sm font-medium text-gray-600">ราคาสูงสุด: {{ maxPrice }} ฿</label>
+      <input
+        id="maxPrice"
+        type="range"
+        v-model="maxPrice"
+        min="0"
+        max="20000"
+        step="100"
+        class="w-full rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
     </div>
   </div>
-
-
+</div>
 
 <!-- ประเภทหอพัก (กึ่งกลาง) -->
-<div class="w-1/3 flex flex-col text-center">
+<div class="flex flex-col space-y-4 flex-1 min-w-[250px] border border-gray-300 rounded-lg shadow-md p-4">
   <h2 class="text-lg font-semibold mb-4 text-gray-800">ประเภทหอพัก</h2>
-  <div class="grid grid-cols-2 gap-4 justify-items-center">
+  <div class="flex flex-row justify-around mt-3">
     <label class="flex items-center space-x-2">
       <input
         v-model="selectTypes"
@@ -404,7 +402,7 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
         value=""
         class="form-radio w-5 h-5 text-blue-500 focus:ring-blue-500"
       />
-      <span class="text-sm">ทั้งหมด</span>
+      <span class="text-lg">ทั้งหมด</span>
     </label>
     <label class="flex items-center space-x-2">
       <input
@@ -414,7 +412,7 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
         value="m"
         class="form-radio w-5 h-5 text-blue-500 focus:ring-blue-500"
       />
-      <span class="text-sm">ชาย</span>
+      <span class="text-lg">ชาย</span>
     </label>
     <label class="flex items-center space-x-2">
       <input
@@ -424,7 +422,7 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
         value="f"
         class="form-radio w-5 h-5 text-blue-500 focus:ring-blue-500"
       />
-      <span class="text-sm">หญิง</span>
+      <span class="text-lg">หญิง</span>
     </label>
     <label class="flex items-center space-x-2">
       <input
@@ -434,32 +432,31 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
         value="all"
         class="form-radio w-5 h-5 text-blue-500 focus:ring-blue-500"
       />
-      <span class="text-sm">รวม</span>
+      <span class="text-lg">รวม</span>
     </label>
   </div>
 </div>
 
-
-
-
-  <!-- ระยะทาง (ชิดขวา) -->
-  <div class="w-1/3 min-w-[250px] text-center">
-    <h2 class="text-lg font-semibold mb-4 text-gray-800">ระยะทาง</h2>
-    <select
-      id="distanceSelect"
-      v-model="selectedDistance"
-      class="block w-full p-3 mt-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-    >
-      <option value="0">ไม่จำกัด</option>
-      <option value="1">น้อยกว่า 1 กม.</option>
-      <option value="2">1 -> 2 กม.</option>
-      <option value="3">2 -> 3 กม.</option>
-      <option value="4">3 -> 4 กม.</option>
-      <option value="5">4 -> 5 กม.</option>
-      <option value="6">5 กม. ขึ้นไป</option>
-    </select>
-  </div>
+<!-- ระยะทาง (ชิดขวา) -->
+<div class="flex flex-col space-y-4 flex-1 min-w-[250px] border border-gray-300 rounded-lg shadow-md p-4">
+  <h2 class="text-lg font-semibold text-gray-800">ระยะทาง</h2>
+  <select
+    id="distanceSelect"
+    v-model="selectedDistance"
+    class="text-lg block w-full p-3 mt-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+  >
+    <option value="0">ไม่จำกัด</option>
+    <option value="1">น้อยกว่า 1 กม.</option>
+    <option value="2">1 -> 2 กม.</option>
+    <option value="3">2 -> 3 กม.</option>
+    <option value="4">3 -> 4 กม.</option>
+    <option value="5">4 -> 5 กม.</option>
+    <option value="6">5 กม. ขึ้นไป</option>
+  </select>
 </div>
+
+</div>
+
 
 
 
