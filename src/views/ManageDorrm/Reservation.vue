@@ -33,7 +33,7 @@ const form = ref({
   phone: '',
   date_in: '',
   date_out: '',
-  // description:''
+  description:''
 });
 
 // โหลดข้อมูลฟอร์มหากเป็นการอัปเดต
@@ -126,7 +126,7 @@ const submitForm = async () => {
           </div>
 
           <!-- รายละเอียดเพิ่มเติม -->
-          <!-- <div class="mb-4">
+          <div class="mb-4">
             <label for="description" class="block text-sm font-medium text-gray-700">รายละเอียดเพิ่มเติม</label>
             <textarea 
               id="description" 
@@ -136,7 +136,7 @@ const submitForm = async () => {
               @input="handleInput"
             ></textarea>
             <p class="text-right text-sm text-gray-500">{{ remainingChars }} ตัวอักษรเหลือ</p>
-          </div> -->
+          </div>
 
 
           

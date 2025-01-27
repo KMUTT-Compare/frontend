@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import { formatDate } from '@/composables/formatDate';
+import { formatPhoneNumber } from '@/composables/formatPhoneNumber';
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 const userId = 1; // สมมติว่า userId ถูกกำหนดค่าจากการล็อกอิน
 
@@ -56,8 +57,8 @@ onMounted(() => {
                     <h2>วันที่ส่ง: {{ formatDate(form.form_date)}}</h2>
                 </div>
 
-              <p class="text-sm text-gray-600">ชื่อเจ้าของหอพัก: {{ form.staffName || 'ไม่มีข้อมูล' }}</p>
-              <p class="text-sm text-gray-600">เบอร์ติดต่อ: {{ form.staffPhone || 'ไม่มีข้อมูล' }}</p>
+              <p class="text-sm text-gray-600">ชื่อผู้ดูแลหอพัก: {{ form.staffName || 'ไม่มีข้อมูล' }}</p>
+              <p class="text-sm text-gray-600">เบอร์ติดต่อ: {{ formatPhoneNumber(form.staffPhone || 'ไม่มีข้อมูล') }}</p>
               <p class="text-sm text-gray-600">อีเมล: {{ form.staffEmail || 'ไม่มีข้อมูล' }}</p>
             </li>
           </ul>

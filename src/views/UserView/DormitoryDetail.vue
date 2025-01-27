@@ -7,7 +7,7 @@ import BlackButton from '@/components/buttons/BlackButton.vue';
 import { getDormitoryById } from '@/composables/getDormitoryById';
 import { formatPrice } from '@/composables/formatPrice';
 import router from '@/router';
-
+import { formatPhoneNumber } from '@/composables/formatPhoneNumber';
 import { useDormitoryStore } from '@/stores/useDormitoryStore';
 
 // เข้าถึง store
@@ -297,16 +297,26 @@ const reserveDorm = (dormitoryId) =>{
             </div>
           </div>
         </div>
+<!-- ที่อยู่ -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-8">
+  
+  <div>
+    <h3 class="text-2xl font-semibold mb-2">ที่อยู่หอพัก</h3>
+      <p v-for="(address, index) in dormitoryDetaill" :key="index">
+        {{ address.dormNumber }} {{ address.street }} {{ address.subdistrict }} {{ address.district }} {{ address.province }} {{ address.postalCode }}
+      </p>
+  </div>
 
-        <!-- ที่อยู่ -->
-        <div class="space-y-4 pt-8">
-          <h3 class="text-2xl font-semibold">ที่อยู่หอพัก</h3>
-          <ul class="space-y-2">
-            <p v-for="(address, index) in dormitoryDetaill" :key="index">
-              {{ address.dormNumber }} {{ address.street }} {{ address.subdistrict }} {{ address.district }} {{ address.province }} {{ address.postalCode }}
-            </p>
-          </ul>
-        </div>
+  <!-- เบอร์ติดต่อ -->
+  <div>
+  <h3 class="text-2xl font-semibold mb-2">เบอร์ติดต่อ</h3>
+  <p>{{ dormitoryDetaill.staffPhone ? formatPhoneNumber(dormitoryDetaill.staffPhone) : 'ไม่มีเบอร์โทร' }}</p>
+</div>
+
+
+</div>
+
+
 
         <h3 class="text-2xl font-semibold pt-8">ห่างกับมหาวิทยาลัยพระจอมเกล้าธนบุรีประมาณ : {{dormitoryDetaill.distance }} กม.</h3>
 
