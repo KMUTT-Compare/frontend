@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 import { useRoute } from 'vue-router';
 const { params } = useRoute();
@@ -10,6 +10,19 @@ const modalProps = ref({ title: '', message: '' });
 const modalContext = ref('');
 
 const isUpdating = ref(false);
+const maxLength = 200;
+
+// คำนวณจำนวนตัวอักษรที่ผู้ใช้พิมพ์
+const remainingChars = computed(() => {
+  return maxLength - form.value.description.length;
+});
+
+// ฟังก์ชันที่คอยตรวจสอบให้ความยาวไม่เกิน 200
+const handleInput = () => {
+  if (form.value.description.length > maxLength) {
+    form.value.description = form.value.description.slice(0, maxLength);
+  }
+};
 
 // สร้างตัวแปรสำหรับฟอร์ม
 const form = ref({
@@ -19,7 +32,8 @@ const form = ref({
   email: '',
   phone: '',
   date_in: '',
-  date_out: ''
+  date_out: '',
+  // description:''
 });
 
 // โหลดข้อมูลฟอร์มหากเป็นการอัปเดต
@@ -39,8 +53,8 @@ onMounted(async () => {
 // ฟังก์ชันการส่งฟอร์ม
 const submitForm = async () => {
   try {
-    const url = isUpdating.value ? `${API_ROOT}/forms/${params.formId}` : `${API_ROOT}/forms`;
-    const method = isUpdating.value ? 'PUT' : 'POST';
+    const url = `${API_ROOT}/forms`; // ใช้ URL นี้สำหรับการส่งฟอร์มใหม่
+    const method = 'POST'; // เปลี่ยนเป็น POST เสมอสำหรับการส่งข้อมูลใหม่
 
     const response = await fetch(url, {
       method: method,
@@ -54,12 +68,14 @@ const submitForm = async () => {
       const data = await response.json();
       console.log('การบันทึกข้อมูลสำเร็จ:', data);
 
-      const successMessage = isUpdating.value
-        ? { title: 'อัปเดตฟอร์มสำเร็จ', message: 'ฟอร์มถูกอัปเดตเรียบร้อยแล้ว' }
-        : { title: 'ส่งฟอร์มสำเร็จ', message: 'ส่งฟอร์มจองหอพักเรียบร้อยแล้ว' };
+      const successMessage = { 
+        title: 'ส่งฟอร์มสำเร็จ', 
+        message: 'ส่งฟอร์มจองหอพักเรียบร้อยแล้ว' 
+      };
 
       isModalSuccessVisible.value = true;
       modalProps.value = successMessage;
+      
     } else {
       console.error('ไม่สามารถส่งข้อมูลได้');
     }
@@ -67,6 +83,8 @@ const submitForm = async () => {
     console.error('เกิดข้อผิดพลาด:', error);
   }
 };
+
+
 </script>
 
 
@@ -107,11 +125,25 @@ const submitForm = async () => {
             <input type="date" id="dateOut" v-model="form.date_out" class="input input-bordered w-full" required />
           </div>
 
+          <!-- รายละเอียดเพิ่มเติม -->
+          <!-- <div class="mb-4">
+            <label for="description" class="block text-sm font-medium text-gray-700">รายละเอียดเพิ่มเติม</label>
+            <textarea 
+              id="description" 
+              v-model="form.description" 
+              class="input input-bordered w-full h-32" 
+              rows="4" 
+              @input="handleInput"
+            ></textarea>
+            <p class="text-right text-sm text-gray-500">{{ remainingChars }} ตัวอักษรเหลือ</p>
+          </div> -->
+
+
           
           <!-- ปุ่มส่ง -->
           <div class="text-center mt-10">
             <button type="submit" class="btn btn-primary w-full">
-              {{ isUpdating ? 'อัปเดตการจอง' : 'ยืนยันการจอง' }}
+                ยืนยันการจอง
             </button>
           </div>
 

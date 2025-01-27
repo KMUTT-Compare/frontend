@@ -52,10 +52,20 @@ const clickDormlists = ()=>{
   router.push('/dormlists')
 }
 
+const clickReservedForms = ()=>{
+  toggleDropdown()
+  router.push('/reservedForms')
+}
+
 const clickSupport = ()=>{
   toggleDropdown()
   router.push('/support')
 }
+
+
+
+
+
 
 
 </script>
@@ -102,6 +112,9 @@ const clickSupport = ()=>{
               </li>
               <li>
                 <p @click="clickDormlists" class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">รายการประกาศ</p>
+              </li>
+              <li>
+                <p @click="clickReservedForms" class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">หอพักที่จอง</p>
               </li>
               <li>
                 <p @click="clickSupport" class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">ความช่วยเหลือและการสนับสนุน</p>

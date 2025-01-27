@@ -54,6 +54,11 @@ const router = createRouter({
       component: () => import('../views/ManageDorrm/Reservation.vue')
     },
     {
+      path: '/reservedForms',
+      name: 'reservedForms',
+      component: () => import('../views/UserView/Setting/ReservedForms.vue')
+    },
+    {
       path: '/support',
       name: 'support',
       component: () => import('../views/UserView/Setting/Support.vue')
