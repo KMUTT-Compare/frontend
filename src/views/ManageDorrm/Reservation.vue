@@ -26,14 +26,17 @@ const handleInput = () => {
 
 // สร้างตัวแปรสำหรับฟอร์ม
 const form = ref({
-  dormId: params.id, // ห้องพัก
   form_date: new Date().toISOString(),
-  username: '',
+  name: '',
   email: '',
   phone: '',
   date_in: '',
   date_out: '',
-  description:''
+  description:'',
+  staffId:1,
+  dormId: params.id, // ห้องพัก
+  userId:1
+
 });
 
 // โหลดข้อมูลฟอร์มหากเป็นการอัปเดต
@@ -54,10 +57,8 @@ onMounted(async () => {
 const submitForm = async () => {
   try {
     const url = `${API_ROOT}/forms`; // ใช้ URL นี้สำหรับการส่งฟอร์มใหม่
-    const method = 'POST'; // เปลี่ยนเป็น POST เสมอสำหรับการส่งข้อมูลใหม่
-
     const response = await fetch(url, {
-      method: method,
+      method:'POST',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -98,7 +99,7 @@ const submitForm = async () => {
           <!-- ชื่อเต็ม -->
           <div class="mb-4">
             <label for="fullName" class="block text-sm font-medium text-gray-700">ชื่อ-นามสกุล</label>
-            <input type="text" id="fullName" v-model="form.username" class="input input-bordered w-full" required />
+            <input type="text" id="fullName" v-model="form.name" class="input input-bordered w-full" required />
           </div>
           
           <!-- อีเมล -->
