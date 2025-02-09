@@ -49,7 +49,7 @@ const router = createRouter({
       component: () => import('../views/UserView/Setting/DormLists.vue')
     },
     {
-      path: '/reservation',
+      path: '/reservation/:id?',
       name: 'reservation',
       component: () => import('../views/ManageDorrm/Reservation.vue')
     },

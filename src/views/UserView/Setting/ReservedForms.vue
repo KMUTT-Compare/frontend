@@ -1,14 +1,17 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import { formatDate } from '@/composables/formatDate';
 import { formatPhoneNumber } from '@/composables/formatPhoneNumber';
 const API_ROOT = import.meta.env.VITE_API_ROOT;
-const userId = 1; // สมมติว่า userId ถูกกำหนดค่าจากการล็อกอิน
 
 // สร้างตัวแปรเพื่อเก็บรายการฟอร์ม
 const submittedForms = ref([]);
 const isLoading = ref(true);
+
+// กำหนดจำนวนข้อมูลที่จะแสดงต่อหน้า
+const perPage = 5;
+const currentPage = ref(1);
 
 // ฟังก์ชันโหลดข้อมูลฟอร์มที่ส่ง
 const fetchSubmittedForms = async () => {
@@ -17,7 +20,7 @@ const fetchSubmittedForms = async () => {
     if (!response.ok) throw new Error('ไม่สามารถโหลดข้อมูลได้');
 
     const data = await response.json();
-    submittedForms.value = data;
+    submittedForms.value = data.sort((a, b) => new Date(b.form_date) - new Date(a.form_date)); // เรียงจากล่าสุดไปเก่าสุด
   } catch (error) {
     console.error('เกิดข้อผิดพลาดในการโหลดข้อมูล:', error);
   } finally {
@@ -29,6 +32,18 @@ const fetchSubmittedForms = async () => {
 onMounted(() => {
   fetchSubmittedForms();
 });
+
+// คำนวณฟอร์มที่จะแสดงในแต่ละหน้า
+const paginatedForms = computed(() => {
+  const startIndex = (currentPage.value - 1) * perPage;
+  const endIndex = startIndex + perPage;
+  return submittedForms.value.slice(startIndex, endIndex);
+});
+
+// ฟังก์ชันสำหรับเปลี่ยนหน้า
+const changePage = (page) => {
+  currentPage.value = page;
+};
 </script>
 
 <template>
@@ -51,7 +66,7 @@ onMounted(() => {
     
           <!-- แสดงรายการฟอร์ม -->
           <ul v-else class="space-y-4">
-            <li v-for="form in submittedForms" :key="form.id" class="p-4 bg-gray-100 rounded-lg shadow space-y-2">
+            <li v-for="form in paginatedForms" :key="form.id" class="p-4 bg-gray-100 rounded-lg shadow space-y-2">
                 <div class="flex flex-between items-center justify-between">
                     <h2>{{ form.dormName || 'ไม่มีชื่อหอพัก' }}</h2>
                     <h2>วันที่ส่ง: {{ formatDate(form.form_date)}}</h2>
@@ -62,11 +77,42 @@ onMounted(() => {
               <p class="text-sm text-gray-600">อีเมล: {{ form.staffEmail || 'ไม่มีข้อมูล' }}</p>
             </li>
           </ul>
+
+
+        <!-- Pagination -->
+        <div class="mt-6 flex justify-center items-center space-x-4">
+          <button 
+            @click="changePage(currentPage - 1)" 
+            :disabled="currentPage === 1"
+            class="btn p-2 bg-orange-500 text-white hover:bg-orange-600 disabled:bg-gray-300"
+          >
+            <!-- Chevron Left Icon (ก่อนหน้า) -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+          <span class="text-sm text-gray-600">
+            หน้า {{ currentPage }} จาก {{ Math.ceil(submittedForms.length / perPage) }}
+          </span>
+          <button 
+            @click="changePage(currentPage + 1)" 
+            :disabled="currentPage === Math.ceil(submittedForms.length / perPage)"
+            class="btn p-2 bg-orange-500 text-white hover:bg-orange-600 disabled:bg-gray-300"
+          >
+            <!-- Chevron Right Icon (ถัดไป) -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </button>
+        </div>
+
+
+
+
         </div>
       </div>
     </div>
-    </template>
-    
+</template>
 
 <style scoped>
 h1{
@@ -96,17 +142,6 @@ ul {
     margin-left: 20px;
 }
 
-button {
-    background-color: #007BFF;
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    font-size: 1rem;
-    cursor: pointer;
-    border-radius: 5px;
-}
 
-button:hover {
-    background-color: #0056b3;
-}
+
 </style>

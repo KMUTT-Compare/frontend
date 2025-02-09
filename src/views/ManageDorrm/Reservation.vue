@@ -9,7 +9,6 @@ const isModalSuccessVisible = ref(false);
 const modalProps = ref({ title: '', message: '' });
 const modalContext = ref('');
 
-const isUpdating = ref(false);
 const maxLength = 200;
 
 // คำนวณจำนวนตัวอักษรที่ผู้ใช้พิมพ์
@@ -24,6 +23,7 @@ const handleInput = () => {
   }
 };
 
+
 // สร้างตัวแปรสำหรับฟอร์ม
 const form = ref({
   form_date: new Date().toISOString(),
@@ -33,36 +33,50 @@ const form = ref({
   date_in: '',
   date_out: '',
   description:'',
-  staffId:1,
   dormId: params.id, // ห้องพัก
   userId:1
-
 });
 
-// โหลดข้อมูลฟอร์มหากเป็นการอัปเดต
-onMounted(async () => {
-  if (params.formId) {  // หากมี formId ใน params URL
-    isUpdating.value = true;
-    try {
-      const response = await fetch(`${API_ROOT}/forms/${params.formId}`);
-      const formData = await response.json();
-      form.value = { ...formData };
-    } catch (error) {
-      console.error('ไม่สามารถโหลดข้อมูลฟอร์มได้:', error);
-    }
-  }
-});
 
-// ฟังก์ชันการส่งฟอร์ม
+// ฟังก์ชันการแปลงวันที่เป็น ISO format
+const formatDateToISO = (date) => {
+  const d = new Date(date);
+  return d.toISOString(); // ส่งค่ากลับเป็น ISO 8601
+};
+
+const isLoading = ref(false);
+
 const submitForm = async () => {
+  isLoading.value = true; // เริ่มการโหลด
   try {
-    const url = `${API_ROOT}/forms`; // ใช้ URL นี้สำหรับการส่งฟอร์มใหม่
+    // เช็คว่า dormId มีค่า
+    if (!form.value.dormId) {
+      console.error('กรุณาระบุ dormId');
+      return;  // หยุดการส่งข้อมูล
+    }
+
+    const formattedDateIn = formatDateToISO(form.value.date_in);
+    const formattedDateOut = formatDateToISO(form.value.date_out);
+    
+    const formData = {
+      form_date: formatDateToISO(form.value.form_date),
+      name: form.value.name,
+      email: form.value.email,
+      phone: form.value.phone,
+      date_in: formattedDateIn,
+      date_out: formattedDateOut,
+      description: form.value.description,
+      dormId: form.value.dormId,
+      userId: form.value.userId,
+    };
+
+    const url = `${API_ROOT}/forms`;
     const response = await fetch(url, {
-      method:'POST',
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(form.value),
+      body: JSON.stringify(formData),
     });
 
     if (response.ok) {
@@ -82,8 +96,11 @@ const submitForm = async () => {
     }
   } catch (error) {
     console.error('เกิดข้อผิดพลาด:', error);
+  } finally {
+    isLoading.value = false; // สิ้นสุดการโหลด
   }
 };
+
 
 
 </script>
@@ -141,14 +158,28 @@ const submitForm = async () => {
 
 
           
-          <!-- ปุ่มส่ง -->
-          <div class="text-center mt-10">
-            <button type="submit" class="btn btn-primary w-full">
-                ยืนยันการจอง
-            </button>
-          </div>
+                <!-- ปุ่มส่ง -->
+                <!-- เพิ่ม spinner หรือข้อความกำลังโหลด -->
+                <div v-if="isLoading" class="fixed inset-0 bg-gray-700 bg-opacity-50 flex justify-center items-center z-50">
+                  <div class="text-center text-white">
+                    <svg class="animate-spin h-16 w-16 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                      <path d="M4 12a8 8 0 018-8V4" fill="none" stroke="currentColor"></path>
+                    </svg>
+                    <p class="text-lg mt-4">กำลังส่งข้อมูล...</p>
+                  </div>
+                </div>
+
+              <!-- ปุ่มส่งเมื่อไม่มีการโหลด -->
+              <div v-else class="text-center mt-10">
+                <button type="submit" class="btn btn-primary w-full">
+                  ยืนยันการจอง
+                </button>
+              </div>
+
 
         </form>
+
       </div>
     </div>
 
