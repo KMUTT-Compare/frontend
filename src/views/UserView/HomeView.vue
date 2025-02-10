@@ -363,7 +363,17 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
   <h2 class="text-lg font-semibold text-gray-800 text-center">ราคา</h2>
   <div class="flex flex-row justify-between space-x-4">
     <div class="flex flex-col space-y-2 w-1/2">
-      <label for="minPrice" class="text-sm font-medium text-gray-600">ราคาเริ่มต้น: {{ minPrice }} ฿</label>
+      <div class="flex items-center space-x-2">
+        <label for="minPrice" class="text-sm font-medium text-gray-600">ราคาเริ่มต้น:</label>
+        <input
+          type="number"
+          v-model="minPrice"
+          min="0"
+          max="20000"
+          step="100"
+          class="w-24 text-sm border border-gray-300 rounded-md p-1 text-center"
+        />
+      </div>
       <input
         id="minPrice"
         type="range"
@@ -376,7 +386,17 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
     </div>
 
     <div class="flex flex-col space-y-2 w-1/2">
-      <label for="maxPrice" class="text-sm font-medium text-gray-600">ราคาสูงสุด: {{ maxPrice }} ฿</label>
+      <div class="flex items-center space-x-2">
+        <label for="maxPrice" class="text-sm font-medium text-gray-600">ราคาสูงสุด:</label>
+        <input
+          type="number"
+          v-model="maxPrice"
+          min="0"
+          max="20000"
+          step="100"
+          class="w-24 text-sm border border-gray-300 rounded-md p-1 text-center"
+        />
+      </div>
       <input
         id="maxPrice"
         type="range"
@@ -389,6 +409,7 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
     </div>
   </div>
 </div>
+
 
 <!-- ประเภทหอพัก (กึ่งกลาง) -->
 <div class="flex flex-col space-y-4 flex-1 min-w-[250px] border border-gray-300 rounded-lg shadow-md p-4">
