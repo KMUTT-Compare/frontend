@@ -25,16 +25,17 @@
   
   // ฟังก์ชันจัดเรียงข้อมูล
   const sortDormitories = (sortType) => {
-    if (sortType === 'min_price') {
-      props.dormitories.sort((a, b) => a.max_price - b.max_price); // เรียงจากราคาต่ำสุด
-    } else if (sortType === 'max_price') {
-      props.dormitories.sort((a, b) => b.min_price - a.min_price); // เรียงจากราคาสูงสุด
-    } else if (sortType === 'distance') {
-      props.dormitories.sort((a, b) => a.distance - b.distance); // เรียงตามระยะทาง
-    } else if (sortType === 'name') {
-      props.dormitories.sort((a, b) => a.dormName.localeCompare(b.dormName)); // เรียงตามชื่อ A-Z
-    }
-  };
+  if (sortType === 'min_price') {
+    props.dormitories.sort((a, b) => a.min_price - b.min_price); // ราคาต่ำสุด -> สูงสุด
+  } else if (sortType === 'max_price') {
+    props.dormitories.sort((a, b) => b.max_price - a.max_price); // ราคาสูงสุด -> ต่ำสุด
+  } else if (sortType === 'distance') {
+    props.dormitories.sort((a, b) => a.distance - b.distance); // ใกล้ -> ไกล
+  } else if (sortType === 'name') {
+    props.dormitories.sort((a, b) => a.dormName.localeCompare(b.dormName)); // A-Z
+  }
+};
+
   
   // ฟังก์ชันเมื่อมีการเปลี่ยนแปลงการเลือก
   const handleSortChange = () => {

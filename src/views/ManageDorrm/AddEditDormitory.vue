@@ -373,8 +373,8 @@ const provinceError = ref('')
 const postalCodeError = ref('')
 const roomCountError = ref('')
 const sizeError = ref('')
-const insideAmenitiesError = ref([])
-const outsideAmenitiesError = ref([])
+const insideAmenitiesError = ref('')
+const outsideAmenitiesError = ref('')
   // --------------------------------- Add/Edit ---------------------------------
 
 import ConfirmModal from '@/components/modals/ConfirmModal.vue';
@@ -754,14 +754,14 @@ const handleConfirmAction = async (context) => {
             <p for="min-price" class="w-44 text-lg">ราคาเริ่มต้น: (ต่อเดือน)<span class="text-red-500">*</span></p>
             <input v-model="min_price" type="text" id="min_price" class="ml-2 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-42 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="โปรดระบุเป็นตัวเลข" required />
           </div>
-          <p v-if="minPriceError" class="pl-24 ml-2 text-red-500 text-sm">{{ minPriceError }}</p>
+          <p v-if="minPriceError" class="pl-44 ml-2 text-red-500 text-sm">{{ minPriceError }}</p>
         </div>
         <div class="flex flex-col">
         <div class="flex flex-row items-center">
           <p for="max-price" class="w-44 text-lg">ราคาสูงสุด: (ต่อเดือน)<span class="text-red-500">*</span></p>
           <input v-model="max_price" type="text" id="max_price" class="border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-42 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="โปรดระบุเป็นตัวเลข" required />
         </div>
-        <p v-if="maxPriceError" class="pl-24 ml-2 text-red-500 text-sm">{{ maxPriceError }}</p>
+        <p v-if="maxPriceError" class="pl-44 ml-2 text-red-500 text-sm">{{ maxPriceError }}</p>
       </div>
       </div>
 
@@ -797,7 +797,7 @@ const handleConfirmAction = async (context) => {
               <p for="max-price" class="w-36 text-lg">ขนาดห้อง: (ตร.ม.)<span class="text-red-500">*</span></p>
               <input v-model="size" type="text" id="size" class="border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-42 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="โปรดระบุเป็นตัวเลข" required />
             </div>
-            <p v-if="sizeError" class="pl-24 ml-2 text-red-500 text-sm">{{ sizeError }}</p>
+            <p v-if="sizeError" class="pl-36 ml-2 text-red-500 text-sm">{{ sizeError }}</p>
           </div>
         </div>
 
@@ -817,6 +817,7 @@ const handleConfirmAction = async (context) => {
             placeholder="เพิ่มสิ่งอำนวยความสะดวกภายในห้อง"
             @input="filterInsideSuggestions"
           />
+          <p v-if="insideAmenitiesError" class="ml-2 text-red-500 text-sm">{{ insideAmenitiesError }}</p>
           <!-- Suggestion List -->
           <ul 
             v-if="filteredInsideSuggestions.length" 
@@ -869,6 +870,7 @@ const handleConfirmAction = async (context) => {
             placeholder="เพิ่มสิ่งอำนวยความสะดวกภายนอกอาคาร"
             @input="filterOutsideSuggestions"
           />
+          <p v-if="outsideAmenitiesError" class="ml-2 text-red-500 text-sm">{{ outsideAmenitiesError }}</p>
           <!-- Suggestion List -->
           <ul 
             v-if="filteredOutsideSuggestions.length" 

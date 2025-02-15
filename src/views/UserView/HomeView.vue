@@ -489,13 +489,13 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
         <div class="items rounded-lg border-2">
           
           <div class="w-8/12 flex h-64 justify-center items-center">
-            <div class="w-full h-full bg-cover bg-center rounded-2xl" :style="{ backgroundImage: `url(${dorm.image[0] || '/images/no_image.jpg'})` }" alt="Dormitory Image"></div>
+            <div class="w-full h-full bg-cover bg-center rounded-lg" :style="{ backgroundImage: `url(${dorm.image[0] || '/images/no_image.jpg'})` }" alt="Dormitory Image"></div>
           </div>
 
           <div class="flex flex-col w-full h-full p-3 justify-center">
             <div class="flex w-full">
-              <div class="item">
-                <div class="flex flex-row justify-between">
+              <div class="item w-full">
+                <div class="flex flex-row w-full justify-between">
                   <h1 @click="showDetail(dorm.dormId)" class="dormname cursor-pointer">{{ dorm.dormName }}</h1>
                     <!-- ปุ่ม Favorite -->
                     <button 
