@@ -1,30 +1,18 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-const API_ROOT = import.meta.env.VITE_API_ROOT;
+import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
-const { params } = useRoute();
 import SuccessModal from '@/components/modals/SuccessModal.vue';
+
+const API_ROOT = import.meta.env.VITE_API_ROOT;
+const { params } = useRoute();
 
 const isModalSuccessVisible = ref(false);
 const modalProps = ref({ title: '', message: '' });
-const modalContext = ref('');
+const isLoading = ref(false);
 
 const maxLength = 200;
 
-// คำนวณจำนวนตัวอักษรที่ผู้ใช้พิมพ์
-const remainingChars = computed(() => {
-  return maxLength - form.value.description.length;
-});
-
-// ฟังก์ชันที่คอยตรวจสอบให้ความยาวไม่เกิน 200
-const handleInput = () => {
-  if (form.value.description.length > maxLength) {
-    form.value.description = form.value.description.slice(0, maxLength);
-  }
-};
-
-
-// สร้างตัวแปรสำหรับฟอร์ม
+// ฟอร์มข้อมูล
 const form = ref({
   form_date: new Date().toISOString(),
   name: '',
@@ -32,170 +20,245 @@ const form = ref({
   phone: '',
   date_in: '',
   date_out: '',
-  description:'',
-  dormId: params.id, // ห้องพัก
-  userId:1
+  description: '',
+  dormId: params.id,
+  userId: 1
 });
 
+// **Validation Rules**
+const errors = ref({
+  name: '',
+  email: '',
+  phone: '',
+  date_in: '',
+  date_out: '',
+  description: '',
+});
 
-// ฟังก์ชันการแปลงวันที่เป็น ISO format
-const formatDateToISO = (date) => {
-  const d = new Date(date);
-  return d.toISOString(); // ส่งค่ากลับเป็น ISO 8601
+// ฟังก์ชันการเลื่อนหน้าจอไปยังช่องที่มี error
+const scrollToError = (field) => {
+  const element = document.getElementById(field);
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 };
 
-const isLoading = ref(false);
+// เช็คอีเมลให้ถูกต้อง
+const validateEmail = (email) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
 
+// เช็คเบอร์โทรให้เป็นตัวเลข
+const validatePhone = (phone) => {
+  return /^[0-9]+$/.test(phone);
+};
+
+// คำนวณจำนวนตัวอักษรที่เหลือ
+const remainingChars = computed(() => maxLength - form.value.description.length);
+
+
+// ฟังก์ชันตรวจสอบ validation ของแต่ละฟิลด์
+const validateField = (field) => {
+  switch (field) {
+    case 'name':
+      // ตรวจสอบว่าเป็น string และไม่เป็นตัวเลขหรือสัญลักษณ์
+      if (!form.value.name.trim()) {
+        errors.value.name = 'กรุณากรอกชื่อ-นามสกุล';
+      } else if (form.value.name.length > 50) {
+        errors.value.name = 'ชื่อ-นามสกุลต้องไม่เกิน 50 ตัวอักษร';
+      } else if (!/^[A-Za-zก-๙\s]+$/.test(form.value.name)) {
+        errors.value.name = 'ชื่อ-นามสกุลต้องเป็นตัวอักษรเท่านั้น';
+      } else {
+        errors.value.name = '';
+      }
+      break;
+
+    case 'email':
+      if (!form.value.email.trim()) {
+        errors.value.email = 'กรุณากรอกอีเมล';
+      } else if (!validateEmail(form.value.email)) {
+        errors.value.email = 'รูปแบบอีเมลไม่ถูกต้อง';
+      } else {
+        errors.value.email = '';
+      }
+      break;
+
+    case 'phone':
+      if (!form.value.phone.trim()) {
+        errors.value.phone = 'กรุณากรอกเบอร์โทร';
+      } else if (!validatePhone(form.value.phone)) {
+        errors.value.phone = 'เบอร์โทรต้องเป็นตัวเลข';
+      } else {
+        errors.value.phone = '';
+      }
+      break;
+
+    case 'date_in':
+      if (!form.value.date_in.trim()) {
+        errors.value.date_in = 'กรุณาระบุวันที่เข้าพัก';
+      } else {
+        const today = new Date();
+        const dateIn = new Date(form.value.date_in);
+        // รีเซ็ตเวลาให้เป็น 00:00:00 เพื่อให้เปรียบเทียบเฉพาะวันที่
+        today.setHours(0, 0, 0, 0);
+        dateIn.setHours(0, 0, 0, 0);
+        
+        if (dateIn < today) {
+          errors.value.date_in = 'วันที่เข้าพักต้องเป็นวันนี้หรือหลังจากนี้';
+        } else {
+          errors.value.date_in = '';
+        }
+      }
+      break;
+
+    case 'date_out':
+      if (!form.value.date_out.trim()) {
+        errors.value.date_out = 'กรุณาระบุวันที่ออก';
+      } else {
+        const dateIn = new Date(form.value.date_in);
+        const dateOut = new Date(form.value.date_out);
+        if (dateOut < dateIn) {
+          errors.value.date_out = 'วันที่ออกต้องมากกว่าหรือเท่ากับวันที่เข้าพัก';
+        } else {
+          errors.value.date_out = '';
+        }
+      }
+      break;
+      
+    case 'description':
+      if (form.value.description.length > maxLength) {
+        errors.value.description = `จำนวนตัวอักษรเกิน ${maxLength} ตัว`;
+      } else {
+        errors.value.description = '';
+      }
+      break;
+  }
+};
+
+// ฟังก์ชันส่งฟอร์ม
 const submitForm = async () => {
-  isLoading.value = true; // เริ่มการโหลด
-  try {
-    // เช็คว่า dormId มีค่า
-    if (!form.value.dormId) {
-      console.error('กรุณาระบุ dormId');
-      return;  // หยุดการส่งข้อมูล
+  // Validate all fields before submitting
+  validateField('name');
+  validateField('email');
+  validateField('phone');
+  validateField('date_in');
+  validateField('date_out');
+  validateField('description');
+
+  // หากมีข้อผิดพลาดในฟิลด์ใดๆ ให้เลื่อนไปที่ฟิลด์นั้น
+  for (const field in errors.value) {
+    if (errors.value[field]) {
+      scrollToError(field);
+      break; // เลื่อนไปที่ฟิลด์แรกที่มีข้อผิดพลาด
     }
+  }
 
-    const formattedDateIn = formatDateToISO(form.value.date_in);
-    const formattedDateOut = formatDateToISO(form.value.date_out);
-    
-    const formData = {
-      form_date: formatDateToISO(form.value.form_date),
-      name: form.value.name,
-      email: form.value.email,
-      phone: form.value.phone,
-      date_in: formattedDateIn,
-      date_out: formattedDateOut,
-      description: form.value.description,
-      dormId: form.value.dormId,
-      userId: form.value.userId,
-    };
+  // ถ้าทุกฟิลด์ไม่มีข้อผิดพลาด ให้ดำเนินการส่งข้อมูล
+  if (Object.values(errors.value).some((error) => error !== '')) {
+    return;
+  }
 
+  isLoading.value = true;
+  try {
     const url = `${API_ROOT}/forms`;
     const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form.value),
     });
 
     if (response.ok) {
-      const data = await response.json();
-      console.log('การบันทึกข้อมูลสำเร็จ:', data);
-
-      const successMessage = { 
-        title: 'ส่งฟอร์มสำเร็จ', 
-        message: 'ส่งฟอร์มจองหอพักเรียบร้อยแล้ว' 
-      };
-
       isModalSuccessVisible.value = true;
-      modalProps.value = successMessage;
-      
+      modalProps.value = { title: 'ส่งฟอร์มสำเร็จ', message: 'ส่งฟอร์มจองหอพักเรียบร้อยแล้ว' };
     } else {
       console.error('ไม่สามารถส่งข้อมูลได้');
     }
   } catch (error) {
     console.error('เกิดข้อผิดพลาด:', error);
   } finally {
-    isLoading.value = false; // สิ้นสุดการโหลด
+    isLoading.value = false;
   }
 };
 
-
-
 </script>
 
-
-
 <template>
-    <div class="min-h-screen flex justify-center items-center bg-gray-100 p-4">
-      <div class="w-full max-w-xl bg-white p-8 rounded-lg shadow-lg">
-        <h2 class="text-2xl font-semibold text-center mb-6">ฟอร์มการจองหอพัก</h2>
-        
-        <form @submit.prevent="submitForm">
-          <!-- ชื่อเต็ม -->
-          <div class="mb-4">
-            <label for="fullName" class="block text-sm font-medium text-gray-700">ชื่อ-นามสกุล</label>
-            <input type="text" id="fullName" v-model="form.name" class="input input-bordered w-full" required />
-          </div>
-          
-          <!-- อีเมล -->
-          <div class="mb-4">
-            <label for="email" class="block text-sm font-medium text-gray-700">อีเมล</label>
-            <input type="email" id="email" v-model="form.email" class="input input-bordered w-full" required />
-          </div>
-          
-          <!-- เบอร์โทร -->
-          <div class="mb-4">
-            <label for="phone" class="block text-sm font-medium text-gray-700">เบอร์โทร</label>
-            <input type="text" id="phone" v-model="form.phone" class="input input-bordered w-full" required />
-          </div>
-          
-          <!-- วันที่เข้าพัก -->
-          <div class="mb-4">
-            <label for="dateIn" class="block text-sm font-medium text-gray-700">วันที่เข้าพัก</label>
-            <input type="date" id="dateIn" v-model="form.date_in" class="input input-bordered w-full" required />
-          </div>
-          
-          <!-- วันที่ออก -->
-          <div class="mb-4">
-            <label for="dateOut" class="block text-sm font-medium text-gray-700">วันที่ออก</label>
-            <input type="date" id="dateOut" v-model="form.date_out" class="input input-bordered w-full" required />
-          </div>
+  <div class="min-h-screen flex justify-center items-center bg-gray-100 p-4">
+    <div class="w-full max-w-xl bg-white p-8 rounded-lg shadow-lg">
+      <h2 class="text-2xl font-semibold text-center mb-6">ฟอร์มการจองหอพัก</h2>
 
-          <!-- รายละเอียดเพิ่มเติม -->
-          <div class="mb-4">
-            <label for="description" class="block text-sm font-medium text-gray-700">รายละเอียดเพิ่มเติม</label>
-            <textarea 
-              id="description" 
-              v-model="form.description" 
-              class="input input-bordered w-full h-32" 
-              rows="4" 
-              @input="handleInput"
-            ></textarea>
-            <p class="text-right text-sm text-gray-500">{{ remainingChars }} ตัวอักษรเหลือ</p>
-          </div>
+      <form @submit.prevent="submitForm">
+        <!-- ชื่อ-นามสกุล -->
+        <div class="mb-4" id="name">
+          <label class="block text-sm font-medium text-gray-700">ชื่อ-นามสกุล</label>
+          <input 
+            type="text" 
+            v-model="form.name" 
+            @input="validateField('name')" 
+            class="input input-bordered w-full" />
+          <p class="text-red-500 text-sm" v-if="errors.name">{{ errors.name }}</p>
+        </div>
 
 
-          
-                <!-- ปุ่มส่ง -->
-                <!-- เพิ่ม spinner หรือข้อความกำลังโหลด -->
-                <div v-if="isLoading" class="fixed inset-0 bg-gray-700 bg-opacity-50 flex justify-center items-center z-50">
-                  <div class="text-center text-white">
-                    <svg class="animate-spin h-16 w-16 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
-                      <path d="M4 12a8 8 0 018-8V4" fill="none" stroke="currentColor"></path>
-                    </svg>
-                    <p class="text-lg mt-4">กำลังส่งข้อมูล...</p>
-                  </div>
-                </div>
+        <!-- อีเมล -->
+        <div class="mb-4" id="email">
+          <label class="block text-sm font-medium text-gray-700">อีเมล</label>
+          <input 
+            type="email" 
+            v-model="form.email" 
+            @input="validateField('email')" 
+            class="input input-bordered w-full" />
+          <p class="text-red-500 text-sm" v-if="errors.email">{{ errors.email }}</p>
+        </div>
 
-              <!-- ปุ่มส่งเมื่อไม่มีการโหลด -->
-              <div v-else class="text-center mt-10">
-                <button type="submit" class="btn btn-primary w-full">
-                  ยืนยันการจอง
-                </button>
-              </div>
+        <!-- เบอร์โทร -->
+        <div class="mb-4" id="phone">
+          <label class="block text-sm font-medium text-gray-700">เบอร์โทร</label>
+          <input 
+            type="text" 
+            v-model="form.phone" 
+            @input="validateField('phone')" 
+            class="input input-bordered w-full" />
+          <p class="text-red-500 text-sm" v-if="errors.phone">{{ errors.phone }}</p>
+        </div>
 
+        <!-- วันที่เข้าพัก -->
+        <div class="mb-4" id="date_in">
+          <label class="block text-sm font-medium text-gray-700">วันที่เข้าพัก</label>
+          <input 
+            type="date" 
+            v-model="form.date_in" 
+            @input="validateField('date_in')" 
+            class="input input-bordered w-full" />
+          <p class="text-red-500 text-sm" v-if="errors.date_in">{{ errors.date_in }}</p>
+        </div>
 
-        </form>
+        <!-- วันที่ออก -->
+        <div class="mb-4" id="date_out">
+          <label class="block text-sm font-medium text-gray-700">วันที่ออก</label>
+          <input 
+            type="date" 
+            v-model="form.date_out" 
+            @input="validateField('date_out')" 
+            class="input input-bordered w-full" />
+          <p class="text-red-500 text-sm" v-if="errors.date_out">{{ errors.date_out }}</p>
+        </div>
 
-      </div>
+        <!-- รายละเอียดเพิ่มเติม -->
+        <div class="mb-4" id="description">
+          <label class="block text-sm font-medium text-gray-700">รายละเอียดเพิ่มเติม</label>
+          <textarea v-model="form.description" @input="validateField('description')" class="input input-bordered w-full h-32"></textarea>
+          <p class="text-right text-sm text-gray-500">{{ remainingChars }} ตัวอักษรเหลือ</p>
+          <p class="text-red-500 text-sm" v-if="errors.description">{{ errors.description }}</p>
+        </div>
+
+        <!-- ปุ่มยืนยัน -->
+        <button type="submit" class="btn btn-primary w-full">ยืนยันการจอง</button>
+      </form>
     </div>
+  </div>
 
-      <!-- เมื่อ isModalVisible เป็น true จะทำให้แสดง SuccessModal -->
-      <SuccessModal
-        v-if="isModalSuccessVisible"
-        :title="modalProps.title"
-        :message="modalProps.message"
-        @close="isModalSuccessVisible = false" 
-        :context="modalContext"
-      />
-      
-  </template>
-  
+  <!-- Success Modal -->
+  <SuccessModal v-if="isModalSuccessVisible" :title="modalProps.title" :message="modalProps.message" context="sending" @close="isModalSuccessVisible = false" />
+</template>
 
-  <style scoped>
-  /* คุณสามารถเพิ่มสไตล์ที่คุณต้องการที่นี่ */
-  </style>
-  
