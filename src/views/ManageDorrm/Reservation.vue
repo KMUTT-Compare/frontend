@@ -253,8 +253,19 @@ const submitForm = async () => {
         </div>
 
         <!-- ปุ่มยืนยัน -->
-        <button type="submit" class="btn btn-primary w-full">ยืนยันการจอง</button>
+        <button type="submit" class="btn btn-primary w-full" :disabled="isLoading">
+          <span v-if="isLoading">กำลังส่งข้อมูล...</span>
+          <span v-else>ยืนยันการจอง</span>
+        </button>
       </form>
+    </div>
+  </div>
+
+  <!-- Spinner Modal -->
+  <div v-if="isLoading" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div class="bg-white p-6 rounded-lg flex flex-col items-center">
+      <span class="loading loading-spinner loading-lg"></span>
+      <p class="mt-4 text-gray-700">กำลังส่งข้อมูล...</p>
     </div>
   </div>
 
