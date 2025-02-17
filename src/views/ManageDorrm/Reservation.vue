@@ -50,7 +50,7 @@ const validateEmail = (email) => {
 
 // เช็คเบอร์โทรให้เป็นตัวเลข
 const validatePhone = (phone) => {
-  return /^[0-9]+$/.test(phone);
+  return /^[0-9]{1,10}$/.test(phone);
 };
 
 // คำนวณจำนวนตัวอักษรที่เหลือ
@@ -87,7 +87,7 @@ const validateField = (field) => {
       if (!form.value.phone.trim()) {
         errors.value.phone = 'กรุณากรอกเบอร์โทร';
       } else if (!validatePhone(form.value.phone)) {
-        errors.value.phone = 'เบอร์โทรต้องเป็นตัวเลข';
+        errors.value.phone = 'เบอร์โทรต้องเป็นตัวเลขและไม่เกิน 10 ตัว';
       } else {
         errors.value.phone = '';
       }
@@ -253,10 +253,7 @@ const submitForm = async () => {
         </div>
 
         <!-- ปุ่มยืนยัน -->
-        <button type="submit" class="btn btn-primary w-full" :disabled="isLoading">
-          <span v-if="isLoading">กำลังส่งข้อมูล...</span>
-          <span v-else>ยืนยันการจอง</span>
-        </button>
+        <button type="submit" class="btn btn-primary w-full">ยืนยันการจอง</button>
       </form>
     </div>
   </div>
