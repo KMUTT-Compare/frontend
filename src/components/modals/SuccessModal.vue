@@ -21,12 +21,16 @@ const props = defineProps({
 
 const closeModal = () => {
   emit('close');
-  console.log('หน้า sucess ' + props.context)
-  if (props.context !== 'delete') {
-    // ถ้าไม่ใช่การลบ ให้ไปหน้า Home
-    router.push('/');
+
+  if(props.context == "add" || props.context == "update" | props.context == "delete"){
+    router.push('/dormlists')
+  }else if(props.context == "reservation"){
+    router.push('/reservedForms')
+  }else{
+    router.push('/')
   }
 };
+
 </script>
 
 <template>

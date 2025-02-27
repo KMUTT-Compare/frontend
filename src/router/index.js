@@ -49,14 +49,20 @@ const router = createRouter({
       component: () => import('../views/UserView/Setting/DormLists.vue')
     },
     {
-      path: '/reservation/:id?',
+      path: '/create_reservation/:id?',
+      name: 'create_reservation',
+      component: () => import('../views/ManageDorrm/CreateReservation.vue'),
+    },
+    {
+      path: '/reservation/:id?/:action?',
       name: 'reservation',
-      component: () => import('../views/ManageDorrm/Reservation.vue')
+      component: () => import('../views/ManageDorrm/Reservation.vue'),
     },
     {
       path: '/reservedForms',
       name: 'reservedForms',
-      component: () => import('../views/UserView/Setting/ReservedForms.vue')
+      component: () => import('../views/UserView/Setting/ReservedForms.vue'),
+      props: true, // เปิดให้รับค่า params เป็น props
     },
     {
       path: '/support',

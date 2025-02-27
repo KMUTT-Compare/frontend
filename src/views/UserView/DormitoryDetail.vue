@@ -163,7 +163,7 @@ function initMap(addressObject) {
 // ดูรายละเอียดหอพัก
 const reserveDorm = (dormitoryId) =>{
   router.push({
-    name : 'reservation',
+    name : 'create_reservation',
     params : {id : dormitoryId}
   })
 }
