@@ -1,71 +1,31 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import * as jwtDecode from 'jwt-decode'; // ใช้ named import ถ้าการนำเข้าต้องเปลี่ยนแปลง
+import { defineStore, acceptHMRUpdate } from 'pinia';
+import { ref, watch } from 'vue';
+import { jwtDecode } from 'jwt-decode'; // ✅ Named import for v4.0.0
 
-export const useAuthStore = defineStore('auth', () => {
-  const token = ref(localStorage.getItem('jwtToken') || '');
-  // const role = ref(localStorage.getItem('userRole') || '');
-  const role = ref('user')
-  // const isAuthenticated = ref(!!localStorage.getItem('jwtToken'));
-  const isAuthenticated = ref(false)
-  const loginError = ref('');
+export const useAuthorize = defineStore('authorize', () => {
+  const userRole = ref(localStorage.getItem("userRole"));
 
-  const login = async (email, password) => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_ROOT}/users`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const { token: newToken } = data;
-
-      localStorage.setItem('jwtToken', newToken);
-      token.value = newToken;
-      role.value = decodeTokenRole(newToken); // Update role based on token
-      isAuthenticated.value = true;
-      loginError.value = '';
-
-      return { success: true };
-    } catch (error) {
-      console.error('Login error:', error);
-      loginError.value = error.message;
-      return { success: false, error: error.message };
+  const setRole = (role) => {
+    if (role === null) {
+      userRole.value = 'guest';
+      localStorage.setItem("userRole", 'guest');
+    } else {
+      const decodedRole = jwtDecode(role).role; // ✅ Use correct function name
+      userRole.value = decodedRole;
+      localStorage.setItem("userRole", decodedRole);
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('jwtToken');
-    localStorage.removeItem('userRole');
-    token.value = '';
-    role.value = 'guest';
-    isAuthenticated.value = false;
-  };
-
-  const decodeTokenRole = (token) => {
-    try {
-      const decoded = jwtDecode.default(token); // ใช้ jwtDecode.default() ถ้า import * as jwtDecode
-      return decoded.role || ''; // Adjust according to your token payload
-    } catch (error) {
-      console.error('Token decoding error:', error);
-      return '';
+  // ตรวจจับการเปลี่ยนแปลงใน localStorage และอัปเดตค่า userRole
+  watch(() => localStorage.getItem("userRole"), (newValue) => {
+    if (newValue !== userRole.value) {
+      userRole.value = newValue;
     }
-  };
+  });
 
-  return {
-    token,
-    role,
-    isAuthenticated,
-    loginError,
-    login,
-    logout,
-    decodeTokenRole
-  };
+  return { userRole, setRole };
 });
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useAuthorize, import.meta.hot));
+}

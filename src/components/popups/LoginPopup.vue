@@ -1,32 +1,80 @@
 <script setup>
 import { useUIStore } from '@/stores/uiStore';
-import { useAuthStore } from '@/stores/authorize';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import {useAuthorize} from '@/stores/authorize'
+const useAuthor = useAuthorize()
+const {setRole} = useAuthor
+const token = ref(null)
+const refreshToken = ref(null)
 
-const uiStore = useUIStore();
-
-const router = useRouter();
-const authStore = useAuthStore();
-
-const email = ref('');
+const FETCH_API = import.meta.env.VITE_API_ROOT
+const router = useRouter()
+const username = ref('')
 const password = ref('')
+const statusCode = ref(0)
+const errText = ref('')
+const activeClass = ref(false)
+const className = ref('')
+const warning = ref(false)
+const uiStore = useUIStore();
+const email = ref('');
 
 const switchPopup = () =>{
   uiStore.closeLoginPopup();
   uiStore.openRegisPopup()
 }
 
-const login = async () => {
-  const {success, error} = await authStore.login(email.value, password.value);
-
-  if(success) {
-    uiStore.closeLoginPopup();
-    alert('login successfully')
-    router.push('/')
-  }else{
-    alert(error);
+const login = async () =>{
+  let user = {
+    username : username.value.trim(),
+    password : password.value.trim()
   }
+  try {
+        const res = await fetch(FETCH_API + '/token',{
+                    method : "POST",
+                    headers: {
+                      "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(user)
+                  })
+
+
+         //เข้าสู่ระบบเสร็จสมบูรณ์         
+        if(res.status === 200){
+          statusCode.value = 200
+          errText.value = 'Login Successfully'
+          activeClass.value = true
+          className.value = 'alert-success'
+
+          const tokens = await res.json()
+
+          token.value = tokens.token
+          refreshToken.value = tokens.refreshToken
+          
+          localStorage.setItem("token",token.value)
+          localStorage.setItem("refreshToken",refreshToken.value)
+
+          setRole(token.value)
+
+          router.push({name:'Home'})
+
+        }else if(res.status === 404){
+          statusCode.value = 404
+          errText.value = 'A user with the specified username DOES NOT exist'
+          activeClass.value = true
+          className.value = 'alert-error'
+        }else if(res.status === 401){
+          statusCode.value = 401
+          errText.value = 'Password Incorrect'
+          activeClass.value = true
+          className.value = 'alert-error'
+        }
+        warning.value = true   
+    } catch (error) {
+        console.log('error ',error)
+        router.push('/login');
+    }
 }
 
 </script>
@@ -65,10 +113,10 @@ const login = async () => {
 
 
                 <form class="w-full mt-7" @submit.prevent="login">
-                    <label for="email" class="sr-only">Email address</label>
+                    <label for="email" class="sr-only">Username/Email address</label>
                     <input v-model="email" name="email" type="email" autocomplete="email" required=""
                         class="block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-black focus:ring-offset-1"
-                        placeholder="Email Address" value="">
+                        placeholder="Username/Email address" value="">
                     
                     <label for="password" class="sr-only">Password</label>
                     <input v-model="password" name="password" type="password" autocomplete="current-password" required=""

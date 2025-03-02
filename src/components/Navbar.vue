@@ -15,15 +15,19 @@ const closeDropdown = (event) => {
 
 onMounted(() => {
   window.addEventListener('click', closeDropdown);
+  authStore.userRole = "guest"
+  console.log(authStore.userRole)
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener('click', closeDropdown);
 });
-import { useAuthStore } from '@/stores/authorize';
+
 import router from '@/router';
 
-const authStore = useAuthStore();
+import {useAuthorize} from '@/stores/authorize'
+const authStore = useAuthorize()
+
 
 const isMenuOpen = ref(false);
 
@@ -31,6 +35,7 @@ const isMenuOpen = ref(false);
 import { useUIStore } from '@/stores/uiStore';
 import LoginPopup from '@/components/popups/LoginPopup.vue';
 import RegisterPopup from './popups/RegisterPopup.vue';
+import { clearToken } from '@/composables/Authentication/clearToken';
 
 const uiStore = useUIStore();
 
@@ -77,10 +82,10 @@ const clickSupport = ()=>{
     <a href="#"><img src="./icons/logoKmutt.png" class="w-20" alt="icon"></a>
     
     <div class="flex md:order-2 space-x-3 md:space-x-4 rtl:space-x-reverse">
-      <div v-if="authStore.role=='guest'"><button type="button" @click="openLoginPopup" class="text-gray-900 dark:text-white bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 font-medium rounded-lg text-sm px-4 py-2 text-center">เข้าสู่ระบบ</button></div>
-      <div v-if="authStore.role !== 'guest'"><button type="button" @click="router.push('/addEditDormitory')" class="text-white bg-orange-500 hover:bg-orange-600 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-800">เพิ่มหอพัก</button></div>
+      <div v-if="authStore.userRole=='guest'"><button type="button" @click="openLoginPopup" class="text-gray-900 dark:text-white bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 font-medium rounded-lg text-sm px-4 py-2 text-center">เข้าสู่ระบบ</button></div>
+      <div v-if="authStore.userRole !== 'guest'"><button type="button" @click="router.push('/addEditDormitory')" class="text-white bg-orange-500 hover:bg-orange-600 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-800">เพิ่มหอพัก</button></div>
       
-      <button v-if="authStore.role=='guest'"  type="button" @click="openRegisPopup" class="text-white bg-orange-500 hover:bg-orange-600 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-800">สมัครสมาชิก</button>
+      <button v-if="authStore.userRole=='guest'"  type="button" @click="openRegisPopup" class="text-white bg-orange-500 hover:bg-orange-600 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-800">สมัครสมาชิก</button>
       <button @click="isMenuOpen = !isMenuOpen" data-collapse-toggle="navbar-sticky" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-sticky" aria-expanded="false">
         <span class="sr-only">Open main menu</span>
         <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
@@ -90,7 +95,7 @@ const clickSupport = ()=>{
 
       
 
-      <div v-if="authStore.role !== 'guest'" class="flex flex-row">
+      <div v-if="authStore.userRole !== 'guest'" class="flex flex-row">
         <p class="py-2.5"><img src="../components/icons/line.png" alt=""></p>
           <button @click="toggleDropdown" id="dropdownInformationButton" class="font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
             User: Korapin
@@ -121,7 +126,7 @@ const clickSupport = ()=>{
               </li>
             </ul>
             <div class="py-2">
-              <p @click="authStore.logout()" class="cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">ออกจากระบบ</p>
+              <p @click="clearToken" class="cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">ออกจากระบบ</p>
             </div>
           </div>
 
