@@ -3,7 +3,8 @@ import { ref, watch } from 'vue';
 import { jwtDecode } from 'jwt-decode'; // ✅ Named import for v4.0.0
 
 export const useAuthorize = defineStore('authorize', () => {
-  const userRole = ref(localStorage.getItem("userRole"));
+  const userRole = ref(localStorage.getItem("userRole") || 'admin');
+
 
   const setRole = (role) => {
     if (role === null) {

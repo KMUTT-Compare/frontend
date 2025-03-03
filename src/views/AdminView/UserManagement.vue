@@ -1,65 +1,25 @@
 <script setup>
-import {ref,onMounted,computed} from 'vue'
+import { onMounted,computed } from 'vue'
 import { formatDate } from '@/composables/formatDate'
 import { useRouter } from 'vue-router'
-import {getNewToken} from '@/composables/Authentication/getNewToken'
-
+import { getUsers, userData } from '@/composables/getUsers'
 import { useAuthorize } from '@/stores/authorize';
 import { storeToRefs } from 'pinia';
-import AdminBar from '@/components/AdminBar.vue';
 const myRole = useAuthorize()
 const {userRole} = storeToRefs(myRole)
 
 const API_ROOT = import.meta.env.VITE_API_ROOT
 const router = useRouter()
 
-const userData = ref([])
-
 onMounted(async ()=>{
-  // if(userRole.value !== 'admin'){
-  //   alert('Access Deny')
-  //   router.back()
-  // }
-      await getUsers()
+  if(userRole.value !== 'admin'){
+    alert('Access Deny')
+    router.back()
+  }
+  
+  await getUsers()
   
 })
-
-
-const getUsers = async () => {
-  try {
-    const res = await fetch(API_ROOT + "/users", {
-      headers: {
-        "Content-Type": "application/json",
-        'Authorization': "Bearer " + localStorage.getItem('token')
-      }
-    });
-
-    if (res.ok) {
-      userData.value = await res.json();
-    } else {
-      if (res.status === 401) {
-        try {
-          await getNewToken();
-          const newRes = await fetch(API_ROOT + "/users", {
-            headers: {
-              "Content-Type": "application/json",
-              'Authorization': "Bearer " + localStorage.getItem('token')
-            }
-          });
-
-          if (newRes.ok) {
-            userData.value = await newRes.json();
-          } 
-        } catch (error) {
-          // console.error('Failed to get new token:', error);
-        }
-      } 
-    }
-  } catch (error) {
-    console.error('error ', error);
-  }
-};
-
 
 
 const deleteUser = async (userId) =>{
@@ -122,9 +82,7 @@ const editUser = (userId) =>{
 </script>
  
 <template>
-
-<AdminBar/>
-<div class="p-4 sm:ml-64 flex flex-col">
+<div class="p-20 flex flex-col">
 
     <div class="w-full flex justify-center text-3xl mb-5 mt-3">
         <img class="h-10 mr-2" src="../../assets/images/management.png"/>
@@ -144,8 +102,8 @@ const editUser = (userId) =>{
         <!-- button Add User -->
         <div class="w-full flex justify-end">
           <router-link to="/admin/user/add">
-            <button class="ann-button btn btn-neutral">
-                <img class="h-8 mr-1" src="../../assets/images/add-user.png" alt="GIF"/>
+            <button class="ann-button btn bg-zinc-300 text-lg hover:bg-zinc-400">
+                <img class="h-6 mr-1" src="../../components//icons/plus2.png" alt="user"/>
                 Add User
             </button>
           </router-link>
