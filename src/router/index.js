@@ -75,9 +75,14 @@ const router = createRouter({
       component: () => import('../views/AdminView/Dashboard.vue')
     },
     {
-      path: '/admin/user',
-      name: 'user',
+      path: '/admin/user-management',
+      name: 'user-management',
       component: () => import('../views/AdminView/UserManagement.vue')
+    },
+    {
+      path: '/admin/dormitory-management',
+      name: 'dormitory-management',
+      component: () => import('../views/AdminView/DormitoryManagement.vue')
     },
     // 404 route - ใช้ pathMatch(.*)* สำหรับจับทุก URL
     {

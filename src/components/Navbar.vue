@@ -126,13 +126,6 @@ const clickSupport = ()=>{
                 <li>
                   <p @click="clickSupport" class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">ความช่วยเหลือและการสนับสนุน</p>
                 </li>
-                <!-- เมนูใหม่สำหรับ admin -->
-                <li v-if="authStore.userRole === 'admin'">
-                  <p @click="clickDashboard" class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">แดชบอร์ด</p>
-                </li>
-                <li v-if="authStore.userRole === 'admin'">
-                  <p @click="clickManageUsers" class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">จัดการบัญชีผู้ใช้</p>
-                </li>
               </ul>
               <div class="py-2">
                 <p @click="clearToken" class="cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">ออกจากระบบ</p>
@@ -144,8 +137,11 @@ const clickSupport = ()=>{
       </div>
   
       <!-- Items bar -->
-      <div v-if="authStore.userRole == 'admin'" :class="isMenuOpen ? 'block' : 'hidden'" class="items-center justify-between w-full md:flex md:w-auto md:order-1 pl-52 ">
+      <div class="items-center justify-between w-full md:flex md:w-auto md:order-1 pl-32 ">
         <ul class="flex flex-col pt-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:space-x-10 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+          <li  v-if="authStore.userRole === 'admin'"> 
+            <p @click="$router.push('/admin/dashboard')" class="cursor-pointer hover hover:bg-gray-100 active:bg-gray-200">แดชบอร์ด</p>
+          </li>
           <li>
             <p @click="$router.push('/')" class="cursor-pointer hover hover:bg-gray-100 active:bg-gray-200">หน้าหลัก</p>
           </li>

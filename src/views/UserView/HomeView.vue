@@ -8,6 +8,10 @@ import { getDormitories } from '@/composables/getDormitories';
 import { formatPrice } from '@/composables/formatPrice';
 import { getFavorites } from '@/composables/getFavorites';
 import SortComponent from '@/components/SortComponent.vue';
+import { useAuthorize } from '@/stores/authorize';
+import { storeToRefs } from 'pinia';
+const myRole = useAuthorize()
+const {userRole} = storeToRefs(myRole)
 
 const API_ROOT = import.meta.env.VITE_API_ROOT
 const dormitories = ref([])
@@ -497,6 +501,8 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
               <div class="item w-full">
                 <div class="flex flex-row w-full justify-between">
                   <h1 @click="showDetail(dorm.dormId)" class="dormname cursor-pointer">{{ dorm.dormName }}</h1>
+
+                  <div v-if="userRole !== 'guest'">
                     <!-- ปุ่ม Favorite -->
                     <button 
                       @click="handleToggleFavorite(dorm.dormId)" 
@@ -506,6 +512,7 @@ const getCheckMark = (mainValue, secondaryValue, category) => {
                         {{ isFavorite(dorm.dormId) ? '❤️' : '🤍' }}
                       </span>
                     </button>
+                  </div>
                 </div>
                 <h2><span style="color: green; font-size: larger;">{{ formatPrice(dorm.min_price) }} - {{ formatPrice(dorm.max_price) }}</span> บาท/เดือน</h2>
                 <h2>ระยะทาง <span>{{ dorm.distance }} กม.</span></h2>

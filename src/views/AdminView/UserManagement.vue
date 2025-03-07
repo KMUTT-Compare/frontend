@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted,computed } from 'vue'
+import { onMounted,computed,ref } from 'vue'
 import { formatDate } from '@/composables/formatDate'
 import { useRouter } from 'vue-router'
 import { getUsers, userData } from '@/composables/getUsers'
@@ -11,13 +11,14 @@ const {userRole} = storeToRefs(myRole)
 const API_ROOT = import.meta.env.VITE_API_ROOT
 const router = useRouter()
 
+const userDetail = ref({})
 onMounted(async ()=>{
   if(userRole.value !== 'admin'){
     alert('Access Deny')
     router.back()
   }
   
-  await getUsers()
+  userDetail.value = await getUsers()
   
 })
 
@@ -82,10 +83,10 @@ const editUser = (userId) =>{
 </script>
  
 <template>
-<div class="p-20 flex flex-col">
+<div class="px-52 py-20 flex flex-col">
 
     <div class="w-full flex justify-center text-3xl mb-5 mt-3">
-        <img class="h-10 mr-2" src="../../assets/images/management.png"/>
+        <img class="h-10 mr-2" src="../../components/icons/user.png"/>
         <h1 class="ann-title font-bold text-gray-700">User Management</h1>
         
     </div>
@@ -99,15 +100,16 @@ const editUser = (userId) =>{
             <h3>Date/Time shown in Timezone : <span class="text-green-700">{{ Intl.DateTimeFormat().resolvedOptions().timeZone }}</span></h3>
         </div>
         
-        <!-- button Add User -->
-        <div class="w-full flex justify-end">
-          <router-link to="/admin/user/add">
-            <button class="ann-button btn bg-zinc-300 text-lg hover:bg-zinc-400">
-                <img class="h-6 mr-1" src="../../components//icons/plus2.png" alt="user"/>
-                Add User
-            </button>
-          </router-link>
-        </div>
+<!-- button Add User -->
+<div class="w-full flex justify-end">
+  <router-link to="/admin/user/add">
+    <button class="flex items-center bg-black text-white text-lg font-semibold px-6 py-2 rounded-lg shadow-lg hover:bg-blue-600 transition-all duration-200 ease-in-out">
+      <img class="h-6 mr-2" src="../../components/icons/plus3.png" alt="user"/>
+      Add User
+    </button>
+  </router-link>
+</div>
+
     </div>
 
 
@@ -116,7 +118,7 @@ const editUser = (userId) =>{
     <!-- head -->
     <thead>
       <tr>
-        <th>No.</th>
+        <th>ID</th>
         <th>Username</th>
         <th>Name</th>
         <th>Email</th>
@@ -128,7 +130,7 @@ const editUser = (userId) =>{
     </thead>
     <tbody v-if="sortedUserData !== null || sortedUserData.length !== 0">
           <tr class="ann-item" v-for="user,index in sortedUserData">
-            <th>{{ ++index }}</th>
+            <th>{{ user.userId }}</th>
             <td class="ann-username">{{ user.username }}</td>
             <td class="ann-name">{{ user.name }}</td>
             <td class="ann-email">{{ user.email }}</td>
