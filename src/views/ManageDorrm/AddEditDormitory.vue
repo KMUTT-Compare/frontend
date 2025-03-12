@@ -516,16 +516,23 @@ const handleConfirmAction = async (context) => {
 
   try {
     let res;
+    const token = localStorage.getItem('token');
     if (context === 'update') {  // Handle update case
       res = await fetch(`${API_ROOT}/dormitories/${dormitoryId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
         body: JSON.stringify(dormitoryData.value),
       });
     } else if (context === 'add') {  // Handle add case
       res = await fetch(`${API_ROOT}/dormitories`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
         body: JSON.stringify(dormitoryData.value),
       });
     }

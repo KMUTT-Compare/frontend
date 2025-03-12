@@ -8,6 +8,10 @@ import SuccessModal from '@/components/modals/SuccessModal.vue';
 import { formatPrice } from '@/composables/formatPrice';
 import SortComponent from '@/components/SortComponent.vue';
 import SearchComponent from '@/components/SearchComponent.vue';
+import { useAuthorize } from '@/stores/authorize';
+import { storeToRefs } from 'pinia';
+const myRole = useAuthorize()
+const {userRole} = storeToRefs(myRole)
 
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 const dormitories = ref([]);
@@ -16,6 +20,10 @@ const dormIdToDelete = ref(null);
 const isSuccessModalVisible = ref(false)
 
 onMounted(async () => {
+  if(userRole.value === 'guest'){
+    alert('Access Deny')
+    router.back()
+  }
   dormitories.value = await getDormitories();
 });
 

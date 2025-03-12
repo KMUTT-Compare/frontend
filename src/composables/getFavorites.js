@@ -1,19 +1,46 @@
 const API_ROOT = import.meta.env.VITE_API_ROOT
+import { getNewToken } from "./Authentication/getNewToken";
 
 // ฟังก์ชันสำหรับดึงข้อมูล
 const getFavorites = async () => {
   try {
-    const res = await fetch(`${API_ROOT}/favorites`);
-    if (!res.ok) {
-      throw new Error(`Error: ${res.status} - ${res.statusText}`);
+    let res = await fetch(`${API_ROOT}/favorites`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': "Bearer " + localStorage.getItem('token')
+      }
+    });
+
+    if (res.ok) {
+      return await res.json();
     }
-    const data = await res.json();
-    return data.length > 0 ? data : []; 
+
+    if (res.status === 401) {
+      await getNewToken(); // รีเฟรช token
+      res = await fetch(`${API_ROOT}/favorites`, {
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': "Bearer " + localStorage.getItem('token')
+        }
+      });
+
+      if (res.ok) {
+        return await res.json();
+      }
+    }
+
+    console.error(`Error fetching favorites: ${res.status}`);
+    return []; 
   } catch (error) {
-    console.error('Error fetching dormitories:', error);
-    return []; // Return empty array on error
+    console.error('Error:', error);
+    return [];
   }
 };
+
+
+
+
 
 
 export { getFavorites }

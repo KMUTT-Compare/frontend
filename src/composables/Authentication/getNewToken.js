@@ -14,14 +14,13 @@ const getNewToken = async () => {
   
       if (res.ok) {
         const data = await res.json();
-        const newToken = data.token;
+        const newToken = data.accessToken;
         // บันทึก token ใหม่ใน localStorage
         localStorage.setItem('token', newToken);
         // console.log('Token refreshed successfully');
       }else{
         clearToken()
-        alert('Please login.')
-        router.push({name:'login'})
+        router.push({name:'home'})
       }
     } catch (err) {
       console.error('An error occurred while refreshing the token', err);

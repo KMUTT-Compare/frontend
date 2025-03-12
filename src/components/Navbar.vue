@@ -8,6 +8,24 @@ import RegisterPopup from './popups/RegisterPopup.vue';
 
 import { clearToken } from '@/composables/Authentication/clearToken';
 import { useAuthorize } from '@/stores/authorize';
+
+
+const isLogoutConfirmVisible = ref(false);
+
+const openLogoutConfirm = () => {
+  isLogoutConfirmVisible.value = true;
+};
+
+const closeLogoutConfirm = () => {
+  isLogoutConfirmVisible.value = false;
+};
+
+const confirmLogout = () => {
+  clearToken();
+  // Add any additional logic for logging out the user, such as redirecting
+  closeLogoutConfirm();
+};
+
 const authStore = useAuthorize()
 
 
@@ -26,7 +44,7 @@ const closeDropdown = (event) => {
 
 onMounted(() => {
   window.addEventListener('click', closeDropdown);
-  console.log(authStore.userRole)
+  console.log("userRole Right Now:"+authStore.userRole)
 });
 
 onBeforeUnmount(() => {
@@ -105,7 +123,7 @@ const clickSupport = ()=>{
             <div v-if="isDropdownOpen" id="dropdownInformation" class="w-56 absolute z-10 bg-white divide-y divide-gray-100 rounded-lg shadow w-44">
               <div @click="toggleDropdown" class="px-4 py-3 text-sm text-gray-900 cursor-pointer">
                 <div class="flex items-center">
-                  <div class="flex w-full">korapinz <span class="text-orange-500 pl-1">(admin)</span></div>
+                  <div class="flex w-full">korapinz <span class="text-orange-500 pl-1">{{ authStore.userRole }}</span></div>
                   <div class="flex w-full justify-end">
                     <svg class="w-2.5 h-2.5 ms-3 ml-auto" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                       <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
@@ -128,7 +146,7 @@ const clickSupport = ()=>{
                 </li>
               </ul>
               <div class="py-2">
-                <p @click="clearToken" class="cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">ออกจากระบบ</p>
+                <p @click="openLogoutConfirm" class="cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">ออกจากระบบ</p>
               </div>
             </div>
   
@@ -145,7 +163,7 @@ const clickSupport = ()=>{
           <li>
             <p @click="$router.push('/')" class="cursor-pointer hover hover:bg-gray-100 active:bg-gray-200">หน้าหลัก</p>
           </li>
-          <li  v-if="authStore.role !== 'guest'"> 
+          <li  v-if="authStore.userRole === 'admin' || authStore.userRole === 'user'"> 
             <p @click="$router.push('/favorites')" class="cursor-pointer hover hover:bg-gray-100 active:bg-gray-200">รายการโปรด</p>
           </li>
           <li>
@@ -162,6 +180,41 @@ const clickSupport = ()=>{
     <LoginPopup v-if="uiStore.isLoginPopupOpen"/>
     <RegisterPopup v-if="uiStore.isRegisPopupOpen"/>
   </nav>
+
+   <!-- Logout Confirmation Popup -->
+   <div v-if="isLogoutConfirmVisible" class="popup-overlay">
+    <div class="filter">
+      <div class="border-logout rounded-lg shadow relative max-w-md bg-white">
+        <div class="flex justify-end p-2">
+          <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center" @click="closeLogoutConfirm">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="p-6 pt-0 text-center">
+          <svg class="w-20 h-20 text-red-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <h3 class="text-xl font-normal text-gray-500 mt-5 mb-6">
+            คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ?
+          </h3>
+          <div class="flex flex-row items-center justify-center">
+            <div class="w-1/2">
+              <a href="#" @click="confirmLogout" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-10 py-3 text-center mr-2">
+                ใช่, ฉันแน่ใจ
+              </a>
+            </div>
+            <div class="w-1/2">
+              <a href="#" @click="closeLogoutConfirm" class="text-gray-900 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-base inline-flex items-center px-12 py-3 text-center mr-2">
+                ยกเลิก
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 
@@ -186,5 +239,54 @@ const clickSupport = ()=>{
     height: 50px;
   }
 }
+.popup-overlay {
+  position: fixed; /* ให้ modal อยู่บนสุด */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7); /* เพิ่มสีพื้นหลังโปร่งแสง */
+  display: flex;
+  justify-content: center; /* จัดให้ modal อยู่กลางหน้าจอ */
+  align-items: center;
+  z-index: 9999; /* ให้อยู่เหนือคอนเทนต์อื่นๆ */
+}
 
+.filter {
+  width: 100%;
+  height: 100%; /* กำหนดความสูงเต็มจอ */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-overlay {
+  position: fixed; /* ให้ modal อยู่บนสุด */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7); /* เพิ่มสีพื้นหลังโปร่งแสง */
+  display: flex;
+  justify-content: center; /* จัดให้ modal อยู่กลางหน้าจอ */
+  align-items: center;
+  z-index: 9999; /* ให้อยู่เหนือคอนเทนต์อื่นๆ */
+}
+
+.filter {
+  width: 100%;
+  height: 100%; /* กำหนดความสูงเต็มจอ */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.border-logout{
+  width: 100%;
+  max-width: 500px; /* กำหนดขนาดสูงสุด */
+  padding: 20px;
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 </style>

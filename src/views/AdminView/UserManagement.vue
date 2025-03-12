@@ -1,15 +1,17 @@
 <script setup>
 import { onMounted,computed,ref } from 'vue'
 import { formatDate } from '@/composables/formatDate'
-import { useRouter } from 'vue-router'
+
 import { getUsers, userData } from '@/composables/getUsers'
+
+import { useRouter } from 'vue-router'
 import { useAuthorize } from '@/stores/authorize';
 import { storeToRefs } from 'pinia';
 const myRole = useAuthorize()
 const {userRole} = storeToRefs(myRole)
-
-const API_ROOT = import.meta.env.VITE_API_ROOT
 const router = useRouter()
+const API_ROOT = import.meta.env.VITE_API_ROOT
+
 
 const userDetail = ref({})
 onMounted(async ()=>{

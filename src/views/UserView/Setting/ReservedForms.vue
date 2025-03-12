@@ -4,6 +4,10 @@ import Sidebar from '@/components/Sidebar.vue';
 import { formatDate } from '@/composables/formatDate';
 import { formatPhoneNumber } from '@/composables/formatPhoneNumber';
 import { useRouter } from 'vue-router';  // Import vue-router for navigation
+import { useAuthorize } from '@/stores/authorize';
+import { storeToRefs } from 'pinia';
+const myRole = useAuthorize()
+const {userRole} = storeToRefs(myRole)
 
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 
@@ -44,6 +48,10 @@ const handleCancelBooking = (id) => {
 
 
 onMounted(() => {
+  if(userRole.value === 'guest'){
+    alert('Access Deny')
+    router.back()
+  }
   fetchSubmittedForms();
 });
 

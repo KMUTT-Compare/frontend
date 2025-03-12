@@ -14,20 +14,16 @@ const router = createRouter({
       component: () => import('../views/UserView/FavoritesView.vue')
     },
     {
-      path: '/service',
-      name: 'service',
-      component: () => import('../views/UserView/FavoritesView.vue')
+      path: '/faq',
+      name: 'faq',
+      component: () => import('../views/UserView/FAQ.vue')
     },
     {
       path: '/contact',
       name: 'contact',
       component: () => import('../views/UserView/Contact.vue')
     },
-    {
-      path: '/faq',
-      name: 'faq',
-      component: () => import('../views/UserView/FAQ.vue')
-    },
+
     {
       path: '/dormitory/:id',
       name: 'dormitoryDetail',

@@ -1,5 +1,19 @@
 <script setup>
 import Sidebar from '@/components/Sidebar.vue';
+import { onMounted } from 'vue';
+import { useAuthorize } from '@/stores/authorize';
+import { storeToRefs } from 'pinia';
+const myRole = useAuthorize()
+const {userRole} = storeToRefs(myRole)
+import { useRouter } from 'vue-router';  // Import vue-router for navigation
+const router = useRouter();
+
+onMounted(async () => {
+  if(userRole.value === 'guest'){
+    alert('Access Deny')
+    router.back()
+  }
+});
 </script>
  
 <template>

@@ -11,7 +11,7 @@ const refreshToken = ref(null);
 
 const FETCH_API = import.meta.env.VITE_API_ROOT;
 const router = useRouter();
-const email = ref('');
+const username = ref('');  // เปลี่ยนจาก email เป็น username
 const password = ref('');
 const statusCode = ref(0);
 const errText = ref('');
@@ -21,9 +21,8 @@ const warning = ref(false);
 const uiStore = useUIStore();
 
 // ตรวจสอบความถูกต้องของข้อมูลที่ป้อน
-const emailError = computed(() => {
-  if (!email.value) return 'Please enter your email or username.';
-  if (!/^\S+@\S+\.\S+$/.test(email.value)) return 'Invalid email format.';
+const usernameError = computed(() => {
+  if (!username.value) return 'Please enter your username.';
   return '';
 });
 
@@ -32,7 +31,7 @@ const passwordError = computed(() => {
   return '';
 });
 
-const isFormValid = computed(() => !emailError.value && !passwordError.value);
+const isFormValid = computed(() => !usernameError.value && !passwordError.value);
 
 const switchPopup = () => {
   uiStore.closeLoginPopup();
@@ -46,12 +45,12 @@ const login = async () => {
   }
 
   let user = {
-    username: email.value.trim(),
+    username: username.value.trim(),
     password: password.value.trim()
   };
 
   try {
-    const res = await fetch(FETCH_API + '/token', {
+    const res = await fetch(FETCH_API + '/auth/login', {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -66,14 +65,18 @@ const login = async () => {
       className.value = 'alert-success';
 
       const tokens = await res.json();
-      token.value = tokens.token;
+      token.value = tokens.accessToken;
       refreshToken.value = tokens.refreshToken;
 
       localStorage.setItem("token", token.value);
       localStorage.setItem("refreshToken", refreshToken.value);
 
+      console.log("Token ตอน login: "+ token.value)
+      console.log("refreshToken ตอน login: "+ refreshToken.value)
+
       setRole(token.value);
-      router.push({ name: 'Home' });
+      uiStore.closeLoginPopup();
+      router.push({ name: 'home' });
 
     } else if (res.status === 404) {
       statusCode.value = 404;
@@ -89,9 +92,10 @@ const login = async () => {
     warning.value = true;
   } catch (error) {
     console.log('error ', error);
-    router.push('/login');
+    router.push('/Home');
   }
 };
+
 </script>
 <template>
   <div id="login-popup" tabindex="-1"
@@ -126,11 +130,11 @@ const login = async () => {
                   </div>
 
                   <form class="w-full mt-7" @submit.prevent="login">
-                      <label for="email" class="sr-only">Username/Email address</label>
-                      <input v-model="email" name="email" type="email" autocomplete="email" required=""
+                      <label for="username" class="sr-only">Username</label>
+                      <input v-model="username" name="username" type="text" autocomplete="username" required=""
                           class="block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-black focus:ring-offset-1"
-                          placeholder="Username/Email address">
-                      <p v-if="emailError" class="text-red-500 text-sm mt-1">{{ emailError }}</p>
+                          placeholder="Username">
+                      <p v-if="usernameError" class="text-red-500 text-sm mt-1">{{ usernameError }}</p>
 
                       <label for="password" class="sr-only">Password</label>
                       <input v-model="password" name="password" type="password" autocomplete="current-password" required=""
@@ -158,3 +162,4 @@ const login = async () => {
       </div>
   </div>
 </template>
+

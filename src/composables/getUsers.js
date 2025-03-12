@@ -1,53 +1,41 @@
-import { ref } from "vue";
 import { getNewToken } from "@/composables/Authentication/getNewToken"
-
 const API_ROOT = import.meta.env.VITE_API_ROOT;
-const userData = ref([]);
 
 const getUsers = async () => {
   try {
-    let token = localStorage.getItem("token");
-    if (!token) {
-      console.error("No token found");
-      return;
-    }
-
-    const res = await fetch(API_ROOT + "/users", {
+    const res = await fetch(`${API_ROOT}/users`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
+        'Authorization': "Bearer " + localStorage.getItem('token')
+      }
     });
 
     if (res.ok) {
-      userData.value = await res.json();
-    } else if (res.status === 401) {
-      try {
-        await getNewToken();
-        token = localStorage.getItem("token"); // อัปเดต token ใหม่
+      const data = await res.json();
+      return data.length > 0 ? data : []; 
+    } else {
+      if (res.status === 401) {
+        try {
+          await getNewToken();
+          const newRes = await fetch(API_ROOT + "/api/users", {
+            headers: {
+              "Content-Type": "application/json",
+              'Authorization': "Bearer " + localStorage.getItem('token')
+            }
+          });
 
-        if (!token) {
-          console.error("Failed to retrieve new token");
-          return;
+          if (newRes.ok) {
+            const data = await newRes.json();
+            return data.length > 0 ? data : []; 
+          } 
+        } catch (error) {
+          console.error('Failed to get new token:', error);
         }
-
-        const newRes = await fetch(API_ROOT + "/users", {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (newRes.ok) {
-          userData.value = await newRes.json();
-        }
-      } catch (error) {
-        console.error("Failed to get new token:", error);
-      }
+      } 
     }
   } catch (error) {
-    console.error("Error fetching users:", error);
+    console.error('error ', error);
   }
 };
-
 export { getUsers, userData };

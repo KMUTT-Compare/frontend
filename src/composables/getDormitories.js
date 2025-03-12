@@ -1,17 +1,37 @@
+import { getNewToken } from "./Authentication/getNewToken";
+
 const API_ROOT = import.meta.env.VITE_API_ROOT
 
 // ฟังก์ชันสำหรับดึงข้อมูล
 const getDormitories = async () => {
   try {
-    const res = await fetch(`${API_ROOT}/dormitories`);
-    if (!res.ok) {
-      throw new Error(`Error: ${res.status} - ${res.statusText}`);
+    let res = await fetch(`${API_ROOT}/dormitories`, {
+      method: "GET",
+    });
+
+    if (res.ok) {
+      return await res.json();
     }
-    const data = await res.json();
-    return data.length > 0 ? data : []; 
+
+    if (res.status === 401) {
+      await getNewToken(); // รีเฟรช token
+      res = await fetch(`${API_ROOT}/dormitories`, {
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': "Bearer " + localStorage.getItem('token')
+        }
+      });
+
+      if (res.ok) {
+        return await res.json();
+      }
+    }
+
+    console.error(`Error fetching dormitories: ${res.status}`);
+    return []; 
   } catch (error) {
-    console.error('Error fetching dormitories:', error);
-    return []; // Return empty array on error
+    console.error('Error:', error);
+    return [];
   }
 };
 

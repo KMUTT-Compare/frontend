@@ -1,5 +1,4 @@
 <script setup>
-import { getDormitories } from '@/composables/getDormitories'
 import { ref, onMounted } from 'vue'
 import { useAuthorize } from '@/stores/authorize';
 import { storeToRefs } from 'pinia';
@@ -18,24 +17,79 @@ onMounted(async () => {
     router.back()
   }
 
-  dormitories.value = await getDormitories()
+  dormitories.value = await loadData()
   console.log(dormitories.value)
 
 })
 
-// ลบหอพัก
-const deleteDormitory = async (id) => {
-  if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบหอพักนี้?')) return
-
+const loadData = async () => {
+  
   try {
-    await fetch(`${API_ROOT}/dormitories/${id}`, { method: 'DELETE' })
-    dormitories.value = dormitories.value.filter(d => d.id !== id)
-    alert('ลบหอพักสำเร็จ!')
+    const res = await fetch(API_ROOT + "/dormitories", {
+      headers: {
+        'Authorization': "Bearer " + localStorage.getItem('token')
+      }
+    });
+
+    if (res.ok) {
+      dormitories.value = await res.json();
+
+    }else {
+      if (res.status === 401) {
+        try {
+          await getNewToken();
+          const newRes = await fetch(API_ROOT + "/dormitories", {
+            headers: {
+              'Authorization': "Bearer " + localStorage.getItem('token')
+            }
+          });
+
+          if (newRes.ok) {
+            dormitories.value = await newRes.json();
+          }
+
+        } catch (error) {
+          // console.error('Failed to get new token:', error);
+        }
+
+      }
+    }
+
   } catch (error) {
-    console.error('Error deleting dormitory:', error)
-    alert('เกิดข้อผิดพลาดในการลบหอพัก')
+    console.error('error ', error);
   }
 }
+
+
+// ลบหอพัก พร้อม Authentication
+const deleteDormitory = async (id) => {
+  if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบหอพักนี้?')) return;
+
+  try {
+    const token = localStorage.getItem('token'); // ดึง token จาก localStorage
+    const res = await fetch(`${API_ROOT}/dormitories/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      }
+    });
+
+    if (res.ok) {
+      dormitories.value = dormitories.value.filter(d => d.id !== id);
+      alert('ลบหอพักสำเร็จ!');
+    } else if (res.status === 401) {
+      // ถ้า token หมดอายุหรือไม่ได้รับอนุญาต คุณอาจทำการ refresh token แล้ว retry
+      alert('ไม่สามารถลบได้ เนื่องจากไม่ได้รับอนุญาต');
+    } else {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+  } catch (error) {
+    console.error('Error deleting dormitory:', error);
+    alert('เกิดข้อผิดพลาดในการลบหอพัก');
+  }
+}
+
 
 
 const editDormitory = (dormitoryId) => {
