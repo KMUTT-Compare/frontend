@@ -19,9 +19,9 @@ const favorites = ref([]); // เก็บรายการโปรด
 
 onMounted(async () => {
   dormitories.value = await getDormitories();
-  console.log(dormitories.value)
-  favorites.value = await getFavorites();
-  
+  if(userRole.value !== 'guest'){
+    favorites.value = await getFavorites();
+  }
 })
 
 

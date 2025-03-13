@@ -1,7 +1,7 @@
 <script setup>
 import { useUIStore } from '@/stores/uiStore';
 import { ref, watch } from 'vue';
-
+const FETCH_API = import.meta.env.VITE_API_ROOT;
 const uiStore = useUIStore();
 
 const switchPopup = () => {
@@ -67,7 +67,10 @@ watch(confirmPassword, validateConfirmPassword);
 watch(phone, validatePhone);
 watch(isAccept, validateIsAccept);
 
+
+
 const register = async () => {
+    // ตรวจสอบ validation ก่อน
     validateName();
     validateUsername();
     validateEmail();
@@ -76,16 +79,47 @@ const register = async () => {
     validatePhone();
     validateIsAccept();
 
+    // ถ้ามี error ในฟอร์ม ให้ return ออกก่อน
     if (Object.values(errors.value).some(error => error)) return;
 
-    console.log('ข้อมูลถูกต้อง, ส่งไปยังเซิร์ฟเวอร์');
+    try {
+        const response = await fetch(`${FETCH_API}/auth/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: name.value,
+                username: username.value,
+                email: email.value,
+                password: password.value,
+                phone: phone.value
+            })
+        });
+
+        if(response.ok){
+            alert('สมัครสมาชิกสำเร็จ!');
+        }
+
+        else{
+            alert('สมัครสมาชิกไม่สำเร็จ');
+        }
+
+        // ปิด popup และเปิดหน้า login
+        switchPopup();
+
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
 };
+
 </script>
 
 <template>
-<div id="login-popup" tabindex="-1"
+<div  id="login-popup" tabindex="-1"
     class="bg-black/50 overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 h-full items-center justify-center flex">
-    <div class="relative w-full max-w-md h-full md:h-auto">
+    <div class="relative w-full max-w-sm md:max-w-md max-h-[90vh] h-auto md:h-auto">
+
         <div class="relative bg-white rounded-lg shadow">
             <button type="button"
                 @click="uiStore.closeRegisPopup()"
@@ -97,9 +131,9 @@ const register = async () => {
                 </svg>
             </button>
 
-            <div class="p-5">
+            <div class="p-4">
                 <div class="text-center">
-                    <p class="mb-3 text-2xl font-semibold leading-5 text-slate-900">
+                    <p class="mb-2 text-2xl font-semibold leading-5 text-slate-900">
                         สร้างบัญชี
                     </p>
                     <p class="mt-2 text-sm leading-4 text-slate-600">
@@ -107,7 +141,7 @@ const register = async () => {
                     </p>
                 </div>
 
-                <form class="w-full mt-7" @submit.prevent="register">
+                <form class="w-full mt-2" @submit.prevent="register">
                     <label class="pl-1">ชื่อ-นามสกุล</label>
                     <input v-model="name" type="text" class="input" placeholder="Name">
                     <p v-if="errors.name" class="error">{{ errors.name }}</p>
@@ -132,7 +166,7 @@ const register = async () => {
                     <input v-model="phone" type="text" class="input" placeholder="Phone">
                     <p v-if="errors.phone" class="error">{{ errors.phone }}</p>
 
-                    <div class="flex items-center mt-6 mb-6">
+                    <div class="flex items-center mt-2 mb-2">
                         <input v-model="isAccept" type="checkbox" class="w-4 h-4">
                         <label class="ml-2 text-sm">
                             ยอมรับ <a href="#" class="text-blue-600">ข้อตกลงการใช้งาน</a> และ 
@@ -147,9 +181,9 @@ const register = async () => {
                 </form>
 
                 <div class="mt-6 text-center text-sm text-slate-600">
-                    Already have an account?
+                    คุณมีบัญชีอยู่แล้วใช่ไหม?
                     <button @click="switchPopup" class="text-blue-600">
-                        Sign in
+                        เข้าสู่ระบบ
                     </button>
                 </div>
             </div>
@@ -163,7 +197,7 @@ const register = async () => {
     width: 100%;
     padding: 0.5rem;
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 10px;
     outline: none;
     margin-bottom: 0.5rem;
 }
@@ -181,4 +215,6 @@ const register = async () => {
     padding: 0.75rem;
     border-radius: 5px;
 }
+
+
 </style>
