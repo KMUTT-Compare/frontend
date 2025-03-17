@@ -1,9 +1,10 @@
-import { getNewToken } from "@/composables/Authentication/getNewToken"
-const API_ROOT = import.meta.env.VITE_API_ROOT;
+const API_ROOT = import.meta.env.VITE_API_ROOT
+import { getNewToken } from "./Authentication/getNewToken";
 
+// ฟังก์ชันสำหรับดึงข้อมูล
 const getUsers = async () => {
   try {
-    const res = await fetch(`${API_ROOT}/users`, {
+    let res = await fetch(`${API_ROOT}/users`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -12,30 +13,34 @@ const getUsers = async () => {
     });
 
     if (res.ok) {
-      const data = await res.json();
-      return data.length > 0 ? data : []; 
-    } else {
-      if (res.status === 401) {
-        try {
-          await getNewToken();
-          const newRes = await fetch(API_ROOT + "/api/users", {
-            headers: {
-              "Content-Type": "application/json",
-              'Authorization': "Bearer " + localStorage.getItem('token')
-            }
-          });
-
-          if (newRes.ok) {
-            const data = await newRes.json();
-            return data.length > 0 ? data : []; 
-          } 
-        } catch (error) {
-          console.error('Failed to get new token:', error);
-        }
-      } 
+      return await res.json();
     }
+
+    if (res.status === 401) {
+      await getNewToken(); // รีเฟรช token
+      res = await fetch(`${API_ROOT}/favorites`, {
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': "Bearer " + localStorage.getItem('token')
+        }
+      });
+
+      if (res.ok) {
+        return await res.json();
+      }
+    }
+
+    console.error(`Error fetching favorites: ${res.status}`);
+    return []; 
   } catch (error) {
-    console.error('error ', error);
+    console.error('Error:', error);
+    return [];
   }
 };
-export { getUsers, userData };
+
+
+
+
+
+
+export { getUsers }

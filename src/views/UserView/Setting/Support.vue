@@ -41,25 +41,8 @@ onMounted(() => {
 
             <!-- Section for Issue Reporting -->
             <h2 class="text-2xl font-semibold mb-4">แจ้งปัญหาหรือข้อเสนอแนะ</h2>
-            <p class="mb-4">หากคุณพบปัญหาในการใช้งานเว็บไซต์ หรือมีข้อเสนอแนะในการปรับปรุง, กรุณากรอกแบบฟอร์มด้านล่างหรือส่งอีเมลมาที่ <a href="mailto:support@example.com" class="text-blue-500">jipjip.kmutt.compare@gmail.com</a>.</p>
+            <p class="mb-4">หากคุณพบปัญหาในการใช้งานเว็บไซต์ หรือมีข้อเสนอแนะในการปรับปรุง, กรุณาส่งอีเมลมาที่ <a href="mailto:support@example.com" class="text-blue-500">jipjip.kmutt.compare@gmail.com</a>.</p>
             
-            <!-- Form for submitting issues -->
-            <div class="bg-gray-100 p-4 rounded-lg mb-6">
-                <h3 class="text-xl font-semibold mb-4">แบบฟอร์มแจ้งปัญหา</h3>
-                <form action="#">
-                    <div class="mb-4">
-                        <label for="issueTitle" class="block font-medium">หัวข้อปัญหา</label>
-                        <input id="issueTitle" type="text" class="w-full p-2 border rounded-lg" placeholder="ระบุหัวข้อปัญหาของคุณ" />
-                    </div>
-                    <div class="mb-4">
-                        <label for="issueDescription" class="block font-medium">คำอธิบายปัญหา</label>
-                        <textarea id="issueDescription" rows="4" class="w-full p-2 border rounded-lg" placeholder="อธิบายปัญหาหรือคำถามของคุณ"></textarea>
-                    </div>
-                    <div>
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg">ส่งคำร้อง</button>
-                    </div>
-                </form>
-            </div>
         </div>
     </div>
 </div>

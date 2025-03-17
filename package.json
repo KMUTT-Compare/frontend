@@ -10,12 +10,14 @@
     "backend": "json-server --watch ./data/db.json --port 5000"
   },
   "dependencies": {
+    "chart.js": "^4.4.8",
     "daisyui": "^4.12.2",
     "flowbite": "^2.5.1",
     "json-server": "^1.0.0-beta.1",
     "jwt-decode": "^4.0.0",
     "pinia": "^2.2.2",
     "vue": "^3.4.21",
+    "vue-chartjs": "^5.3.2",
     "vue-router": "^4.3.0"
   },
   "devDependencies": {

@@ -2,7 +2,7 @@
 import { onMounted,computed,ref } from 'vue'
 import { formatDate } from '@/composables/formatDate'
 
-import { getUsers, userData } from '@/composables/getUsers'
+import { getUsers } from '@/composables/getUsers'
 
 import { useRouter } from 'vue-router'
 import { useAuthorize } from '@/stores/authorize';
@@ -17,10 +17,11 @@ const userDetail = ref({})
 onMounted(async ()=>{
   if(userRole.value !== 'admin'){
     alert('Access Deny')
-    router.back()
+    router.push({name:'home'})
   }
   
   userDetail.value = await getUsers()
+  console.log('ข้อมูล user'+userDetail.value)
   
 })
 
@@ -38,7 +39,7 @@ const deleteUser = async (userId) =>{
       })
 
       if(res.ok){    
-        userData.value = userData.value.filter((data)=>data.id !== userId)
+        userDetail.value = userDetail.value.filter((data)=>data.id !== userId)
       }
       
       else {
@@ -64,16 +65,16 @@ const deleteUser = async (userId) =>{
 }
 
 
-const sortedUserData = computed(() => {
-  return userData.value.slice().sort((a, b) => {
-    if (a.role !== b.role) {
-      // Sort by role first
-      return a.role.localeCompare(b.role);
-    }
-    // If roles are the same, sort by username
-    return a.username.localeCompare(b.username);
-  });
-});
+// const sortedUserData = computed(() => {
+//   return userDetail.value.slice().sort((a, b) => {
+//     if (a.role !== b.role) {
+//       // Sort by role first
+//       return a.role.localeCompare(b.role);
+//     }
+//     // If roles are the same, sort by username
+//     return a.username.localeCompare(b.username);
+//   });
+// });
 
 const editUser = (userId) =>{
   router.push({

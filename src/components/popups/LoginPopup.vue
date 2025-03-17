@@ -85,7 +85,6 @@ const login = async () => {
 
       setRole(token.value);
       uiStore.closeLoginPopup();
-      router.push({ name: 'home' });
 
     } else if (res.status === 404) {
       statusCode.value = 404;
