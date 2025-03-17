@@ -1,4 +1,4 @@
-const API_ROOT = import.meta.env.VITE_API_ROOT
+const API_ROOT = import.meta.env.VITE_API_ROOT;
 import { getNewToken } from "./Authentication/getNewToken";
 
 // ฟังก์ชันสำหรับดึงข้อมูล
@@ -18,10 +18,14 @@ const getUsers = async () => {
 
     if (res.status === 401) {
       await getNewToken(); // รีเฟรช token
-      res = await fetch(`${API_ROOT}/favorites`, {
+
+      // ดึง token ใหม่จาก localStorage หลังจากรีเฟรช
+      const newToken = localStorage.getItem('token');  
+
+      res = await fetch(`${API_ROOT}/users`, {  // 🔥 เรียก /users ใหม่ ไม่ใช่ /favorites
         headers: {
           "Content-Type": "application/json",
-          'Authorization': "Bearer " + localStorage.getItem('token')
+          'Authorization': "Bearer " + newToken
         }
       });
 
@@ -30,7 +34,7 @@ const getUsers = async () => {
       }
     }
 
-    console.error(`Error fetching favorites: ${res.status}`);
+    console.error(`Error fetching users: ${res.status}`);
     return []; 
   } catch (error) {
     console.error('Error:', error);
@@ -38,9 +42,4 @@ const getUsers = async () => {
   }
 };
 
-
-
-
-
-
-export { getUsers }
+export { getUsers };

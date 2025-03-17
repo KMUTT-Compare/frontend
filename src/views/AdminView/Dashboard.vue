@@ -7,8 +7,13 @@ import { useAuthorize } from '@/stores/authorize';
 import { storeToRefs } from 'pinia';
 import EditIcon from '@/components/icons/EditIcon.vue';
 import EditUserIcon from '@/components/icons/EditUserIcon.vue';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+
+ChartJS.register(ChartDataLabels);
+
 const myRole = useAuthorize()
 const {userRole} = storeToRefs(myRole)
+const API_ROOT = import.meta.env.VITE_API_ROOT
 
 // Register Chart.js components
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale)
@@ -17,19 +22,44 @@ const router = useRouter()
 
 // สถิติ
 const totalDorms = ref(0)
-const totalUsers = ref(0)
+const totalUsers = ref(50)
 const activeUsers = ref(0)
 const isLoading = ref(true)
 const errorMessage = ref('')
 
-// ข้อมูลกราฟ
+// เพิ่มค่า offline users
+const offlineUsers = ref(0)
+
+const fetchStats = async () => {
+  isLoading.value = true
+  try {
+    const response = await fetch(API_ROOT + '/auth/active-users')
+    if (!response.ok) {
+      throw new Error('Failed to fetch stats')
+    }
+    const data = await response.json()
+    totalDorms.value = data.totalDormitories
+    activeUsers.value = data.activeUserCount
+    totalUsers.value = 10
+    offlineUsers.value = totalUsers.value - activeUsers.value // คำนวณ offline users
+
+    // อัปเดตข้อมูลกราฟ
+    chartData.value.datasets[0].data = [activeUsers.value, offlineUsers.value]
+  } catch (error) {
+    errorMessage.value = error.message
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// อัปเดต labels และสีใน Pie Chart
 const chartData = ref({
-  labels: ['หอพักทั้งหมด', 'ผู้ใช้ทั้งหมด', 'Active Users'], // หมวดหมู่
+  labels: ['Active Users', 'Offline Users'], // เพิ่ม Offline Users
   datasets: [
     {
-      label: 'จำนวน', // ชื่อกราฟ
+      label: 'จำนวน',
       data: [0, 0, 0], // เริ่มต้นด้วยค่า 0
-      backgroundColor: ['#3490dc', '#38c172', '#fbbf24'], // สีของแต่ละส่วน
+      backgroundColor: ['#38c172', '#C8C8C8'], // เพิ่มสีแดงให้ offline users
       hoverOffset: 4
     }
   ]
@@ -44,31 +74,21 @@ const chartOptions = ref({
     },
     legend: {
       position: 'top',
+    },
+    datalabels: {
+      formatter: (value, ctx) => {
+        let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+        let percentage = ((value / sum) * 100).toFixed(2) + "%";
+        return percentage;
+      },
+      color: '#fff',
+      font: {
+        weight: 'bold'
+      }
     }
   }
-})
+});
 
-// ดึงข้อมูลสถิติระบบ
-const fetchStats = async () => {
-  isLoading.value = true
-  try {
-    const response = await fetch('/api/admin/dashboard-stats')
-    if (!response.ok) {
-      throw new Error('Failed to fetch stats')
-    }
-    const data = await response.json()
-    totalDorms.value = data.totalDormitories
-    totalUsers.value = data.totalUsers
-    activeUsers.value = data.activeUsers
-
-    // อัพเดตข้อมูลกราฟ
-    chartData.value.datasets[0].data = [totalDorms.value, totalUsers.value, activeUsers.value]
-  } catch (error) {
-    errorMessage.value = error.message
-  } finally {
-    isLoading.value = false
-  }
-}
 
 // ไปยังหน้าจัดการหอพัก
 const goToDormManagement = () => {
@@ -91,7 +111,15 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="py-32 px-72">
+      <!-- 🏡 แสดงกราฟ -->
+    <div class="bg-white p-6">
+      <!-- Check if data exists before rendering chart -->
+      <div v-if="!isLoading" class="h-72 flex flex-col items-center justify-center">
+        <Pie :data="chartData" :options="chartOptions" />
+      </div>
+    </div>
+
+  <div class="py-5 px-72">
     <!-- 🏡 การ์ดสถิติระบบ -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
       <div class="bg-blue-500 text-white p-4 rounded-lg shadow-md text-center w-full">
@@ -99,21 +127,12 @@ onMounted(async () => {
         <p class="text-3xl font-bold">{{ totalDorms }}</p>
       </div>
       <div class="bg-green-500 text-white p-4 rounded-lg shadow-md text-center w-full">
-        <h2 class="text-xl font-semibold">ผู้ใช้ทั้งหมด</h2>
-        <p class="text-3xl font-bold">{{ totalUsers }}</p>
-      </div>
-      <div class="bg-yellow-500 text-white p-4 rounded-lg shadow-md text-center w-full">
         <h2 class="text-xl font-semibold">Active Users</h2>
         <p class="text-3xl font-bold">{{ activeUsers }}</p>
       </div>
-    </div>
-
-    <!-- 🏡 แสดงกราฟ -->
-    <div class="bg-white p-6 rounded-lg shadow-md mb-6 h-44">
-      <h2 class="text-2xl font-semibold mb-4">กราฟสถิติระบบ</h2>
-      <!-- Check if data exists before rendering chart -->
-      <div v-if="!isLoading">
-        <Pie :data="chartData" :options="chartOptions" />
+      <div class="bg-yellow-500 text-white p-4 rounded-lg shadow-md text-center w-full">
+        <h2 class="text-xl font-semibold">ผู้ใช้ทั้งหมด</h2>
+        <p class="text-3xl font-bold">{{ totalUsers }}</p>
       </div>
     </div>
 

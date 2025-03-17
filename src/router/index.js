@@ -73,7 +73,12 @@ const router = createRouter({
     {
       path: '/admin/user-management',
       name: 'user-management',
-      component: () => import('../views/AdminView/UserManagement.vue')
+      component: () => import('../views/AdminView/Users/ListAllUsers.vue')
+    },
+    {
+      path: '/admin/add-edit-user/:id?',
+      name: 'AdminEditUser',
+      component: () => import('../views/AdminView/Users/AdminEditUser.vue')
     },
     {
       path: '/admin/dormitory-management',
