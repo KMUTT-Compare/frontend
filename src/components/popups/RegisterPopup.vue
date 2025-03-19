@@ -142,13 +142,13 @@ const register = async () => {
                 </div>
 
                 <form class="w-full mt-2" @submit.prevent="register">
-                    <label class="pl-1">ชื่อ-นามสกุล</label>
-                    <input v-model="name" type="text" class="input" placeholder="Name">
-                    <p v-if="errors.name" class="error">{{ errors.name }}</p>
-
                     <label class="pl-1">ชื่อผู้ใช้</label>
                     <input v-model="username" type="text" class="input" placeholder="Username">
                     <p v-if="errors.username" class="error">{{ errors.username }}</p>
+
+                    <label class="pl-1">ชื่อ-นามสกุล</label>
+                    <input v-model="name" type="text" class="input" placeholder="Name">
+                    <p v-if="errors.name" class="error">{{ errors.name }}</p>
 
                     <label class="pl-1">อีเมล</label>
                     <input v-model="email" type="email" class="input" placeholder="Email Address">

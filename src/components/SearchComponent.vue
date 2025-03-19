@@ -1,11 +1,19 @@
 <script setup>
 import { ref } from 'vue';
 
+// รับค่า placeholder จาก props
+const props = defineProps({
+  placeholder: {
+    type: String,
+    default: 'ค้นหาหอพัก...' // ค่าเริ่มต้น
+  }
+});
+
 const searchInput = ref('');
-const emit = defineEmits(['update:search']); // กำหนด event ที่จะ emit
+const emit = defineEmits(['update:search']);
 
 const emitSearch = () => {
-  emit('update:search', searchInput.value); // ส่งค่ากลับไปยัง parent
+  emit('update:search', searchInput.value);
 };
 </script>
 
@@ -28,12 +36,8 @@ const emitSearch = () => {
       type="search"
       id="default-search"
       class="block w-full ps-10 text-lg text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-      placeholder="ค้นหาหอพัก..."
+      :placeholder="props.placeholder" 
       required
     />
   </div>
 </template>
-
-<style scoped>
-/* เพิ่มสไตล์ตามต้องการ */
-</style>

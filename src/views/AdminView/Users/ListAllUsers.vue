@@ -5,6 +5,7 @@ import { getUsers } from '@/composables/getUsers';
 import { useRouter } from 'vue-router';
 import { useAuthorize } from '@/stores/authorize';
 import { storeToRefs } from 'pinia';
+import SearchComponent from '@/components/SearchComponent.vue';
 
 const myRole = useAuthorize();
 const { userRole } = storeToRefs(myRole);
@@ -12,6 +13,8 @@ const router = useRouter();
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 
 const userDetail = ref([]);
+const searchQuery = ref(''); // ค่าค้นหา
+const roleFilter = ref(''); // ค่า filter role
 
 onMounted(async () => {
   if (userRole.value !== 'admin') {
@@ -22,15 +25,23 @@ onMounted(async () => {
 
   const users = await getUsers();
   userDetail.value = users;
-  console.log('ข้อมูล user', userDetail.value);
+  // console.log('ข้อมูล user', userDetail.value);
 });
 
-const sortedUserData = computed(() => {
-  return userDetail.value.slice().sort((a, b) => {
-    if (a.role !== b.role) {
-      return a.role.localeCompare(b.role);
-    }
-    return a.username.localeCompare(b.username);
+// ฟังก์ชันกรองผู้ใช้จาก Search + Role Filter
+const filteredUsers = computed(() => {
+  return userDetail.value.filter((user) => {
+    const query = searchQuery.value.toLowerCase();
+    const role = roleFilter.value;
+
+    const matchesSearch =
+      user.username.toLowerCase().includes(query) ||
+      user.name.toLowerCase().includes(query) ||
+      user.email.toLowerCase().includes(query);
+
+    const matchesRole = role ? user.role === role : true;
+
+    return matchesSearch && matchesRole;
   });
 });
 
@@ -88,11 +99,22 @@ const editUser = (userId) => {
         Date/Time shown in Timezone:
         <span class="text-green-700">{{ Intl.DateTimeFormat().resolvedOptions().timeZone }}</span>
       </h3>
-      <router-link to="/admin/add-edit-user">
-        <button class="bg-green-500 hover:bg-green-700 text-white text-lg font-semibold px-6 py-2 rounded-lg shadow-lg flex items-center transition duration-200">
-          <img class="h-6 mr-2" src="../../../components/icons/plus3.png" alt="user" /> Add User
-        </button>
-      </router-link>
+      <div class="flex flex-row space-x-2">
+        <SearchComponent v-model:search="searchQuery" placeholder="ค้นหาผู้ใช้..." />
+        
+        <!-- Dropdown สำหรับ Role Filter -->
+        <select v-model="roleFilter" class="border rounded-lg px-4 py-2 bg-white shadow">
+          <option value="">All Roles</option>
+          <option value="admin">Admin</option>
+          <option value="user">User</option>
+        </select>
+
+        <router-link to="/admin/add-edit-user">
+          <button class="bg-green-500 hover:bg-green-700 text-white text-lg font-semibold px-6 py-2 rounded-lg shadow-lg flex items-center transition duration-200">
+            <img class="h-6 mr-2" src="../../../components/icons/plus3.png" alt="user" /> Add User
+          </button>
+        </router-link>
+      </div>
     </div>
 
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
@@ -110,7 +132,7 @@ const editUser = (userId) => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in sortedUserData" :key="user.userId" class="border-b hover:bg-gray-100">
+          <tr v-for="user in filteredUsers" :key="user.userId" class="border-b hover:bg-gray-100">
             <td class="p-3">{{ user.userId }}</td>
             <td class="p-3">{{ user.username }}</td>
             <td class="p-3">{{ user.name }}</td>

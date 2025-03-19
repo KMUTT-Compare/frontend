@@ -1,65 +1,31 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Pie } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale } from 'chart.js'
-import { useAuthorize } from '@/stores/authorize';
-import { storeToRefs } from 'pinia';
-import EditIcon from '@/components/icons/EditIcon.vue';
-import EditUserIcon from '@/components/icons/EditUserIcon.vue';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { getDashboardStats } from '@/composables/getDashboardStats'
+import ChartDataLabels from 'chartjs-plugin-datalabels'
+import EditIcon from '@/components/icons/EditIcon.vue'
+import EditUserIcon from '@/components/icons/EditUserIcon.vue'
 
-ChartJS.register(ChartDataLabels);
+ChartJS.register(ChartDataLabels, Title, Tooltip, Legend, ArcElement, CategoryScale)
 
-const myRole = useAuthorize()
-const {userRole} = storeToRefs(myRole)
+// ใช้ API Root
 const API_ROOT = import.meta.env.VITE_API_ROOT
 
-// Register Chart.js components
-ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale)
+// ดึงข้อมูลจาก Composable
+const { totalDorms, totalUsers, activeUsers, offlineUsers, isLoading } = getDashboardStats(API_ROOT)
 
 const router = useRouter()
 
-// สถิติ
-const totalDorms = ref(0)
-const totalUsers = ref(50)
-const activeUsers = ref(0)
-const isLoading = ref(true)
-const errorMessage = ref('')
-
-// เพิ่มค่า offline users
-const offlineUsers = ref(0)
-
-const fetchStats = async () => {
-  isLoading.value = true
-  try {
-    const response = await fetch(API_ROOT + '/auth/active-users')
-    if (!response.ok) {
-      throw new Error('Failed to fetch stats')
-    }
-    const data = await response.json()
-    totalDorms.value = data.totalDormitories
-    activeUsers.value = data.activeUserCount
-    totalUsers.value = 10
-    offlineUsers.value = totalUsers.value - activeUsers.value // คำนวณ offline users
-
-    // อัปเดตข้อมูลกราฟ
-    chartData.value.datasets[0].data = [activeUsers.value, offlineUsers.value]
-  } catch (error) {
-    errorMessage.value = error.message
-  } finally {
-    isLoading.value = false
-  }
-}
-
-// อัปเดต labels และสีใน Pie Chart
+// 🟢 สร้าง `chartData` และ `chartOptions`
 const chartData = ref({
-  labels: ['Active Users', 'Offline Users'], // เพิ่ม Offline Users
+  labels: ['Active Users', 'Offline Users'],
   datasets: [
     {
       label: 'จำนวน',
-      data: [0, 0, 0], // เริ่มต้นด้วยค่า 0
-      backgroundColor: ['#38c172', '#C8C8C8'], // เพิ่มสีแดงให้ offline users
+      data: [0, 0], // 🛑 เริ่มต้นเป็น [0, 0] รอข้อมูลจาก API
+      backgroundColor: ['#38c172', '#C8C8C8'],
       hoverOffset: 4
     }
   ]
@@ -87,34 +53,29 @@ const chartOptions = ref({
       }
     }
   }
-});
+})
 
+// 🟢 `watch` ค่า `activeUsers` และ `offlineUsers` เพื่ออัปเดต Pie Chart
+watch([activeUsers, offlineUsers], ([newActive, newOffline]) => {
+  chartData.value.datasets[0].data = [newActive, newOffline]
+})
 
-// ไปยังหน้าจัดการหอพัก
 const goToDormManagement = () => {
   router.push('/admin/dormitory-management')
 }
 
-// ไปยังหน้าจัดการผู้ใช้
 const goToUserManagement = () => {
   router.push('/admin/user-management')
 }
-
-// โหลดข้อมูลตอนเปิดหน้า
-onMounted(async () => {
-  if (userRole.value !== 'admin') {
-    alert('Access Denied')
-    router.push({name:'home'})
-  }
-  await fetchStats()
-})
 </script>
+
+
 
 <template>
       <!-- 🏡 แสดงกราฟ -->
     <div class="bg-white p-6">
       <!-- Check if data exists before rendering chart -->
-      <div v-if="!isLoading" class="h-72 flex flex-col items-center justify-center">
+      <div v-if="!isLoading" class="h-96 max-w-4xl mx-auto flex flex-col items-center justify-center">
         <Pie :data="chartData" :options="chartOptions" />
       </div>
     </div>
@@ -122,19 +83,34 @@ onMounted(async () => {
   <div class="py-5 px-72">
     <!-- 🏡 การ์ดสถิติระบบ -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-      <div class="bg-blue-500 text-white p-4 rounded-lg shadow-md text-center w-full">
-        <h2 class="text-xl font-semibold">หอพักทั้งหมด</h2>
-        <p class="text-3xl font-bold">{{ totalDorms }}</p>
-      </div>
-      <div class="bg-green-500 text-white p-4 rounded-lg shadow-md text-center w-full">
-        <h2 class="text-xl font-semibold">Active Users</h2>
-        <p class="text-3xl font-bold">{{ activeUsers }}</p>
-      </div>
-      <div class="bg-yellow-500 text-white p-4 rounded-lg shadow-md text-center w-full">
-        <h2 class="text-xl font-semibold">ผู้ใช้ทั้งหมด</h2>
-        <p class="text-3xl font-bold">{{ totalUsers }}</p>
-      </div>
+  <!-- 🏡 หอพักทั้งหมด -->
+  <div class="relative group">
+    <div class="bg-blue-500 text-white p-4 rounded-lg shadow-md text-center w-full">
+      <h2 class="text-xl font-semibold">หอพักทั้งหมด</h2>
+      <p class="text-3xl font-bold">{{ totalDorms }}</p>
     </div>
+    <div class="tooltip">หอพักทั้งหมดในระบบ</div>
+  </div>
+
+  <!-- 👤 Active Users -->
+  <div class="relative group">
+    <div class="bg-green-500 text-white p-4 rounded-lg shadow-md text-center w-full">
+      <h2 class="text-xl font-semibold">Active Users</h2>
+      <p class="text-3xl font-bold">{{ activeUsers }}</p>
+    </div>
+    <div class="tooltip">จำนวนผู้ใช้ที่เข้าสู่ระบบในขณะนี้</div>
+  </div>
+
+  <!-- 👥 ผู้ใช้ทั้งหมด -->
+  <div class="relative group">
+    <div class="bg-yellow-500 text-white p-4 rounded-lg shadow-md text-center w-full">
+      <h2 class="text-xl font-semibold">ผู้ใช้ทั้งหมด</h2>
+      <p class="text-3xl font-bold">{{ totalUsers }}</p>
+    </div>
+    <div class="tooltip">รวมถึงผู้ใช้ที่อาจไม่ได้ออนไลน์</div>
+  </div>
+</div>
+
 
 <!-- การ์ดจัดการหอพัก และ การ์ดจัดการผู้ใช้ -->
 <div class="flex flex-row items-center justify-between h-52 space-x-4 hover:cursor-pointer">
@@ -161,9 +137,7 @@ onMounted(async () => {
   </div>
 </div>
 
-      
-    <!-- Loading spinner -->
-    <div v-if="isLoading" class="text-center mt-4">กำลังโหลด...</div>
+
   </div>
 </template>
 
@@ -195,5 +169,10 @@ onMounted(async () => {
 .text-gray-200 {
   color: #e5e5e5;
 }
+
+.tooltip {
+  @apply absolute -top-10 left-1/2 transform -translate-x-1/2 w-48 bg-gray-800 text-white text-sm p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity;
+}
+
 </style>
 

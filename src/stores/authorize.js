@@ -3,10 +3,10 @@ import { ref, watch } from 'vue';
 import { jwtDecode } from 'jwt-decode'; // ✅ Named import for v4.0.0
 
 export const useAuthorize = defineStore('authorize', () => {
-  const userRole = ref(localStorage.getItem("userRole") || 'guest');
+  const userRole = ref(localStorage.getItem("userRole") ||'guest');
   const username = ref(localStorage.getItem("username") || 'unknown');
 
-  const setRole = (token) => {
+  const setUsername = (token) => {
     if (!token) {  // ตรวจสอบว่า token เป็น null, undefined, หรือ empty string
       userRole.value = 'guest';
       username.value = 'unknown';
@@ -18,11 +18,11 @@ export const useAuthorize = defineStore('authorize', () => {
 
     // ถ้ามี token ให้ decode token เพื่อดึง role และ username
     const decoded = jwtDecode(token);
-    userRole.value = 'admin'  //decoded.role;  // ใช้ decoded.role แทน 'admin'
+    userRole.value = localStorage.getItem("userRole")
     username.value = decoded.sub;
 
-    localStorage.setItem("userRole", 'admin');  // เก็บ role ที่ถูกต้องใน localStorage
-    localStorage.setItem("username", decoded.sub);
+    localStorage.setItem("userRole", userRole.value);  // เก็บ role ที่ถูกต้องใน localStorage
+    localStorage.setItem("username", username.value);
 
     console.log("Role:", userRole.value);
     console.log("Username:", username.value);
@@ -41,7 +41,7 @@ export const useAuthorize = defineStore('authorize', () => {
     }
   });
 
-  return { userRole, setRole, username };
+  return { userRole, setUsername, username };
 });
 
 if (import.meta.hot) {

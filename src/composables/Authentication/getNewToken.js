@@ -14,7 +14,7 @@ const getNewToken = async () => {
   
       if (res.ok) {
         const data = await res.json();
-        const newToken = data.accessToken;
+        const newToken = data.tokens.accessToken;
         // บันทึก token ใหม่ใน localStorage
         localStorage.setItem('token', newToken);
         // console.log('Token refreshed successfully');

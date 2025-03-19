@@ -5,6 +5,8 @@ import { storeToRefs } from 'pinia';
 import { formatDate } from '@/composables/formatDate';
 import { useRouter } from 'vue-router'
 import { getDormitories } from '@/composables/getDormitories';
+import SearchComponent from '@/components/SearchComponent.vue';
+import SortComponent from '@/components/SortComponent.vue';
 const API_ROOT = import.meta.env.VITE_API_ROOT
 const router = useRouter()
 
@@ -68,7 +70,11 @@ const editDormitory = (dormitoryId) => {
 <template>
   <div class="container mx-auto p-6 pt-20">
     <h1 class="text-3xl font-semibold mb-6 text-gray-800">จัดการหอพัก</h1>
-    
+    <div class="flex flex-row justify-center items-center space-x-2">
+      <SearchComponent/>
+      <SortComponent :dormitories="dormitories"/>
+    </div>
+
     <div class="overflow-x-auto bg-white shadow-lg rounded-lg p-4">
       <table class="w-full table-auto border-collapse border border-gray-200">
         <thead>
@@ -77,7 +83,10 @@ const editDormitory = (dormitoryId) => {
             <th class="p-3 text-left border">ชื่อหอพัก</th>
             <th class="p-3 text-left border">คะแนน</th>
             <th class="p-3 text-left border">UID เจ้าของหอพัก</th>
-            <th class="p-3 text-left border">Username เจ้าของหอพัก</th>
+            <th class="p-3 text-left border">username</th>
+            <th class="p-3 text-left border">ราคาต่ำสุด</th>
+            <th class="p-3 text-left border">ราคาสูงสุด</th>
+            <th class="p-3 text-left border">ระยะทาง</th>
             <th class="p-3 text-left border">วันที่ลงประกาศ</th>
             <th class="p-3 text-left border">อัปเดตล่าสุด</th>
             <th class="p-3 text-left border">การจัดการ</th>
@@ -90,6 +99,9 @@ const editDormitory = (dormitoryId) => {
             <td class="p-3 border">{{ dorm.score }}</td>
             <td class="p-3 border">{{ dorm.userId }}</td>
             <td class="p-3 border">{{ dorm.username }}</td>
+            <td class="p-3 border">{{ dorm.min_price }}</td>
+            <td class="p-3 border">{{ dorm.max_price }}</td>
+            <td class="p-3 border">{{ dorm.distance }}</td>
             <td class="p-3 border">{{ formatDate(dorm.created_at) }}</td>
             <td class="p-3 border">{{ formatDate(dorm.updated_at) }}</td>
             <td class="p-3 border flex gap-2">

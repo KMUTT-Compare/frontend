@@ -112,7 +112,7 @@ const clickSupport = ()=>{
         <div v-if="authStore.userRole !== 'guest'" class="flex flex-row">
           <p class="py-2.5"><img src="../components/icons/line.png" alt=""></p>
             <button @click="toggleDropdown" id="dropdownInformationButton" class="font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center hover:text-gray-600">
-              <p>korapinz</p> 
+              <p>{{authStore.username}}</p> 
               <span class="text-orange-500 pl-1">({{ authStore.userRole }}) </span>  <!-- แสดง Role ที่นี่ -->
               <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
@@ -123,7 +123,7 @@ const clickSupport = ()=>{
             <div v-if="isDropdownOpen" id="dropdownInformation" class="w-56 absolute z-10 bg-white divide-y divide-gray-100 rounded-lg shadow w-44">
               <div @click="toggleDropdown" class="px-4 py-3 text-sm text-gray-900 cursor-pointer">
                 <div class="flex items-center">
-                  <div class="flex w-full">korapinz <span class="text-orange-500 pl-1">{{ authStore.userRole }}</span></div>
+                  <div class="flex w-full">{{authStore.username}}<span class="text-orange-500 pl-1">({{ authStore.userRole }})</span></div>
                   <div class="flex w-full justify-end">
                     <svg class="w-2.5 h-2.5 ms-3 ml-auto" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                       <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>

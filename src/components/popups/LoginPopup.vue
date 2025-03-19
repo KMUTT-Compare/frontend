@@ -5,9 +5,10 @@ import { useRouter } from 'vue-router';
 import { useAuthorize } from '@/stores/authorize';
 
 const useAuthor = useAuthorize();
-const { setRole } = useAuthor;
+const { setUsername } = useAuthor;
 const token = ref(null);
 const refreshToken = ref(null);
+const role = ref('');
 
 const FETCH_API = import.meta.env.VITE_API_ROOT;
 const router = useRouter();
@@ -73,17 +74,20 @@ const login = async () => {
       activeClass.value = true;
       className.value = 'alert-success';
 
-      const tokens = await res.json();
-      token.value = tokens.accessToken;
-      refreshToken.value = tokens.refreshToken;
+      const data = await res.json();
+      token.value = data.tokens.accessToken;
+      refreshToken.value = data.tokens.refreshToken;
+      role.value = data.role
 
       localStorage.setItem("token", token.value);
       localStorage.setItem("refreshToken", refreshToken.value);
+      localStorage.setItem("userRole", role.value);
 
       console.log("Token ตอน login: "+ token.value)
       console.log("refreshToken ตอน login: "+ refreshToken.value)
+      console.log("role ตอน login: "+ role.value)
 
-      setRole(token.value);
+      setUsername(token.value)
       uiStore.closeLoginPopup();
 
     } else if (res.status === 404) {
