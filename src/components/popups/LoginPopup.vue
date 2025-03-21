@@ -69,13 +69,12 @@ const login = async () => {
 
     if (res.status === 200) {
       statusCode.value = 200;
-      errText.value = 'Login Successfully';
       activeClass.value = false;
       className.value = 'alert-success';
 
-      const data = await res.json();
-      token.value = data.tokens.accessToken;
-      refreshToken.value = data.tokens.refreshToken;
+      const tokens = await res.json();
+      token.value = tokens.accessToken;
+      refreshToken.value = tokens.refreshToken;
       setRole(token.value)
 
       localStorage.setItem("token", token.value);
