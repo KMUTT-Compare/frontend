@@ -1,21 +1,8 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import SuccessModal from '@/components/modals/SuccessModal.vue';
-import { useRouter } from 'vue-router';  // Import vue-router for navigation
-import { useAuthorize } from '@/stores/authorize';
-import { storeToRefs } from 'pinia';
-const myRole = useAuthorize()
-const {userRole} = storeToRefs(myRole)
-// Create a router instance
-const router = useRouter();
 
-onMounted(() => {
-  if(userRole.value === 'guest'){
-    alert('Access Deny')
-    router.back()
-  }
-});
 
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 const { params } = useRoute();

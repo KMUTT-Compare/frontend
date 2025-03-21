@@ -5,7 +5,7 @@ import { getUsers } from '@/composables/getUsers';
 import { useRouter } from 'vue-router';
 import { useAuthorize } from '@/stores/authorize';
 import { storeToRefs } from 'pinia';
-import SearchComponent from '@/components/SearchComponent.vue';
+import SearchComponent from '@/components/filters/SearchComponent.vue';
 
 const myRole = useAuthorize();
 const { userRole } = storeToRefs(myRole);
@@ -17,12 +17,6 @@ const searchQuery = ref(''); // ค่าค้นหา
 const roleFilter = ref(''); // ค่า filter role
 
 onMounted(async () => {
-  if (userRole.value !== 'admin') {
-    alert('Access Denied');
-    router.push({ name: 'home' });
-    return;
-  }
-
   const users = await getUsers();
   userDetail.value = users;
   // console.log('ข้อมูล user', userDetail.value);

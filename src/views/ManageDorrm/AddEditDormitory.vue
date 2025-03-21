@@ -343,7 +343,7 @@ const removeOutsideAmenity = (index) => {
 };
 
 const dormitoryData = {
-    staffId: 0,
+    userId:0,
     dormName: '',
     status: '',
     address: '',
@@ -490,7 +490,7 @@ const handleConfirmAction = async (context) => {
   console.log('Confirm action for:', context);
 
   dormitoryData.value = {
-    staffId: 2,
+    userId:1,
     dormName: dormName.value,
     status: status.value,
     address: {
@@ -503,9 +503,9 @@ const handleConfirmAction = async (context) => {
     },
     roomCount: parseInt(roomCount.value),
     type: type.value,
-    size: size.value,
-    min_price: min_price.value,
-    max_price: max_price.value,
+    size: parseFloat(size.value),
+    min_price: parseFloat(min_price.value),
+    max_price: parseFloat(max_price.value),
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     distance: parseFloat(distance.value),

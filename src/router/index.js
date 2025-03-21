@@ -1,5 +1,6 @@
-import { createRouter, createWebHistory } from 'vue-router'
-
+import { useAuthorize } from '@/stores/authorize';
+import { createRouter, createWebHistory } from 'vue-router';
+import { storeToRefs } from 'pinia';
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -9,9 +10,15 @@ const router = createRouter({
       component: () => import('../views/UserView/HomeView.vue')
     },
     {
+      path: '/compare',
+      name: 'compare',
+      component: () => import('../views/UserView/ComparePage.vue')
+    },
+    {
       path: '/favorites',
       name: 'favorites',
-      component: () => import('../views/UserView/FavoritesView.vue')
+      component: () => import('../views/UserView/FavoritesView.vue'),
+      meta: { requiresUserOrAdmin: true }
     },
     {
       path: '/faq',
@@ -23,7 +30,6 @@ const router = createRouter({
       name: 'contact',
       component: () => import('../views/UserView/Contact.vue')
     },
-
     {
       path: '/dormitory/:id',
       name: 'dormitoryDetail',
@@ -32,33 +38,39 @@ const router = createRouter({
     {
       path: '/addEditDormitory/:id?',
       name: 'addEditDormitory',
-      component: () => import('../views/ManageDorrm/AddEditDormitory.vue')
+      component: () => import('../views/ManageDorrm/AddEditDormitory.vue'),
+      meta: { requiresUserOrAdmin: true }
     },
     {
       path: '/profile',
       name: 'profile',
-      component: () => import('../views/UserView/Setting/Profile.vue')
+      component: () => import('../views/UserView/Setting/Profile.vue'),
+      meta: { requiresUserOrAdmin: true }
     },
     {
       path: '/dormlists',
       name: 'dormlists',
-      component: () => import('../views/UserView/Setting/DormLists.vue')
+      component: () => import('../views/UserView/Setting/DormLists.vue'),
+      meta: { requiresUserOrAdmin: true }
     },
     {
       path: '/create_reservation/:id?',
       name: 'create_reservation',
       component: () => import('../views/ManageDorrm/CreateReservation.vue'),
+      meta: { requiresUserOrAdmin: true }
     },
     {
       path: '/reservation/:id?/:action?',
       name: 'reservation',
       component: () => import('../views/ManageDorrm/Reservation.vue'),
+      meta: { requiresUserOrAdmin: true }
     },
     {
       path: '/reservedForms',
       name: 'reservedForms',
       component: () => import('../views/UserView/Setting/ReservedForms.vue'),
       props: true, // เปิดให้รับค่า params เป็น props
+      meta: { requiresUserOrAdmin: true }
     },
     {
       path: '/support',
@@ -68,22 +80,26 @@ const router = createRouter({
     {
       path: '/admin/dashboard',
       name: 'dashboard',
-      component: () => import('../views/AdminView/Dashboard.vue')
+      component: () => import('../views/AdminView/Dashboard.vue'),
+      meta: { requiresAdmin: true } // เพิ่ม meta เพื่อกำหนดว่าเป็น route ที่ต้องการสิทธิ์
     },
     {
       path: '/admin/user-management',
       name: 'user-management',
-      component: () => import('../views/AdminView/Users/ListAllUsers.vue')
+      component: () => import('../views/AdminView/UsersManagement/ListAllUsers.vue'),
+      meta: { requiresAdmin: true }
     },
     {
       path: '/admin/add-edit-user/:id?',
       name: 'AdminEditUser',
-      component: () => import('../views/AdminView/Users/AdminEditUser.vue')
+      component: () => import('../views/AdminView/UsersManagement/AdminEditUser.vue'),
+      meta: { requiresAdmin: true }
     },
     {
       path: '/admin/dormitory-management',
       name: 'dormitory-management',
-      component: () => import('../views/AdminView/DormitoryManagement.vue')
+      component: () => import('../views/AdminView/DormitoryManagement.vue'),
+      meta: { requiresUserOrAdmin: true }
     },
     // 404 route - ใช้ pathMatch(.*)* สำหรับจับทุก URL
     {
@@ -94,4 +110,31 @@ const router = createRouter({
   ]
 })
 
-export default router
+// การใช้งาน beforeEach guard เพื่อตรวจสอบการเข้าถึง
+router.beforeEach((to, from, next) => {
+  // ถ้าหน้า route ที่ต้องการ user หรือ admin เข้าถึง
+  const myRole = useAuthorize()
+  const {userRole} = storeToRefs(myRole)
+
+  if (to.meta.requiresUserOrAdmin) {
+    if (userRole.value === 'user' || userRole.value === 'admin') {
+      console.log(userRole.value)
+      next(); 
+    } else {
+      console.log(userRole.value)
+      alert('คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
+      next({ name: '404' }); // ไปหน้า 404
+    }
+  }else if(to.meta.requiresAdmin){
+    if (userRole.value === 'admin') { 
+      next();
+    } else {
+      alert('คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
+      next({ name: '404' }); // ไปหน้า 404
+    }
+  }else {
+      next();
+    }
+});
+
+export default router;

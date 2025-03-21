@@ -2,25 +2,19 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { formatDate } from '@/composables/formatDate';
-import WhiteButton from '@/components/buttons/WhiteButton.vue';
-import BlackButton from '@/components/buttons/BlackButton.vue';
 import { getDormitoryById } from '@/composables/getDormitoryById';
 import { formatPrice } from '@/composables/formatPrice';
 import router from '@/router';
 import { formatPhoneNumber } from '@/composables/formatPhoneNumber';
-import { useDormitoryStore } from '@/stores/useDormitoryStore';
-
-// เข้าถึง store
-const dormitoryStore = useDormitoryStore();
-
-const setMainDormitory = (dormId) => {
-  dormitoryStore.setMainDormitory(dormId);
-  router.push('/');
-};
-
-const setSecondaryDormitory = (dormId) => {
-  dormitoryStore.setSecondaryDormitory(dormId);
-  router.push('/');
+import CompareButton from '@/components/buttons/CompareButton.vue';
+import { storeToRefs } from 'pinia';
+import { useCompareStore } from '@/stores/compareStore'; // นำเข้าจาก store ที่สร้างไว้
+import BorderButton from '@/components/buttons/BorderButton.vue';
+const compareStore = useCompareStore();
+const { compareItems } = storeToRefs(compareStore);
+console.log(compareItems.value)
+const addDormToCompare = (id) => {
+  compareStore.addDormDetailToCompare(id,dormitoryDetaill.value);
 };
 
 
@@ -170,6 +164,7 @@ const reserveDorm = (dormitoryId) =>{
 </script>
 
 <template>
+
   <div class="w-full h-full flex justify-center bg-gray-100 py-8">
     <div class="flex flex-col border border-gray-300 rounded-lg shadow-lg w-3/4 bg-white p-6">
       <!-- เมนูด้านบน -->
@@ -229,24 +224,16 @@ const reserveDorm = (dormitoryId) =>{
             <p class="font-semibold">ราคา</p>
             <h2 class="text-2xl font-semibold"><span class="text-4xl text-green-500 font-semibold">{{ formatPrice(dormitoryDetaill.min_price) }} - {{ formatPrice(dormitoryDetaill.max_price) }}</span> บาท / เดือน</h2>
           </div>
-          <div class="flex flex-col pt-4 space-y-2">
-            <BlackButton @click="setMainDormitory(dormitoryDetaill.dormId)" context="ตั้งเป็นหอพักหลัก" />
-            <WhiteButton @click="setSecondaryDormitory(dormitoryDetaill.dormId)" context="ตั้งเป็นหอพักรอง" />
+          <div class="flex flex-col space-y-2 pt-4">
+            <BorderButton class="bg-orange-500 text-white" @click="reserveDorm(dormitoryDetaill.dormId)" context="จองหอพัก" />
+            <BorderButton @click="addDormToCompare(dormitoryDetaill.dormId)" context="เพิ่มลงในรายการเปรียบเทียบ" />
           </div>
         </div>
       </div>
 
       <!-- รายละเอียดต่างๆ -->
       <div class="flex flex-col space-y-6 px-6">
-      <div class="flex flex-row justify-between items-center">
         <h2 class="text-3xl font-semibold pt-8">รายละเอียดหอพัก</h2>
-        <img src="../../components/icons/jip.gif" alt="loading" class="w-32 fixed-booking" />
-        <button @click="reserveDorm(dormitoryDetaill.dormId)" class="fixed-booking-button justify-center flex flex-col items-center">
-          จองเลย
-        </button>
-
-      </div>
-        
         <div class="space-y-4">
           <p><span style="font-weight:500;">จำนวนห้องพักที่เหลือให้เช่า:</span> {{ dormitoryDetaill.roomCount }} ห้อง</p>
           <p><span style="font-weight:500;">ประเภทหอพัก: </span> 
@@ -257,46 +244,57 @@ const reserveDorm = (dormitoryId) =>{
           <p><span style="font-weight:500;">ขนาดห้อง: </span>{{ dormitoryDetaill.size }} ตร.ม.</p>
         </div>
         
-        <!-- Facility: ภายในห้องพัก และ ภายนอกอาคาร -->
-        <div class="flex space-x-4 pt-8">
-          <!-- ภายในห้องพัก -->
-          <div class="w-full md:w-1/2 space-y-4">
-            <h3 class="text-2xl font-semibold">สิ่งอำนวยความสะดวกภายในห้องพัก</h3>
-            <div class="overflow-x-auto">
-              <table class="min-w-full table-auto text-left border-collapse">
-                <thead>
-                  <tr class="bg-gray-200">
-                    <th class="px-4 py-2 font-semibold text-xl text-gray-700">รายการสิ่งอำนวยความสะดวก</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(facility, index) in dormitoryDetaill.room_facility" :key="index">
-                    <td class="border px-4 py-2"><p>{{ facility }}</p></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+         <!-- Facility: ภายในห้องพัก และ ภายนอกอาคาร -->
+  <div class="flex space-x-4 pt-8">
+    <!-- ภายในห้องพัก -->
+    <div class="w-full md:w-1/2 space-y-4">
+      <h3 class="text-2xl font-semibold">สิ่งอำนวยความสะดวกภายในห้องพัก</h3>
+      <div class="overflow-y-auto" style="max-height: 300px;">
+        <table class="min-w-full table-auto text-left border-collapse">
+          <thead>
+            <tr class="bg-gray-200">
+              <th class="px-4 py-2 font-semibold text-xl text-gray-700">รายการสิ่งอำนวยความสะดวก</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- เช็คจำนวนสิ่งอำนวยความสะดวกในทั้งสองฝั่ง -->
+            <tr v-for="(facility, index) in dormitoryDetaill.room_facility" :key="index">
+              <td class="border px-4 py-2"><p>{{ facility }}</p></td>
+            </tr>
+            <!-- ถ้าไม่มีสิ่งอำนวยความสะดวกในฝั่งนี้ ให้ใส่แถวที่ว่าง -->
+            <tr v-if="dormitoryDetaill?.room_facility?.length < dormitoryDetaill?.building_facility?.length">
+              <td class="border px-4 py-2">&nbsp;</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-          <!-- ภายนอกอาคาร -->
-          <div class="w-full md:w-1/2 space-y-4">
-            <h3 class="text-2xl font-semibold">สิ่งอำนวยความสะดวกภายใน และ ภายนอกอาคาร</h3>
-            <div class="overflow-x-auto">
-              <table class="min-w-full table-auto text-left border-collapse">
-                <thead>
-                  <tr class="bg-gray-200">
-                    <th class="px-4 py-2 font-semibold text-xl text-gray-700">รายการสิ่งอำนวยความสะดวก</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(facility, index) in dormitoryDetaill.building_facility" :key="index">
-                    <td class="border px-4 py-2"><p>{{ facility }}</p></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+    <!-- ภายนอกอาคาร -->
+    <div class="w-full md:w-1/2 space-y-4">
+      <h3 class="text-2xl font-semibold">สิ่งอำนวยความสะดวกภายใน และ ภายนอกอาคาร</h3>
+      <div class="overflow-y-auto" style="max-height: 300px;">
+        <table class="min-w-full table-auto text-left border-collapse">
+          <thead>
+            <tr class="bg-gray-200">
+              <th class="px-4 py-2 font-semibold text-xl text-gray-700">รายการสิ่งอำนวยความสะดวก</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- เช็คจำนวนสิ่งอำนวยความสะดวกในทั้งสองฝั่ง -->
+            <tr v-for="(facility, index) in dormitoryDetaill?.building_facility" :key="index">
+              <td class="border px-4 py-2"><p>{{ facility }}</p></td>
+            </tr>
+            <!-- ถ้าไม่มีสิ่งอำนวยความสะดวกในฝั่งนี้ ให้ใส่แถวที่ว่าง -->
+            <tr v-if="dormitoryDetaill?.building_facility?.length < dormitoryDetaill?.room_facility?.length">
+              <td class="border px-4 py-2">&nbsp;</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
 <!-- ที่อยู่ -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-8">
   
@@ -348,17 +346,16 @@ const reserveDorm = (dormitoryId) =>{
   </div>
 </div>
 
+<!-- แสดงปุ่มการเปรียบเทียบ -->
+<div v-if="compareItems.length > 0" class="fixed bottom-4 right-4">
+  <CompareButton/>
+</div>
+
 </template>
 
+
 <style scoped>
-/* ปรับแต่งโมดัล */
-.fixed {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
+
 
 .bg-opacity-50 {
   background-color: rgba(0, 0, 0, 0.5);

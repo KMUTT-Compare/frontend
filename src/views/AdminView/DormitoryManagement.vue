@@ -1,31 +1,29 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useAuthorize } from '@/stores/authorize';
-import { storeToRefs } from 'pinia';
+import { ref, onMounted, computed } from 'vue'
 import { formatDate } from '@/composables/formatDate';
 import { useRouter } from 'vue-router'
 import { getDormitories } from '@/composables/getDormitories';
-import SearchComponent from '@/components/SearchComponent.vue';
-import SortComponent from '@/components/SortComponent.vue';
+import SortComponent from '@/components/filters/SortComponent.vue';
+
 const API_ROOT = import.meta.env.VITE_API_ROOT
 const router = useRouter()
-
-const myRole = useAuthorize()
-const { userRole } = storeToRefs(myRole)
 const dormitories = ref([])
+const searchQuery = ref('')  // ค่าของคำค้นหา
 
 onMounted(async () => {
-  if (userRole.value !== 'admin') {
-    alert('Access Deny')
-    router.back()
-  }
-
   dormitories.value = await getDormitories()
   console.log(dormitories.value)
-
 })
 
-
+// ฟังก์ชันในการกรองหอพักตามคำค้นหา
+const filteredDormitories = computed(() => {
+  if (!searchQuery.value) return dormitories.value; // ถ้าไม่มีการค้นหาคืนข้อมูลทั้งหมด
+  return dormitories.value.filter(dorm => {
+    return dorm.dormName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+           dorm.username.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+           dorm.userId.toString().includes(searchQuery.value);
+  });
+});
 
 // ลบหอพัก พร้อม Authentication
 const deleteDormitory = async (id) => {
@@ -56,8 +54,6 @@ const deleteDormitory = async (id) => {
   }
 }
 
-
-
 const editDormitory = (dormitoryId) => {
   router.push({
     name: 'addEditDormitory',
@@ -71,8 +67,16 @@ const editDormitory = (dormitoryId) => {
   <div class="container mx-auto p-6 pt-20">
     <h1 class="text-3xl font-semibold mb-6 text-gray-800">จัดการหอพัก</h1>
     <div class="flex flex-row justify-center items-center space-x-2">
-      <SearchComponent/>
-      <SortComponent :dormitories="dormitories"/>
+      <!-- ปุ่มค้นหาแบบ Real-Time -->
+      <div class="flex space-x-2">
+        <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="ค้นหาหอพัก..."
+          class="p-2 border rounded-md"
+        />
+      </div>
+      <SortComponent :dormitories="filteredDormitories"/>
     </div>
 
     <div class="overflow-x-auto bg-white shadow-lg rounded-lg p-4">
@@ -93,7 +97,7 @@ const editDormitory = (dormitoryId) => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(dorm, index) in dormitories" :key="dorm.id" class="hover:bg-gray-50 transition duration-200">
+          <tr v-for="(dorm, index) in filteredDormitories" :key="dorm.id" class="hover:bg-gray-50 transition duration-200">
             <td class="p-3 border">{{ index + 1 }}</td>
             <td class="p-3 border">{{ dorm.dormName }}</td>
             <td class="p-3 border">{{ dorm.score }}</td>

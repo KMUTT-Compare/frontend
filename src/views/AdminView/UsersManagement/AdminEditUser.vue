@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { getUserById } from '@/composables/getUserById';
 import { useRoute } from 'vue-router';
+import { storeToRefs } from 'pinia';
 
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 const { params } = useRoute();
@@ -82,9 +83,11 @@ onMounted(async () => {
 // ฟังก์ชันที่ใช้บันทึกข้อมูล
 const save = async () => {
   if (!validateForm()) {
-    alert('Please fix the errors in the form');
     return;
   }
+
+    // เช็คว่า userData มีข้อมูลที่สมบูรณ์ก่อนการส่ง
+    console.log('User Data:', userData.value);  // ตรวจสอบข้อมูลที่ส่ง
 
   try {
     const response = mode.value === 'add'
@@ -96,7 +99,7 @@ const save = async () => {
           },
           body: JSON.stringify(userData.value),
         })
-      : await fetch(`${API_ROOT}/users/${params.id}`, {
+      : await fetch(`${API_ROOT}/admin/user/${params.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -105,17 +108,31 @@ const save = async () => {
           body: JSON.stringify(userData.value),
         });
 
-    if (response.ok) {
-      alert(mode.value === 'add' ? 'User added successfully' : 'User updated successfully');
-      router.back(); // กลับไปยังหน้าก่อนหน้า
-    } else {
-      alert('Failed to save user data');
+    // ถ้า response ไม่ ok (เช่น 400, 500 เป็นต้น)
+    if (!response.ok) {
+      const errorData = await response.json();
+      
+      // ตรวจสอบ error message และแสดงข้อความ
+      if (errorData.message === 'Email already exists') {
+        errorMessages.value.email = 'Email already exists';
+      } else if (errorData.message === 'Username already exists') {
+        errorMessages.value.username = 'Username already exists';
+      } else {
+        alert(errorData.message || 'Failed to save user data');
+      }
+
+      return; // หยุดการทำงานเมื่อเกิดข้อผิดพลาด
     }
+
+    // ถ้าส่งข้อมูลสำเร็จ
+    alert(mode.value === 'add' ? 'User added successfully' : 'User updated successfully');
+    router.back(); // กลับไปยังหน้าก่อนหน้า
   } catch (error) {
     console.error('Error saving user:', error);
     alert('An error occurred while saving the user data');
   }
 };
+
 </script>
 
 <template>

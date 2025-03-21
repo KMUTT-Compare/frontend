@@ -5,10 +5,9 @@ import { useRouter } from 'vue-router';
 import { useAuthorize } from '@/stores/authorize';
 
 const useAuthor = useAuthorize();
-const { setUsername } = useAuthor;
+const { setRole } = useAuthor;
 const token = ref(null);
 const refreshToken = ref(null);
-const role = ref('');
 
 const FETCH_API = import.meta.env.VITE_API_ROOT;
 const router = useRouter();
@@ -71,39 +70,31 @@ const login = async () => {
     if (res.status === 200) {
       statusCode.value = 200;
       errText.value = 'Login Successfully';
-      activeClass.value = true;
+      activeClass.value = false;
       className.value = 'alert-success';
 
       const data = await res.json();
       token.value = data.tokens.accessToken;
       refreshToken.value = data.tokens.refreshToken;
-      role.value = data.role
+      setRole(token.value)
 
       localStorage.setItem("token", token.value);
       localStorage.setItem("refreshToken", refreshToken.value);
-      localStorage.setItem("userRole", role.value);
 
       console.log("Token ตอน login: "+ token.value)
       console.log("refreshToken ตอน login: "+ refreshToken.value)
-      console.log("role ตอน login: "+ role.value)
 
-      setUsername(token.value)
       uiStore.closeLoginPopup();
 
-    } else if (res.status === 404) {
-      statusCode.value = 404;
-      errText.value = 'A user with the specified username DOES NOT exist';
-      activeClass.value = true;
-      className.value = 'alert-error';
-    } else if (res.status === 401) {
-      statusCode.value = 401;
-      errText.value = 'Password Incorrect';
+    } else{
+      errText.value = 'Invalid username or password';
       activeClass.value = true;
       className.value = 'alert-error';
     }
+
     warning.value = true;
   } catch (error) {
-    console.log('error ', error);
+    // console.log('error ', error);
     router.push('/Home');
   }
 };
@@ -147,14 +138,13 @@ const login = async () => {
                           @input="isUsernameDirty = true"
                           class="block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-black focus:ring-offset-1"
                           placeholder="Username">
-                      <p v-if="usernameError" class="text-red-500 text-sm mt-1">{{ usernameError }}</p>
 
                       <label for="password" class="sr-only">Password</label>
                       <input v-model="password" name="password" type="password" autocomplete="current-password"
                           @input="isPasswordDirty = true"
                           class="mt-2 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-black focus:ring-offset-1"
                           placeholder="Password">
-                      <p v-if="passwordError" class="text-red-500 text-sm mt-1">{{ passwordError }}</p>
+                      <p v-if="errText" class="text-red-500 text-sm mt-1">{{ errText }}</p>
 
                       <p class="mb-3 mt-2 text-sm text-gray-500">
                           <a href="/forgot-password" class="pl-1 text-blue-800 hover:text-blue-600">ลืมรหัสผ่าน</a>

@@ -3,7 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { getFavorites } from '@/composables/getFavorites';
 import router from '@/router';
 const API_ROOT = import.meta.env.VITE_API_ROOT
-import SortComponent from '@/components/SortComponent.vue';
+import SortComponent from '@/components/filters/SortComponent.vue';
 const dormitories = ref([]); // เก็บรายการโปรด
 
 

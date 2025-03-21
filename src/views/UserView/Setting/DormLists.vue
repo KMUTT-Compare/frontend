@@ -1,17 +1,13 @@
 <script setup>
 import Sidebar from '@/components/Sidebar.vue';
-import { getDormitories } from '@/composables/getDormitories';
+import { getUserDormByUserId } from '@/composables/getUserDormByUserId';
 import { onMounted, ref, computed } from 'vue';
 import router from '@/router';
 import DeleteModal from '@/components/modals/ConfirmModal.vue';
 import SuccessModal from '@/components/modals/SuccessModal.vue';
 import { formatPrice } from '@/composables/formatPrice';
-import SortComponent from '@/components/SortComponent.vue';
-import SearchComponent from '@/components/SearchComponent.vue';
-import { useAuthorize } from '@/stores/authorize';
-import { storeToRefs } from 'pinia';
-const myRole = useAuthorize()
-const {userRole} = storeToRefs(myRole)
+import SortComponent from '@/components/filters/SortComponent.vue';
+import SearchComponent from '@/components/filters/SearchComponent.vue';
 
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 const dormitories = ref([]);
@@ -20,11 +16,7 @@ const dormIdToDelete = ref(null);
 const isSuccessModalVisible = ref(false)
 
 onMounted(async () => {
-  if(userRole.value === 'guest'){
-    alert('Access Deny')
-    router.back()
-  }
-  dormitories.value = await getDormitories();
+  dormitories.value = await getUserDormByUserId();
 });
 
 const showDetail = (dormitoryId) => {
@@ -113,7 +105,7 @@ const deleteDormitory = async () => {
           <SortComponent :dormitories="dormitories" />
 
         </div>
-        <div v-if="filteredDormitories.length > 0" class="container">
+        <div v-if="filteredDormitories?.length > 0" class="container">
           <div v-for="dorm in filteredDormitories" :key="dorm.dormId" class="holding-items">
             <div class="items rounded-lg border-2">
               <div class="w-8/12 flex h-64 justify-center items-center">

@@ -7,13 +7,6 @@ const myRole = useAuthorize()
 const {userRole} = storeToRefs(myRole)
 import { useRouter } from 'vue-router';  // Import vue-router for navigation
 const router = useRouter();
-
-onMounted(async () => {
-  if(userRole.value === 'guest'){
-    alert('Access Deny')
-    router.back()
-  }
-});
 </script>
  
 <template>

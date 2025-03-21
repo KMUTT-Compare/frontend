@@ -1,5 +1,3 @@
-import { useRouter } from 'vue-router';
-const router = useRouter()
 import { clearToken } from './clearToken.js'
 const API_ROOT = import.meta.env.VITE_API_ROOT
 
@@ -20,7 +18,6 @@ const getNewToken = async () => {
         // console.log('Token refreshed successfully');
       }else{
         clearToken()
-        router.push({name:'home'})
       }
     } catch (err) {
       console.error('An error occurred while refreshing the token', err);
