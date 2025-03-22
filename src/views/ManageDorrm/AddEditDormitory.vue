@@ -232,7 +232,7 @@ const uploadImage = async (file) => {
       method: 'POST',
       body: formData,
       headers: {
-        'Content-Type': 'application/json' 
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
       }
     });
 
