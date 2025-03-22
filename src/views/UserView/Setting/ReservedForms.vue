@@ -18,7 +18,13 @@ const router = useRouter();
 // Function to load submitted forms
 const fetchSubmittedForms = async () => {
   try {
-    const response = await fetch(`${API_ROOT}/forms/user`);
+    const response = await fetch(`${API_ROOT}/forms/user`, {
+      method: 'GET', // Specify GET method if it's not already default
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}` // Add Bearer token to Authorization header
+      }
+    });
+    
     if (!response.ok) throw new Error('ไม่สามารถโหลดข้อมูลได้');
 
     const data = await response.json();

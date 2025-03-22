@@ -86,7 +86,10 @@ const handleToggleFavorite = async (id) => {
       // ลบรายการโปรด
       const res = await fetch(`${API_ROOT}/favorites/dorm/${id}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
       });
       if (res.ok) {
         favorites.value = favorites.value.filter((fav) => fav.dormId !== id);
@@ -97,7 +100,10 @@ const handleToggleFavorite = async (id) => {
       // เพิ่มรายการโปรด
       const res = await fetch(`${import.meta.env.VITE_API_ROOT}/favorites`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+         },
         body: JSON.stringify({ userId, dormId: id }),
       });
       if (res.ok) {

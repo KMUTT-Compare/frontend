@@ -169,10 +169,6 @@ const validateForm = () => {
   return Object.values(errors.value).every(error => !error); // Return true if no errors
 };
 
-const formatDateTime = (date, time) => {
-  const dateTime = new Date(`${date}T${time}:00`);
-  return dateTime.toISOString();
-};
 
 const submitForm = async () => {
   if (!validateForm()) return; // Only submit if the form is valid
@@ -188,7 +184,10 @@ const submitForm = async () => {
 
     const response = await fetch(url, {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json' ,
+        'Authorization': `Bearer ${localStorage.getItem('token')}` 
+      },
       body: JSON.stringify(form.value),
     });
 

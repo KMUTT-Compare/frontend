@@ -78,6 +78,7 @@ const deleteDormitory = async () => {
       const res = await fetch(`${API_ROOT}/dormitories/${dormIdToDelete.value}`, {
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         method: 'DELETE'
       });
