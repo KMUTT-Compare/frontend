@@ -232,8 +232,8 @@ const uploadImage = async (file) => {
       method: 'POST',
       body: formData,
       headers: {
-        'x-api-key': '2',  // ส่งค่า x-api-key ให้ตรงตามที่ backend คาดหวัง
-      },
+        'Content-Type': 'application/json' 
+      }
     });
 
     if (!response.ok) {

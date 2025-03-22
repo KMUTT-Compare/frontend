@@ -40,23 +40,28 @@ const compareDorms = (dorm1, dorm2) => {
 const dorm1Comparison = computed(() => compareDorms(compareItems.value[0], compareItems.value[1]));
 const dorm2Comparison = computed(() => compareDorms(compareItems.value[1], compareItems.value[0]));
 
-
-
 const isOpenModal = ref(false)
+
+const chosenDorm = ref(0)
+
 // ฟังก์ชันเลือกหอพัก
-const selectDorm = (dorm) => {
-  compareItems.value[0] = dorm;  // เก็บหอพักที่เลือก
-  isOpenModal.value = false  // ปิด modal
+const changeDorm = (index) => {
+  chosenDorm.value = index;  // กำหนดว่ากำลังเปลี่ยนหอพักที่ index ไหน (0 หรือ 1)
+  isOpenModal.value = true;  // เปิด Modal ให้เลือกหอพักใหม่
 };
 
-const changDormLeft=()=>{
-  isOpenModal.value = true
+// ฟังก์ชันเลือกหอพัก
+const selectDorm = (dorm) => {
+  // ตรวจสอบว่าต้องการแทนที่หอพักที่ตำแหน่งไหน
+  if (chosenDorm.value === 0) {
+    compareStore.replaceDormInCompare(0, dorm); 
+  } else if (chosenDorm.value === 1) {
+    compareStore.replaceDormInCompare(1, dorm); 
+  }
 
-}
+  isOpenModal.value = false; // ปิด Modal
+};
 
-const changDormRight=()=>{
-  isOpenModal.value = true
-}
 
 //---------------------------------- Search ----------------------------------
 const searchInput = ref('');
@@ -93,6 +98,7 @@ const nextPage = () => {
 const prevPage = () => {
   if (currentPage.value > 1) currentPage.value--;
 };
+
 </script>
 
 <template>
@@ -105,7 +111,7 @@ const prevPage = () => {
         <div class="flex flex-row items-center justify-center space-x-2">
           <h2 class="text-xl font-bold text-gray-800 text-center">{{ compareItems[0]?.dormName }}</h2>
           <div class="flex items-center justify-end">
-            <button @click="changDormLeft()" class="underline text-custom">เปลี่ยน</button>
+            <button @click="changeDorm(0)" class="underline text-custom">เปลี่ยน</button>
           </div>
         </div>
         <ul class="mt-4 space-y-2">
@@ -139,7 +145,7 @@ const prevPage = () => {
         <div class="flex flex-row items-center justify-center space-x-2">
           <h2 class="text-xl font-bold text-gray-800 text-center">{{ compareItems[1]?.dormName }}</h2>
           <div class="flex items-center justify-end">
-            <button @click="changDormRight()" class="underline text-custom">เปลี่ยน</button>
+            <button @click="changeDorm(1)" class="underline text-custom">เปลี่ยน</button>
           </div>
         </div>
         <ul class="mt-4 space-y-2">
@@ -226,7 +232,7 @@ const prevPage = () => {
       <SearchComponent v-model="searchInput"/>
 
       <div class="space-y-4 border" v-for="dorm in paginatedDormitories" :key="dorm.dormId">
-        <div @click="selectDorm(dorm.dormId)" class="flex flex-row  items-center justify-between block w-full text-left p-2 mb-2 rounded hover:bg-gray-300"> 
+        <div @click="selectDorm(dorm)" class="flex flex-row  items-center justify-between block w-full text-left p-2 mb-2 rounded hover:bg-gray-300"> 
           <div>{{ dorm.dormName }}</div>
           <div><img :src="dorm?.image[0] || '/images/no_image.jpg'" class="h-10 bg-cover bg-center rounded-lg" alt="Dormitory Image"/></div>
         </div>
