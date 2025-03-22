@@ -3,12 +3,7 @@ import { onMounted, computed, ref } from 'vue';
 import { formatDate } from '@/composables/formatDate';
 import { getUsers } from '@/composables/getUsers';
 import { useRouter } from 'vue-router';
-import { useAuthorize } from '@/stores/authorize';
-import { storeToRefs } from 'pinia';
-import SearchComponent from '@/components/filters/SearchComponent.vue';
 
-const myRole = useAuthorize();
-const { userRole } = storeToRefs(myRole);
 const router = useRouter();
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 

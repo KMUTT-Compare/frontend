@@ -4,7 +4,7 @@ import { getNewToken } from "./Authentication/getNewToken";
 // ฟังก์ชันสำหรับดึงข้อมูล
 const getFavorites = async () => {
   try {
-    let res = await fetch(`${API_ROOT}/favorites`, {
+    let res = await fetch(`${API_ROOT}/favorites/user`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

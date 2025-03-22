@@ -18,7 +18,7 @@ const router = useRouter();
 // Function to load submitted forms
 const fetchSubmittedForms = async () => {
   try {
-    const response = await fetch(`${API_ROOT}/forms`);
+    const response = await fetch(`${API_ROOT}/forms/user`);
     if (!response.ok) throw new Error('ไม่สามารถโหลดข้อมูลได้');
 
     const data = await response.json();

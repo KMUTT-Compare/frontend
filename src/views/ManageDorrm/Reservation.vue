@@ -182,8 +182,8 @@ const submitForm = async () => {
     let url = `${API_ROOT}/forms/${params.id}`;
     const method = 'PUT';
 
-    form.value.date_in = formatDateTime(form.value.date_in, form.value.time_in);
-    form.value.date_out = formatDateTime(form.value.date_out, form.value.time_out);
+    form.value.date_in = `${form.value.date_in}T${form.value.time_in}`;
+    form.value.date_out = `${form.value.date_out}T${form.value.time_out}`;
     form.value.form_date = new Date().toISOString();
 
     const response = await fetch(url, {

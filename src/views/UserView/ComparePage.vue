@@ -1,10 +1,20 @@
 <script setup>
 import { storeToRefs } from 'pinia';
 import { useCompareStore } from '@/stores/compareStore';
-import CompareButton from '@/components/buttons/CompareButton.vue';
-import { computed } from 'vue';
+import { computed, ref, onMounted } from 'vue';
+import { getDormitories } from '@/composables/getDormitories';
+import SearchComponent from '@/components/filters/SearchComponent.vue';
+
 const compareStore = useCompareStore();
 const { compareItems } = storeToRefs(compareStore);
+
+const dormitories = ref([])
+
+onMounted(async () => {
+  dormitories.value = await getDormitories();
+
+})
+
 
 // ฟังก์ชันแปลงที่อยู่ให้เป็นข้อความ
 const formatAddress = (address) => {
@@ -30,6 +40,59 @@ const compareDorms = (dorm1, dorm2) => {
 const dorm1Comparison = computed(() => compareDorms(compareItems.value[0], compareItems.value[1]));
 const dorm2Comparison = computed(() => compareDorms(compareItems.value[1], compareItems.value[0]));
 
+
+
+const isOpenModal = ref(false)
+// ฟังก์ชันเลือกหอพัก
+const selectDorm = (dorm) => {
+  compareItems.value[0] = dorm;  // เก็บหอพักที่เลือก
+  isOpenModal.value = false  // ปิด modal
+};
+
+const changDormLeft=()=>{
+  isOpenModal.value = true
+
+}
+
+const changDormRight=()=>{
+  isOpenModal.value = true
+}
+
+//---------------------------------- Search ----------------------------------
+const searchInput = ref('');
+
+const filteredDormitories = computed(() => {
+  if (!searchInput.value) return dormitories.value;
+
+  const searchTerm = searchInput.value.toLowerCase();
+  return dormitories.value.filter(dorm =>
+    dorm.dormName.toLowerCase().includes(searchTerm) ||
+    dorm.address.street.toLowerCase().includes(searchTerm) ||
+    dorm.address.subdistrict.toLowerCase().includes(searchTerm) ||
+    dorm.address.district.toLowerCase().includes(searchTerm) ||
+    dorm.address.province.toLowerCase().includes(searchTerm)
+  );
+});
+
+
+const currentPage = ref(1);
+const itemsPerPage = ref(5);
+
+const paginatedDormitories = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredDormitories.value.slice(start, end);
+});
+
+const totalPages = computed(() => Math.ceil(filteredDormitories.value.length / itemsPerPage.value));
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) currentPage.value++;
+};
+
+const prevPage = () => {
+  if (currentPage.value > 1) currentPage.value--;
+};
 </script>
 
 <template>
@@ -38,8 +101,13 @@ const dorm2Comparison = computed(() => compareDorms(compareItems.value[1], compa
     <div class="container mx-auto grid grid-cols-2 gap-6">
       <!-- หอพักซ้าย -->
       <div class="bg-white p-6 rounded-lg shadow-md">
-        <img src="../../components/photos/dorm.jpg" alt="Dorm 1 Image" class="w-full h-52 object-cover mb-4 rounded-lg" />
-        <h2 class="text-xl font-bold text-gray-800 text-center">{{ compareItems[0]?.dormName }}</h2>
+        <img :src="compareItems[0]?.image || '/images/no_image.jpg'" alt="Dorm 1 Image" class="w-full h-52 object-cover mb-4 rounded-lg" />
+        <div class="flex flex-row items-center justify-center space-x-2">
+          <h2 class="text-xl font-bold text-gray-800 text-center">{{ compareItems[0]?.dormName }}</h2>
+          <div class="flex items-center justify-end">
+            <button @click="changDormLeft()" class="underline text-custom">เปลี่ยน</button>
+          </div>
+        </div>
         <ul class="mt-4 space-y-2">
           <li><strong>ที่อยู่:</strong> {{ formatAddress(compareItems[0]?.address) }}</li>
           <li>
@@ -67,8 +135,13 @@ const dorm2Comparison = computed(() => compareDorms(compareItems.value[1], compa
 
       <!-- หอพักขวา -->
       <div class="bg-white p-6 rounded-lg shadow-md">
-        <img src="../../components/photos/new.svg" alt="Dorm 2 Image" class="w-full h-52 object-cover mb-4 rounded-lg" />
-        <h2 class="text-xl font-bold text-gray-800 text-center">{{ compareItems[1]?.dormName }}</h2>
+        <img :src="compareItems[1]?.image || '/images/no_image.jpg'" alt="Dorm 2 Image" class="w-full h-52 object-cover mb-4 rounded-lg" />
+        <div class="flex flex-row items-center justify-center space-x-2">
+          <h2 class="text-xl font-bold text-gray-800 text-center">{{ compareItems[1]?.dormName }}</h2>
+          <div class="flex items-center justify-end">
+            <button @click="changDormRight()" class="underline text-custom">เปลี่ยน</button>
+          </div>
+        </div>
         <ul class="mt-4 space-y-2">
           <li><strong>ที่อยู่:</strong> {{ formatAddress(compareItems[1]?.address) }}</li>
           <li>
@@ -137,12 +210,41 @@ const dorm2Comparison = computed(() => compareDorms(compareItems.value[1], compa
       </div>
     </div>
 
-          <!-- แสดงปุ่มการเปรียบเทียบ -->
-          <div v-if="compareItems.length > 0" class="fixed bottom-4 right-4">
-            <CompareButton/>
-          </div>
-
   </div>
+
+  <!-- Modal -->
+  <div v-if="isOpenModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div class="bg-white p-6 rounded-lg w-96 relative">
+      <!-- ปุ่มปิดกากบาท -->
+      <button 
+        @click="isOpenModal = false" 
+        class="absolute top-2 right-2 text-gray-600 hover:text-gray-900 text-xl">
+        ✖
+      </button>
+
+      <h3 class="text-xl font-bold text-center mb-4">เลือกหอพัก</h3>
+      <SearchComponent v-model="searchInput"/>
+
+      <div class="space-y-4 border" v-for="dorm in paginatedDormitories" :key="dorm.dormId">
+        <div @click="selectDorm(dorm.dormId)" class="flex flex-row  items-center justify-between block w-full text-left p-2 mb-2 rounded hover:bg-gray-300"> 
+          <div>{{ dorm.dormName }}</div>
+          <div><img :src="dorm?.image[0] || '/images/no_image.jpg'" class="h-10 bg-cover bg-center rounded-lg" alt="Dormitory Image"/></div>
+        </div>
+      </div>
+
+      <div class="flex justify-center items-center space-x-3 mt-4">
+        <button @click="prevPage" :disabled="currentPage === 1" class="px-4 py-2 bg-gray-300 rounded">
+          <
+        </button>
+          <span>หน้าที่ {{ currentPage }} / {{ totalPages }}</span>
+        <button @click="nextPage" :disabled="currentPage === totalPages" class="px-4 py-2 bg-gray-300 rounded">
+          >
+        </button>
+      </div>
+
+    </div>
+  </div>
+
 </template>
 
 <style scoped>
@@ -152,5 +254,13 @@ const dorm2Comparison = computed(() => compareDorms(compareItems.value[1], compa
 
 strong{
   padding-left: 5px;
+}
+
+.underline {
+  text-decoration: underline;
+}
+
+.text-custom {
+  color: #FF5733; /* Replace with your preferred color */
 }
 </style>

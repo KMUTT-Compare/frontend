@@ -36,6 +36,7 @@ const removeFromFavorites = async (dormId) => {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': "Bearer " + localStorage.getItem('token')
       },
     });
 
@@ -71,7 +72,7 @@ const removeFromFavorites = async (dormId) => {
           <img src="../../components/icons/jip2.gif" alt="Rank 1 GIF" class="w-72 rounded-full">
         </div>
       </div>
-      <p v-else class="text-red-500 text-center">ยังไม่มีรายการโปรด</p>
+      <p v-else class="text-red-500 text-center text-xl">ยังไม่มีรายการโปรด</p>
 
       <!-- Header -->
       <header class="header flex w-full mt-5 mb-5">

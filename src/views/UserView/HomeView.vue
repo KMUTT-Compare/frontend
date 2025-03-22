@@ -10,6 +10,7 @@ import { storeToRefs } from 'pinia';
 import CompareButton from '@/components/buttons/CompareButton.vue';
 import BorderButton from '@/components/buttons/BorderButton.vue';
 import { useCompareStore } from '@/stores/compareStore'; // นำเข้าจาก store ที่สร้างไว้
+import SearchComponent from '@/components/filters/SearchComponent.vue';
 
 const myRole = useAuthorize()
 const {userRole} = storeToRefs(myRole)
@@ -232,152 +233,147 @@ const filteredDormitories = computed(() => {
 
 
 
-    <div class="w-full h-full flex flex-col justify-center items-center">
+    <div class="w-full h-full flex flex-col items-center">
 
-      <div class="flex flex-col items-center mt-5">
 
+       <!--------------------------- Search Button & Filter + Price, Type, Distance -------------------------------------->
+      <div class="flex flex-col items-center mt-5 w-3/4">
+
+         <!--------------------------- Search Button & Filter -------------------------------------->
+        <div class="flex flex-row items-stretch space-x-2 w-full pb-4">
+            <SearchComponent v-model="searchInput"/>
+          <div class="w-40">
+            <SortComponent :dormitories="dormitories" />
+          </div>    
+        </div>
+
+        <!--------------------------- Price, Type, Distance -------------------------------------->
         <div class="flex flex-row items-stretch gap-6 w-full pb-4">
-          <!--------------------------- Search Button & Filter -------------------------------------->
-        
-                <div class="relative flex-grow">
-                    <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                      <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                      </svg>
-                    </div>
-                    <input v-model="searchInput" type="search" id="default-search" class="block w-full p-2 ps-10 text-lg text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ค้นหาหอพัก..." required />
+
+          <!-- ราคา (ชิดซ้าย) -->
+          <div class="flex flex-col space-y-4 flex-1 min-w-[250px] border border-gray-300 rounded-lg shadow-md p-4">
+            <h2 class="text-lg font-semibold text-gray-800 text-center">ราคา</h2>
+            <div class="flex flex-row justify-between space-x-4">
+              <div class="flex flex-col space-y-2 w-1/2">
+                <div class="flex items-center space-x-2">
+                  <label for="minPrice" class="text-sm font-medium text-gray-600">ราคาเริ่มต้น:</label>
+                  <input
+                    type="number"
+                    v-model="minPrice"
+                    min="0"
+                    max="20000"
+                    step="100"
+                    class="w-24 text-sm border border-gray-300 rounded-md p-1 text-center"
+                  />
                 </div>
-                  <SortComponent :dormitories="dormitories" />
-            
-                
-        </div>
+                <input
+                  id="minPrice"
+                  type="range"
+                  v-model="minPrice"
+                  min="0"
+                  max="20000"
+                  step="100"
+                  class="w-full rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
-      <div class="flex flex-row items-stretch gap-6 w-full pb-4">
-
-      <!-- ราคา (ชิดซ้าย) -->
-      <div class="flex flex-col space-y-4 flex-1 min-w-[250px] border border-gray-300 rounded-lg shadow-md p-4">
-        <h2 class="text-lg font-semibold text-gray-800 text-center">ราคา</h2>
-        <div class="flex flex-row justify-between space-x-4">
-          <div class="flex flex-col space-y-2 w-1/2">
-            <div class="flex items-center space-x-2">
-              <label for="minPrice" class="text-sm font-medium text-gray-600">ราคาเริ่มต้น:</label>
-              <input
-                type="number"
-                v-model="minPrice"
-                min="0"
-                max="20000"
-                step="100"
-                class="w-24 text-sm border border-gray-300 rounded-md p-1 text-center"
-              />
+              <div class="flex flex-col space-y-2 w-1/2">
+                <div class="flex items-center space-x-2">
+                  <label for="maxPrice" class="text-sm font-medium text-gray-600">ราคาสูงสุด:</label>
+                  <input
+                    type="number"
+                    v-model="maxPrice"
+                    min="0"
+                    max="20000"
+                    step="100"
+                    class="w-24 text-sm border border-gray-300 rounded-md p-1 text-center"
+                  />
+                </div>
+                <input
+                  id="maxPrice"
+                  type="range"
+                  v-model="maxPrice"
+                  min="0"
+                  max="20000"
+                  step="100"
+                  class="w-full rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </div>
-            <input
-              id="minPrice"
-              type="range"
-              v-model="minPrice"
-              min="0"
-              max="20000"
-              step="100"
-              class="w-full rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
           </div>
 
-          <div class="flex flex-col space-y-2 w-1/2">
-            <div class="flex items-center space-x-2">
-              <label for="maxPrice" class="text-sm font-medium text-gray-600">ราคาสูงสุด:</label>
-              <input
-                type="number"
-                v-model="maxPrice"
-                min="0"
-                max="20000"
-                step="100"
-                class="w-24 text-sm border border-gray-300 rounded-md p-1 text-center"
-              />
+
+          <!-- ประเภทหอพัก (กึ่งกลาง) -->
+          <div class="flex flex-col space-y-4 flex-1 min-w-[250px] border border-gray-300 rounded-lg shadow-md p-4">
+            <h2 class="text-lg font-semibold mb-4 text-gray-800">ประเภทหอพัก</h2>
+            <div class="flex flex-row justify-around mt-3">
+              <label class="flex items-center space-x-2">
+                <input
+                  v-model="selectTypes"
+                  name="default-radio"
+                  type="radio"
+                  value=""
+                  class="form-radio w-5 h-5 text-blue-500 focus:ring-blue-500"
+                />
+                <span class="text-lg">ทั้งหมด</span>
+              </label>
+              <label class="flex items-center space-x-2">
+                <input
+                  v-model="selectTypes"
+                  name="default-radio"
+                  type="radio"
+                  value="m"
+                  class="form-radio w-5 h-5 text-blue-500 focus:ring-blue-500"
+                />
+                <span class="text-lg">ชาย</span>
+              </label>
+              <label class="flex items-center space-x-2">
+                <input
+                  v-model="selectTypes"
+                  name="default-radio"
+                  type="radio"
+                  value="f"
+                  class="form-radio w-5 h-5 text-blue-500 focus:ring-blue-500"
+                />
+                <span class="text-lg">หญิง</span>
+              </label>
+              <label class="flex items-center space-x-2">
+                <input
+                  v-model="selectTypes"
+                  name="default-radio"
+                  type="radio"
+                  value="all"
+                  class="form-radio w-5 h-5 text-blue-500 focus:ring-blue-500"
+                />
+                <span class="text-lg">รวม</span>
+              </label>
             </div>
-            <input
-              id="maxPrice"
-              type="range"
-              v-model="maxPrice"
-              min="0"
-              max="20000"
-              step="100"
-              class="w-full rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+          </div>
+
+          <!-- ระยะทาง (ชิดขวา) -->
+          <div class="flex flex-col space-y-4 flex-1 min-w-[250px] border border-gray-300 rounded-lg shadow-md p-4">
+            <h2 class="text-lg font-semibold text-gray-800">ระยะทาง</h2>
+            <select
+              id="distanceSelect"
+              v-model="selectedDistance"
+              class="text-lg block w-full p-3 mt-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            >
+              <option value="0">ไม่จำกัด</option>
+              <option value="1">น้อยกว่า 1 กม.</option>
+              <option value="2">1 -> 2 กม.</option>
+              <option value="3">2 -> 3 กม.</option>
+              <option value="4">3 -> 4 กม.</option>
+              <option value="5">4 -> 5 กม.</option>
+              <option value="6">5 กม. ขึ้นไป</option>
+            </select>
           </div>
         </div>
-      </div>
-
-
-      <!-- ประเภทหอพัก (กึ่งกลาง) -->
-      <div class="flex flex-col space-y-4 flex-1 min-w-[250px] border border-gray-300 rounded-lg shadow-md p-4">
-        <h2 class="text-lg font-semibold mb-4 text-gray-800">ประเภทหอพัก</h2>
-        <div class="flex flex-row justify-around mt-3">
-          <label class="flex items-center space-x-2">
-            <input
-              v-model="selectTypes"
-              name="default-radio"
-              type="radio"
-              value=""
-              class="form-radio w-5 h-5 text-blue-500 focus:ring-blue-500"
-            />
-            <span class="text-lg">ทั้งหมด</span>
-          </label>
-          <label class="flex items-center space-x-2">
-            <input
-              v-model="selectTypes"
-              name="default-radio"
-              type="radio"
-              value="m"
-              class="form-radio w-5 h-5 text-blue-500 focus:ring-blue-500"
-            />
-            <span class="text-lg">ชาย</span>
-          </label>
-          <label class="flex items-center space-x-2">
-            <input
-              v-model="selectTypes"
-              name="default-radio"
-              type="radio"
-              value="f"
-              class="form-radio w-5 h-5 text-blue-500 focus:ring-blue-500"
-            />
-            <span class="text-lg">หญิง</span>
-          </label>
-          <label class="flex items-center space-x-2">
-            <input
-              v-model="selectTypes"
-              name="default-radio"
-              type="radio"
-              value="all"
-              class="form-radio w-5 h-5 text-blue-500 focus:ring-blue-500"
-            />
-            <span class="text-lg">รวม</span>
-          </label>
-        </div>
-      </div>
-
-      <!-- ระยะทาง (ชิดขวา) -->
-      <div class="flex flex-col space-y-4 flex-1 min-w-[250px] border border-gray-300 rounded-lg shadow-md p-4">
-        <h2 class="text-lg font-semibold text-gray-800">ระยะทาง</h2>
-        <select
-          id="distanceSelect"
-          v-model="selectedDistance"
-          class="text-lg block w-full p-3 mt-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        >
-          <option value="0">ไม่จำกัด</option>
-          <option value="1">น้อยกว่า 1 กม.</option>
-          <option value="2">1 -> 2 กม.</option>
-          <option value="3">2 -> 3 กม.</option>
-          <option value="4">3 -> 4 กม.</option>
-          <option value="5">4 -> 5 กม.</option>
-          <option value="6">5 กม. ขึ้นไป</option>
-        </select>
-      </div>
-      </div>
 
 
 
 
       <!-------------------------------- Items --------------------------------->
-      <div>
+      <div class="flex flex-row items-stretch space-x-2 w-full pb-4">
           <div v-if="filteredDormitories !== null && filteredDormitories.length !== 0" class="container">
             <div v-for="dorm in filteredDormitories" :key="dorm.dormId" class="holding-items">
               <div class="items rounded-lg border-2">

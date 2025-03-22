@@ -92,7 +92,7 @@ const router = createRouter({
     {
       path: '/admin/add-edit-user/:id?',
       name: 'AdminEditUser',
-      component: () => import('../views/AdminView/UsersManagement/AdminEditUser.vue'),
+      component: () => import('../views/AdminView/UsersManagement/AdminAddEditUser.vue'),
       meta: { requiresAdmin: true }
     },
     {

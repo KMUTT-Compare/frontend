@@ -3,7 +3,11 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { getUserById } from '@/composables/getUserById';
 import { useRoute } from 'vue-router';
+import { useAuthorize } from '@/stores/authorize';
 import { storeToRefs } from 'pinia';
+
+const user = useAuthorize();
+const { userId } = storeToRefs(user);
 
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 const { params } = useRoute();
@@ -25,23 +29,26 @@ const errorMessages = ref({
   phone: '' // เพิ่ม error message สำหรับ phone
 });
 
-// ฟังก์ชันสำหรับ generate รหัสผ่านที่ปลอดภัย
 const generatePassword = () => {
-  const length = 12; // ความยาวของรหัสผ่าน
-  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-+=<>?";
+  const length = 12;
+  const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const numbers = "0123456789";
+  const specialChars = "!@#$%^&*()_-+=<>?";
+  const allChars = "abcdefghijklmnopqrstuvwxyz" + uppercase + numbers + specialChars;
+
   let password = "";
-  
-  for (let i = 0; i < length; i++) {
-    password += charset.charAt(Math.floor(Math.random() * charset.length));
+  password += uppercase.charAt(Math.floor(Math.random() * uppercase.length)); // Ensure at least one uppercase
+  password += numbers.charAt(Math.floor(Math.random() * numbers.length)); // Ensure at least one number
+  password += specialChars.charAt(Math.floor(Math.random() * specialChars.length)); // Ensure at least one special character
+
+  for (let i = 3; i < length; i++) {
+    password += allChars.charAt(Math.floor(Math.random() * allChars.length));
   }
 
-  userData.value.password = password;
+  // Shuffle password to avoid predictable order
+  userData.value.password = password.split("").sort(() => 0.5 - Math.random()).join("");
 };
 
-// ฟังก์ชันที่ใช้ตรวจสอบความแรงของรหัสผ่าน
-const checkPasswordStrength = (password) => {
-  const strength = password.length >= 8 ? 1 : 0;
-};
 
 // ฟังก์ชันที่ใช้ validate ฟอร์ม
 const validateForm = () => {
@@ -64,7 +71,7 @@ const validateForm = () => {
   }
 
   if (!userData.value.phone || !/^\+?[0-9]\d{1,14}$/.test(userData.value.phone)) { // ตรวจสอบเบอร์โทรศัพท์
-    errorMessages.value.phone = 'Please enter a valid phone number';
+    errorMessages.value.phone = 'Phone number must be exactly 10 digits';
     valid = false;
   }
 
@@ -185,7 +192,6 @@ const save = async () => {
             <input 
               v-if="mode === 'add'"
               v-model="userData.password"
-              @input="checkPasswordStrength(userData.password)"
               :type="passwordVisible ? 'text' : 'password'"
               placeholder="Password"
               class="input"
@@ -204,12 +210,6 @@ const save = async () => {
             </button>
           </div>
 
-          <div v-if="mode === 'add'" class="mt-2">
-            <span>Password Strength: </span>
-            <div :class="{'text-green-500': userData.password.length >= 8, 'text-red-500': userData.password.length < 8}">
-              {{ userData.password.length >= 8 ? 'Strong' : 'Weak' }}
-            </div>
-          </div>
         </div>
       </div>
       <div class="flex justify-end space-x-2">

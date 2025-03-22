@@ -3,6 +3,12 @@ import { ref, onMounted } from 'vue'
 import router from '@/router';
 import { getDormitoryById } from '@/composables/getDormitoryById'; // นำเข้าฟังก์ชัน composable
 import { useRoute } from 'vue-router'
+import { useAuthorize } from '@/stores/authorize';
+import { storeToRefs } from 'pinia';
+
+const user = useAuthorize();
+const { userId } = storeToRefs(user);
+
 const API_ROOT = import.meta.env.VITE_API_ROOT
 const { params } = useRoute()
 const dormitoryId = params.id
@@ -343,7 +349,7 @@ const removeOutsideAmenity = (index) => {
 };
 
 const dormitoryData = {
-    userId:0,
+    userId: userId.value,
     dormName: '',
     status: '',
     address: '',
@@ -490,7 +496,7 @@ const handleConfirmAction = async (context) => {
   console.log('Confirm action for:', context);
 
   dormitoryData.value = {
-    userId:1,
+    userId: userId.value,
     dormName: dormName.value,
     status: status.value,
     address: {

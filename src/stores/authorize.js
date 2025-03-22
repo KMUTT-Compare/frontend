@@ -5,6 +5,8 @@ import { jwtDecode } from 'jwt-decode'; // ✅ Named import for v4.0.0
 export const useAuthorize = defineStore('authorize', () => {
   const userRole = ref(localStorage.getItem("userRole") ||'guest');
   const username = ref(localStorage.getItem("username"));
+  const userId = ref(localStorage.getItem("userId"));
+
 
   const setRole = (token) => {
     if (!token) {  // ตรวจสอบว่า token เป็น null, undefined, หรือ empty string
@@ -20,9 +22,12 @@ export const useAuthorize = defineStore('authorize', () => {
 
     userRole.value = decoded.role
     username.value = decoded.sub;
+    userId.value = decoded.userId
 
     localStorage.setItem("userRole", userRole.value);  // เก็บ role ที่ถูกต้องใน localStorage
     localStorage.setItem("username", username.value);
+    localStorage.setItem("userId", userId.value);
+    console.log(userId.value)
   };
 
   // ตรวจจับการเปลี่ยนแปลงใน localStorage และอัปเดตค่า userRole และ username
@@ -32,7 +37,7 @@ export const useAuthorize = defineStore('authorize', () => {
     }
   });
 
-  return { userRole, setRole, username };
+  return { userRole, setRole, username, userId };
 });
 
 if (import.meta.hot) {

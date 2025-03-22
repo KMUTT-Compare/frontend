@@ -4,6 +4,7 @@ import { formatDate } from '@/composables/formatDate';
 import { useRouter } from 'vue-router'
 import { getDormitories } from '@/composables/getDormitories';
 import SortComponent from '@/components/filters/SortComponent.vue';
+import SearchComponent from '@/components/filters/SearchComponent.vue';
 
 const API_ROOT = import.meta.env.VITE_API_ROOT
 const router = useRouter()
@@ -40,7 +41,7 @@ const deleteDormitory = async (id) => {
     });
 
     if (res.ok) {
-      dormitories.value = dormitories.value.filter(d => d.id !== id);
+      dormitories.value = await getDormitories()
       alert('ลบหอพักสำเร็จ!');
     } else if (res.status === 401) {
       // ถ้า token หมดอายุหรือไม่ได้รับอนุญาต คุณอาจทำการ refresh token แล้ว retry
@@ -68,15 +69,11 @@ const editDormitory = (dormitoryId) => {
     <h1 class="text-3xl font-semibold mb-6 text-gray-800">จัดการหอพัก</h1>
     <div class="flex flex-row justify-center items-center space-x-2">
       <!-- ปุ่มค้นหาแบบ Real-Time -->
-      <div class="flex space-x-2">
-        <input
-          type="text"
-          v-model="searchQuery"
-          placeholder="ค้นหาหอพัก..."
-          class="p-2 border rounded-md"
-        />
+        <SearchComponent v-model="searchQuery"/>
+      <div class="w-40">
+        <SortComponent :dormitories="filteredDormitories"/>
       </div>
-      <SortComponent :dormitories="filteredDormitories"/>
+      
     </div>
 
     <div class="overflow-x-auto bg-white shadow-lg rounded-lg p-4">
