@@ -2,6 +2,7 @@ import { getNewToken } from "@/composables/Authentication/getNewToken";
 
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 
+// ฟังก์ชันสำหรับดึงข้อมูลของ user โดยใช้ userId ในระบบ
 export const getUserById = async (userId) => {
   if (!userId) return null; // ถ้าไม่มี userId ให้คืนค่า null
 

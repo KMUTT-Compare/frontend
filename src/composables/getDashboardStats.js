@@ -1,5 +1,6 @@
 import { ref, onMounted } from 'vue'
 
+// ฟังก์ชันสำหรับดึงข้อมูล Dashboard (เฉพาะ Admin)
 export function getDashboardStats(API_ROOT) {
   const totalDorms = ref(0)
   const totalUsers = ref(0)

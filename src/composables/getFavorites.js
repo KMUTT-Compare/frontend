@@ -1,15 +1,15 @@
-const API_ROOT = import.meta.env.VITE_API_ROOT
+const API_ROOT = import.meta.env.VITE_API_ROOT;
 import { getNewToken } from "./Authentication/getNewToken";
 
-// ฟังก์ชันสำหรับดึงข้อมูล
+// ฟังก์ชันสำหรับดึงข้อมูล Favorite ของ user ที่กำลัง Login
 const getFavorites = async () => {
   try {
     let res = await fetch(`${API_ROOT}/favorites/user`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        'Authorization': "Bearer " + localStorage.getItem('token')
-      }
+        "Authorization": "Bearer " + localStorage.getItem("token"),
+      },
     });
 
     if (res.ok) {
@@ -17,12 +17,13 @@ const getFavorites = async () => {
     }
 
     if (res.status === 401) {
-      await getNewToken(); // รีเฟรช token
-      res = await fetch(`${API_ROOT}/favorites`, {
+      await getNewToken(); // รีเฟรช token ใหม่
+      res = await fetch(`${API_ROOT}/favorites/user`, {  // 🔥 ใช้ endpoint เดิม
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
-          'Authorization': "Bearer " + localStorage.getItem('token')
-        }
+          "Authorization": "Bearer " + localStorage.getItem("token"),
+        },
       });
 
       if (res.ok) {
@@ -31,16 +32,11 @@ const getFavorites = async () => {
     }
 
     console.error(`Error fetching favorites: ${res.status}`);
-    return []; 
+    return []; // คืนค่า [] ถ้าข้อมูลผิดพลาด
   } catch (error) {
-    console.error('Error:', error);
-    return [];
+    console.error("Error:", error);
+    return []; // คืนค่า [] ถ้า request ล้มเหลว
   }
 };
 
-
-
-
-
-
-export { getFavorites }
+export { getFavorites };

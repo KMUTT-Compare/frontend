@@ -157,10 +157,11 @@ function initMap(addressObject) {
 // ดูรายละเอียดหอพัก
 const reserveDorm = (dormitoryId) =>{
   router.push({
-    name : 'create_reservation',
-    params : {id : dormitoryId}
+    name : 'reservation',
+    params : {id : dormitoryId, action: 'add'}
   })
 }
+
 </script>
 
 <template>
@@ -169,7 +170,7 @@ const reserveDorm = (dormitoryId) =>{
     <div class="flex flex-col border border-gray-300 rounded-lg shadow-lg w-3/4 bg-white p-6">
       <!-- เมนูด้านบน -->
       <div class="flex text-gray-700 px-6 justify-between text-lg">
-        <p>ประกาศโดย : {{ dormitoryDetaill.staffName }}</p>
+        <p>ประกาศโดย : {{ dormitoryDetaill.username }}</p>
         <p>สถานะ : 
           {{ dormitoryDetaill.status === 'empty' ? 'ว่าง' : dormitoryDetaill.status === 'full' ? 'ไม่ว่าง' : dormitoryDetaill.status }}
         </p>
@@ -234,15 +235,31 @@ const reserveDorm = (dormitoryId) =>{
       <!-- รายละเอียดต่างๆ -->
       <div class="flex flex-col space-y-6 px-6">
         <h2 class="text-3xl font-semibold pt-8">รายละเอียดหอพัก</h2>
-        <div class="space-y-4">
-          <p><span style="font-weight:500;">จำนวนห้องพักที่เหลือให้เช่า:</span> {{ dormitoryDetaill.roomCount }} ห้อง</p>
-          <p><span style="font-weight:500;">ประเภทหอพัก: </span> 
-            <span v-if="dormitoryDetaill.type === 'f'">หญิง</span>
-            <span v-else-if="dormitoryDetaill.type === 'm'">ชาย</span>
-            <span v-else-if="dormitoryDetaill.type === 'all'">รวม</span>
-          </p>
-          <p><span style="font-weight:500;">ขนาดห้อง: </span>{{ dormitoryDetaill.size }} ตร.ม.</p>
+
+        <div class="flex flex-wrap gap-4">
+          <!-- กล่องที่ 1: จำนวนห้องพัก -->
+          <div class="flex-1 min-w-[200px] p-4 border rounded-lg shadow-md bg-white">
+            <p class="font-medium">จำนวนห้องพักที่เหลือให้เช่า:</p>
+            <p class="text-lg font-semibold text-green-500">{{ dormitoryDetaill.roomCount }} ห้อง</p>
+          </div>
+
+          <!-- กล่องที่ 2: ประเภทหอพัก -->
+          <div class="flex-1 min-w-[200px] p-4 border rounded-lg shadow-md bg-white">
+            <p class="font-medium">ประเภทหอพัก:</p>
+            <p class="text-lg font-semibold text-green-500">
+              <span v-if="dormitoryDetaill.type === 'f'">หญิง</span>
+              <span v-else-if="dormitoryDetaill.type === 'm'">ชาย</span>
+              <span v-else-if="dormitoryDetaill.type === 'all'">รวม</span>
+            </p>
+          </div>
+
+          <!-- กล่องที่ 3: ขนาดห้อง -->
+          <div class="flex-1 min-w-[200px] p-4 border rounded-lg shadow-md bg-white">
+            <p class="font-medium">ขนาดห้อง:</p>
+            <p class="text-lg font-semibold text-green-500">{{ dormitoryDetaill.size }} ตร.ม.</p>
+          </div>
         </div>
+
         
          <!-- Facility: ภายในห้องพัก และ ภายนอกอาคาร -->
   <div class="flex space-x-4 pt-8">
@@ -308,7 +325,7 @@ const reserveDorm = (dormitoryId) =>{
   <!-- เบอร์ติดต่อ -->
   <div>
   <h3 class="text-2xl font-semibold mb-2">เบอร์ติดต่อ</h3>
-  <p>{{ dormitoryDetaill.staffPhone ? formatPhoneNumber(dormitoryDetaill.staffPhone) : 'ไม่มีเบอร์โทร' }}</p>
+  <p>{{ dormitoryDetaill.phone ? formatPhoneNumber(dormitoryDetaill.phone) : 'ไม่มีเบอร์โทร' }}</p>
 </div>
 
 

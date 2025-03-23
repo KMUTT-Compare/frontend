@@ -1,7 +1,7 @@
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 import { getNewToken } from "./Authentication/getNewToken";
 
-// ฟังก์ชันสำหรับดึงข้อมูล
+// ฟังก์ชันสำหรับดึงข้อมูล user ในระบบ
 const getUsers = async () => {
   try {
     let res = await fetch(`${API_ROOT}/users`, {
@@ -18,14 +18,10 @@ const getUsers = async () => {
 
     if (res.status === 401) {
       await getNewToken(); // รีเฟรช token
-
-      // ดึง token ใหม่จาก localStorage หลังจากรีเฟรช
-      const newToken = localStorage.getItem('token');  
-
-      res = await fetch(`${API_ROOT}/users`, {  // 🔥 เรียก /users ใหม่ ไม่ใช่ /favorites
+      res = await fetch(`${API_ROOT}/users`, {
         headers: {
           "Content-Type": "application/json",
-          'Authorization': "Bearer " + newToken
+          'Authorization': "Bearer " + localStorage.getItem('token')
         }
       });
 

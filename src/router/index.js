@@ -54,15 +54,9 @@ const router = createRouter({
       meta: { requiresUserOrAdmin: true }
     },
     {
-      path: '/create_reservation/:id?',
-      name: 'create_reservation',
-      component: () => import('../views/ManageDorrm/CreateReservation.vue'),
-      meta: { requiresUserOrAdmin: true }
-    },
-    {
       path: '/reservation/:id?/:action?',
       name: 'reservation',
-      component: () => import('../views/ManageDorrm/Reservation.vue'),
+      component: () => import('../views/ManageDorrm/AddEditReservation.vue'),
       meta: { requiresUserOrAdmin: true }
     },
     {

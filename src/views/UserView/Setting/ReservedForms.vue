@@ -4,44 +4,30 @@ import Sidebar from '@/components/Sidebar.vue';
 import { formatDate } from '@/composables/formatDate';
 import { formatPhoneNumber } from '@/composables/formatPhoneNumber';
 import { useRouter } from 'vue-router';  // Import vue-router for navigation
+import { useSubmittedForms } from '@/composables/getSubmittedForms';
 
-const API_ROOT = import.meta.env.VITE_API_ROOT;
-
-const submittedForms = ref([]);
-const isLoading = ref(true);
-const perPage = 5;
-const currentPage = ref(1);
+const { isLoading, fetchSubmittedForms, submittedForms } = useSubmittedForms();
 
 // Create a router instance
 const router = useRouter();
 
-// Function to load submitted forms
-const fetchSubmittedForms = async () => {
-  try {
-    const response = await fetch(`${API_ROOT}/forms/user`, {
-      method: 'GET', // Specify GET method if it's not already default
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}` // Add Bearer token to Authorization header
-      }
-    });
-    
-    if (!response.ok) throw new Error('ไม่สามารถโหลดข้อมูลได้');
-
-    const data = await response.json();
-    submittedForms.value = data.sort((a, b) => new Date(b.form_date) - new Date(a.form_date)); // Sort latest first
-    console.log(submittedForms.value)
-
-  } catch (error) {
-    console.error('เกิดข้อผิดพลาดในการโหลดข้อมูล:', error);
-  } finally {
-    isLoading.value = false;
-  }
-};
+// Sort submitted forms by form_date
+const sortedForms = computed(() => {
+  return submittedForms.value.sort((a, b) => {
+    const dateA = new Date(a.form_date);
+    const dateB = new Date(b.form_date);
+    return dateB - dateA;  // ถ้าคุณต้องการเรียงจากใหม่ไปเก่า
+  });
+});
 
 // Function to navigate to the edit page
 const goToEditPage = (formId) => {
-  router.push(`/reservation/${formId}`); // Use the form ID to navigate to the edit page
+  router.push({
+    name : 'reservation',
+    params : {id : formId, action: 'edit'}
+  })
 };
+
 
 // Modify handleCancelBooking to accept formId and action
 const handleCancelBooking = (id) => {
@@ -53,16 +39,6 @@ onMounted(() => {
   fetchSubmittedForms();
 });
 
-const paginatedForms = computed(() => {
-  const startIndex = (currentPage.value - 1) * perPage;
-  const endIndex = startIndex + perPage;
-  return submittedForms.value.slice(startIndex, endIndex);
-});
-
-const changePage = (page) => {
-  currentPage.value = page;
-};
-
 
 const isShowDetail = ref(false); // เริ่มต้นคือไม่แสดงรายละเอียด
 
@@ -70,6 +46,7 @@ const isShowDetail = ref(false); // เริ่มต้นคือไม่�
 const toggleDetail = () => {
   isShowDetail.value = !isShowDetail.value;
 };
+
 
 
 
@@ -86,12 +63,9 @@ const toggleDetail = () => {
           กำลังโหลดข้อมูล...
         </div>
 
-        <div v-else-if="submittedForms.length === 0" class="text-center text-gray-600">
-          ยังไม่มีฟอร์มที่ส่ง
-        </div>
 
         <ul v-else class="space-y-6">
-          <li v-for="form in paginatedForms" :key="form.id"
+          <li v-for="form in sortedForms" :key="form.id"
               :class="{'bg-gray-300': form.description.includes('ยกเลิกการจอง')}"
               class="p-6 rounded-lg shadow-md bg-white space-y-4">
 
@@ -105,15 +79,15 @@ const toggleDetail = () => {
               <div class="rounded-lg">
                 <div class="flex flex-row justify-between">
                   <div>
-                    <p class="text-sm text-gray-600">ชื่อผู้ดูแลหอพัก: {{ form.staffName || 'ไม่มีข้อมูล' }}</p>
+                    <p class="text-sm text-gray-600">ชื่อผู้จองหอพัก: {{ form.name || 'ไม่มีข้อมูล' }}</p>
                   </div>
                   <div class="text-xl text-gray-800 font-semibold cursor-pointer hover:text-black hover:scale-105" @click="toggleDetail">
                     {{ isShowDetail ? 'ซ่อนรายละเอียด' : 'รายละเอียดเพิ่มเติม' }}
                   </div>
                 </div>
                 
-                <p class="text-sm text-gray-600">เบอร์ติดต่อ: {{ formatPhoneNumber(form.staffPhone || 'ไม่มีข้อมูล') }}</p>
-                <p class="text-sm text-gray-600">อีเมล: {{ form.staffEmail || 'ไม่มีข้อมูล' }}</p>
+                <p class="text-sm text-gray-600">เบอร์ติดต่อ: {{ formatPhoneNumber(form.phone || 'ไม่มีข้อมูล') }}</p>
+                <p class="text-sm text-gray-600">อีเมล: {{ form.email || 'ไม่มีข้อมูล' }}</p>
               </div>
 
               
@@ -145,23 +119,6 @@ const toggleDetail = () => {
           </li>
         </ul>
 
-        <div class="mt-8 flex justify-center items-center space-x-6">
-          <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1"
-                  class="btn p-3 bg-orange-500 text-white hover:bg-orange-600 disabled:bg-gray-300">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-          </button>
-          <span class="text-sm text-gray-600">
-            หน้า {{ currentPage }} จาก {{ Math.ceil(submittedForms.length / perPage) }}
-          </span>
-          <button @click="changePage(currentPage + 1)" :disabled="currentPage === Math.ceil(submittedForms.length / perPage)"
-                  class="btn p-3 bg-orange-500 text-white hover:bg-orange-600 disabled:bg-gray-300">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-          </button>
-        </div>
       </div>
     </div>
   </div>
