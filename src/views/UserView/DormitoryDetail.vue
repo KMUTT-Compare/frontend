@@ -13,8 +13,9 @@ import BorderButton from '@/components/buttons/BorderButton.vue';
 const compareStore = useCompareStore();
 const { compareItems } = storeToRefs(compareStore);
 console.log(compareItems.value)
-const addDormToCompare = (id) => {
-  compareStore.addDormDetailToCompare(id,dormitoryDetaill.value);
+
+const addDormDetailToCompare = (dormitoryDetaill) => {
+  compareStore.addDormDetailToCompare(dormitoryDetaill);
 };
 
 
@@ -227,7 +228,7 @@ const reserveDorm = (dormitoryId) =>{
           </div>
           <div class="flex flex-col space-y-2 pt-4">
             <BorderButton class="bg-orange-500 text-white" @click="reserveDorm(dormitoryDetaill.dormId)" context="จองหอพัก" />
-            <BorderButton @click="addDormToCompare(dormitoryDetaill.dormId)" context="เพิ่มลงในรายการเปรียบเทียบ" />
+            <BorderButton @click="addDormDetailToCompare(dormitoryDetaill)" context="เพิ่มลงในรายการเปรียบเทียบ" />
           </div>
         </div>
       </div>

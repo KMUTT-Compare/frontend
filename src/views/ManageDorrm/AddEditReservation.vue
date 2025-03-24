@@ -20,14 +20,13 @@ onMounted(async () => {
     form.value.dormId = params.id
   }
 
-  if (params.action === 'edit') {
+  if (params.action === 'edit' && form.value) {
     await fetchFormData(params.id);
   }
 
   // ตรวจสอบว่า params.action คือ 'cancel' และ form มีข้อมูล
   if (params.action === 'cancel' && form.value) {
-    form.value.description = "ยกเลิกการจอง"; // เปลี่ยน description เมื่อ action เป็น 'cancel'
-    submitForm(); // ส่งฟอร์ม
+    cancelForm();
   }
   
   // แสดงค่าของ params สำหรับการตรวจสอบ
@@ -243,6 +242,59 @@ const submitForm = async () => {
     isLoading.value = false;
   }
 };
+
+
+const cancelForm = async () => {
+  if (!params.id) return;
+
+  isLoading.value = true;
+  
+  try {
+    // ดึงข้อมูลเดิมจาก API
+    const response = await fetch(`${API_ROOT}/forms/${params.id}`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    if (!response.ok) {
+      console.error('ไม่สามารถดึงข้อมูลฟอร์มได้');
+      return;
+    }
+
+    const data = await response.json();
+
+    // ใช้ข้อมูลเดิม แต่เปลี่ยน description
+    const updatedForm = {
+      ...data,
+      description: 'ยกเลิกการจอง'
+    };
+
+    // ส่งข้อมูลไปอัปเดต
+    const updateResponse = await fetch(`${API_ROOT}/forms/${params.id}`, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify(updatedForm),
+    });
+
+    if (updateResponse.ok) {
+      isModalSuccessVisible.value = true;
+      modalProps.value = { title: 'ยกเลิกการจองสำเร็จ', message: 'ยกเลิกการจองเรียบร้อยแล้ว' };
+      
+      router.push('/reservedForms'); // กลับไปหน้ารายการจอง
+    } else {
+      console.error('ไม่สามารถยกเลิกการจองได้');
+    }
+  } catch (error) {
+    console.error('เกิดข้อผิดพลาด:', error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
 
 
 </script>
