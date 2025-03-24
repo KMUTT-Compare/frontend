@@ -154,7 +154,11 @@ const updateProfile = async () => {
       // เช็คว่า message มาจาก backend ว่า "Username already exists"
       if (errorData.message === "Username already exists") {
         errorMessage.value = '❌ username นี้มีผู้ใช้แล้ว';  // แสดงข้อความนี้
-      } else {
+      } 
+      else if (errorData.message === "Email already exists") {
+        errorMessage.value = '❌ email นี้มีผู้ใช้แล้ว';  // แสดงข้อความนี้
+      } 
+      else {
         errorMessage.value = '❌ บันทึกข้อมูลไม่สำเร็จ';  // ข้อความทั่วไป
       }
 
@@ -167,8 +171,6 @@ const updateProfile = async () => {
     setTimeout(() => {
       successMessage.value = '';
     }, 3000);
-
-    router.push('/profile'); // เปลี่ยนหน้าไปโปรไฟล์
 
   } catch (error) {
     loading.value = false;
@@ -185,6 +187,10 @@ const updateProfile = async () => {
 const changePassword = async () => {
   if (!validatePasswordField()) return;
 
+  loading.value = true;
+  successMessage.value = '';
+  errorMessage.value = ''; // เคลียร์ข้อความ error ก่อนการอัปเดต
+
   try {
     const response = await fetch(`${API_ROOT}/change-password`, {
       method: 'POST',
@@ -199,17 +205,22 @@ const changePassword = async () => {
     });
 
     if (!response.ok) {
+      errorMessage.value = '❌ รหัสผ่านเดิมไม่ถูกต้อง';
       throw new Error('ไม่สามารถอัปเดตข้อมูลได้');
     }
+    loading.value = false;
+    successMessage.value = '✅ เปลี่ยนรหัสผ่านสำเร็จ';
 
-    // แจ้งผลการอัปเดตสำเร็จ
-    alert('อัปเดตข้อมูลสำเร็จ');
-
+    setTimeout(() => {
+      successMessage.value = '';
+    }, 3000);
 
   } catch (error) {
-    alert(error.message);
+    loading.value = false;
+    // ข้อความ error จะถูกแสดงจากข้อผิดพลาดใน try-catch
   }
 };
+
 
 
 </script>

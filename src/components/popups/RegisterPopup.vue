@@ -68,7 +68,6 @@ watch(phone, validatePhone);
 watch(isAccept, validateIsAccept);
 
 
-
 const register = async () => {
     // ตรวจสอบ validation ก่อน
     validateName();
@@ -97,17 +96,21 @@ const register = async () => {
             })
         });
 
-        if(response.ok){
+        if (response.ok) {
             alert('สมัครสมาชิกสำเร็จ!');
+            // ปิด popup และเปิดหน้า login
+            switchPopup();
+        } else {
+            const data = await response.json();
+            // ดึง message จาก backend และแสดงข้อความ error
+            if (data.message) {
+                if (data.message.includes('Email already exists')) {
+                    errors.value.email = 'อีเมลนี้มีผู้ใช้แล้ว';
+                } else if (data.message.includes('Username already exists')) {
+                    errors.value.username = 'ชื่อผู้ใช้นี้มีผู้ใช้แล้ว';
+                }
+            }
         }
-
-        else{
-            alert('สมัครสมาชิกไม่สำเร็จ');
-        }
-
-        // ปิด popup และเปิดหน้า login
-        switchPopup();
-
     } catch (error) {
         console.error('Error:', error.message);
     }

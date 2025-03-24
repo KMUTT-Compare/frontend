@@ -3,6 +3,10 @@ import { defineProps, defineEmits } from 'vue';
 
 const props = defineProps({
   modelValue: String, // รับค่าการค้นหาจาก v-model
+  placeholder: {
+    type: String,
+    default: 'ค้นหาหอพัก...', // ค่า default ถ้าไม่มีการกำหนดค่า placeholder
+  },
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -17,7 +21,7 @@ const emit = defineEmits(['update:modelValue']);
       type="text"
       :value="modelValue"
       @input="emit('update:modelValue', $event.target.value)"
-      placeholder="ค้นหาหอพัก..."
+      :placeholder="placeholder" 
       class="w-full border-none focus:outline-none focus:ring-0 focus:border-none bg-transparent"
     />
   </div>

@@ -3,6 +3,7 @@ import { onMounted, computed, ref } from 'vue';
 import { formatDate } from '@/composables/formatDate';
 import { getUsers } from '@/composables/getUsers';
 import { useRouter } from 'vue-router';
+import SearchComponent from '@/components/filters/SearchComponent.vue';
 
 const router = useRouter();
 const API_ROOT = import.meta.env.VITE_API_ROOT;
@@ -17,22 +18,7 @@ onMounted(async () => {
   // console.log('ข้อมูล user', userDetail.value);
 });
 
-// ฟังก์ชันกรองผู้ใช้จาก Search + Role Filter
-const filteredUsers = computed(() => {
-  return userDetail.value.filter((user) => {
-    const query = searchQuery.value.toLowerCase();
-    const role = roleFilter.value;
 
-    const matchesSearch =
-      user.username.toLowerCase().includes(query) ||
-      user.name.toLowerCase().includes(query) ||
-      user.email.toLowerCase().includes(query);
-
-    const matchesRole = role ? user.role === role : true;
-
-    return matchesSearch && matchesRole;
-  });
-});
 
 const deleteUser = async (userId) => {
   const confirmed = window.confirm(
@@ -68,6 +54,25 @@ const deleteUser = async (userId) => {
   }
 };
 
+const filteredUsers = computed(() => {
+  return userDetail.value.filter((user) => {
+    const query = searchQuery.value.toLowerCase();
+    const role = roleFilter.value;
+
+    // ตรวจสอบการค้นหาจากชื่อผู้ใช้, ชื่อ, และอีเมล
+    const matchesSearch =
+      user.username.toLowerCase().includes(query) ||
+      user.name.toLowerCase().includes(query) ||
+      user.email.toLowerCase().includes(query);
+
+    // กรองตาม role ถ้ามีการเลือก role
+    const matchesRole = role ? user.role === role : true;
+
+    return matchesSearch && matchesRole;
+  });
+});
+
+
 const editUser = (userId) => {
   router.push({
     name: 'AdminEditUser',
@@ -88,9 +93,12 @@ const editUser = (userId) => {
         Date/Time shown in Timezone:
         <span class="text-green-700">{{ Intl.DateTimeFormat().resolvedOptions().timeZone }}</span>
       </h3>
-      <div class="flex flex-row space-x-2">
-        <SearchComponent v-model:search="searchQuery" placeholder="ค้นหาผู้ใช้..." />
-        
+      <div class="flex flex-row space-x-2 h-10">
+
+        <div>
+          <SearchComponent class="bg-white h-full" v-model="searchQuery" placeholder="ค้นหาผู้ใช้..." />
+        </div>
+
         <!-- Dropdown สำหรับ Role Filter -->
         <select v-model="roleFilter" class="border rounded-lg px-4 py-2 bg-white shadow">
           <option value="">All Roles</option>
