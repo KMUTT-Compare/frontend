@@ -155,7 +155,7 @@ const deleteDormitory = async () => {
             </div>
           </div>
         </div>
-        <div v-if="dormitories.length === 0" class="text-2xl text-red-600 text-center">No Dormitory</div>
+        <div v-if="dormitories.length === 0" class="text-center text-gray-600 mt-5">ยังไม่มีหอพักที่ประกาศไว้</div>
       </div>
     </div>
   </div>

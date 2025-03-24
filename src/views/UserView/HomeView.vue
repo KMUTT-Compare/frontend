@@ -739,4 +739,6 @@ input[type="range"]:focus {
 .hero-content {
   z-index: 1;
 }
+
+
 </style>

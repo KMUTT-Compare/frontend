@@ -157,34 +157,47 @@ const validateField = (field) => {
 
 // ฟังก์ชันดึงข้อมูลสำหรับแก้ไข
 const fetchFormData = async (f) => {
-  if (params.id) {
-    isLoading.value = true;
-    try {
-      const response = await fetch(`${API_ROOT}/forms/${params.id}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        // ตั้งค่าฟอร์มจากข้อมูลที่ดึงมา
-        form.value = {
-          ...data,
-          date_in: formatLocalDateTime(data.date_in),
-          date_out: formatLocalDateTime(data.date_out)
-        };
+  // ตรวจสอบว่า params.id มีค่าหรือไม่
+  if (!params.id) {
+    console.error('ID ไม่ถูกต้อง');
+    return;
+  }
 
-      } else {
-        console.error('ไม่สามารถดึงข้อมูลฟอร์มได้');
+  isLoading.value = true;  // เริ่มโหลดข้อมูล
+  try {
+    // ดึงข้อมูลจาก API
+    const response = await fetch(`${API_ROOT}/forms/${params.id}`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}` // ใช้ token ใน localStorage
       }
-    } catch (error) {
-      console.error('เกิดข้อผิดพลาด:', error);
-    } finally {
-      isLoading.value = false;
+    });
+    
+    // ถ้าการตอบกลับจาก API สำเร็จ
+    if (response.ok) {
+      const data = await response.json();
+      
+      // ตั้งค่าฟอร์มจากข้อมูลที่ดึงมา
+      form.value = {
+        ...data,
+        date_in: formatLocalDateTime(data.date_in),  // แปลงวันที่
+        date_out: formatLocalDateTime(data.date_out)  // แปลงวันที่
+      };
     }
+    
+    // ถ้า response มีสถานะ 401 (Unauthorized) ให้รีเฟรช token
+    else if (response.status === 401) {
+      await getNewToken();  // รีเฟรช token
+      await fetchFormData(f);  // พยายามดึงข้อมูลใหม่หลังจากรีเฟรช token
+    } else {
+      console.error('ไม่สามารถดึงข้อมูลฟอร์มได้');
+    }
+  } catch (error) {
+    console.error('เกิดข้อผิดพลาด:', error);
+  } finally {
+    isLoading.value = false;  // สิ้นสุดการโหลดข้อมูล
   }
 };
+
 
 
 const submitForm = async () => {

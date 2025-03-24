@@ -1,5 +1,7 @@
 import { clearToken } from './clearToken.js'
 const API_ROOT = import.meta.env.VITE_API_ROOT
+import { useUIStore } from '@/stores/uiStore';
+const uiStore = useUIStore();
 
 const getNewToken = async () => {
 
@@ -12,12 +14,14 @@ const getNewToken = async () => {
   
       if (res.ok) {
         const data = await res.json();
-        const newToken = data.tokens.accessToken;
+        const newToken = data.token;
         // บันทึก token ใหม่ใน localStorage
         localStorage.setItem('token', newToken);
         // console.log('Token refreshed successfully');
       }else{
         clearToken()
+        alert('Please login.')
+        uiStore.openLoginPopup();
       }
     } catch (err) {
       console.error('An error occurred while refreshing the token', err);

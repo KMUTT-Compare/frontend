@@ -1,11 +1,16 @@
 <script setup>
 import Sidebar from '@/components/Sidebar.vue';
+import { getNewToken } from '@/composables/Authentication/getNewToken';
 import { validatePhone, validateEmail, validateName, validatePassword } from '@/composables/Validate/ValidateData';
 import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 const router = useRouter();
+
+const loading = ref(false);
+const successMessage = ref('');
+const errorMessage = ref('');  // เพิ่ม errorMessage
 
 
 const showOldPassword = ref(false);
@@ -20,6 +25,18 @@ const phone = ref('');
 const oldPassword = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
+
+
+// ดึงข้อมูลผู้ใช้เมื่อคอมโพเนนต์ถูกโหลด
+onMounted(async () => {
+  const profileData = await fetchUserProfile();
+  if (profileData) {
+    username.value = profileData.username;
+    name.value = profileData.name;
+    email.value = profileData.email;
+    phone.value = profileData.phone;
+  }
+});
 
 // ข้อความผิดพลาด
 const errors = ref({
@@ -68,12 +85,13 @@ watch([phone], () => {
 
 
 
-// ฟังก์ชันตรวจสอบข้อมูลที่กรอก
 const validateData = () => {
   errors.value.username = username.value ? '' : 'กรุณากรอกชื่อผู้ใช้';
-  errors.value.name = validateName(name.value)  ? '' : 'กรุณากรอกชื่อ-นามสกุล';
+  errors.value.name = validateName(name.value) ? '' : 'กรุณากรอกชื่อ-นามสกุล';
   errors.value.email = validateEmail(email.value) ? '' : 'กรุณากรอกอีเมลให้ถูกต้อง';
   errors.value.phone = validatePhone(phone.value) ? '' : 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)';
+
+  return !errors.value.username && !errors.value.name && !errors.value.email && !errors.value.phone;
 };
 
 // ฟังก์ชันดึงข้อมูลผู้ใช้
@@ -86,17 +104,19 @@ const fetchUserProfile = async () => {
       }
     });
 
+    if (response.status === 404) {
+      // ถ้า token หมดอายุ ให้เรียก getNewToken
+      await getNewToken();
+      // หลังจากนั้นลองทำการดึงข้อมูลผู้ใช้ใหม่อีกครั้ง
+      return await fetchUserProfile();
+    }
+
     if (!response.ok) {
       throw new Error('ไม่สามารถดึงข้อมูลผู้ใช้ได้');
     }
 
     const data = await response.json();
-
-    // กำหนดค่าข้อมูลผู้ใช้ในฟอร์ม
-    username.value = data.username;
-    name.value = data.name;
-    email.value = data.email;
-    phone.value = data.phone;
+    return data;
 
   } catch (error) {
     alert(error.message);
@@ -107,37 +127,59 @@ const fetchUserProfile = async () => {
 const updateProfile = async () => {
   if (!validateData()) return;
 
+  loading.value = true;
+  successMessage.value = '';
+  errorMessage.value = ''; // เคลียร์ข้อความ error ก่อนการอัปเดต
+
   const formData = {
     username: username.value,
     name: name.value,
     email: email.value,
-    phone: phone.value, 
+    phone: phone.value,
   };
 
   try {
-    const response = await fetch(`${API_ROOT}/users`, {
+    const response = await fetch(`${API_ROOT}/users/userId`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': "Bearer " + localStorage.getItem('token')
+        'Authorization': "Bearer " + localStorage.getItem('token'),
       },
       body: JSON.stringify(formData),
     });
 
     if (!response.ok) {
+      const errorData = await response.json();
+
+      // เช็คว่า message มาจาก backend ว่า "Username already exists"
+      if (errorData.message === "Username already exists") {
+        errorMessage.value = '❌ username นี้มีผู้ใช้แล้ว';  // แสดงข้อความนี้
+      } else {
+        errorMessage.value = '❌ บันทึกข้อมูลไม่สำเร็จ';  // ข้อความทั่วไป
+      }
+
       throw new Error('ไม่สามารถอัปเดตข้อมูลได้');
     }
 
-    const data = await response.json();
+    loading.value = false;
+    successMessage.value = '✅ บันทึกข้อมูลสำเร็จ';
 
-    // แจ้งผลการอัปเดตสำเร็จ
-    alert('อัปเดตข้อมูลสำเร็จ');
-    router.push('/profile'); // เปลี่ยนเส้นทางไปยังหน้าประวัติผู้ใช้
+    setTimeout(() => {
+      successMessage.value = '';
+    }, 3000);
+
+    router.push('/profile'); // เปลี่ยนหน้าไปโปรไฟล์
 
   } catch (error) {
-    alert(error.message);
+    loading.value = false;
+    // ข้อความ error จะถูกแสดงจากข้อผิดพลาดใน try-catch
   }
 };
+
+
+
+
+
 
 // ฟังก์ชันอัปเดตข้อมูลรหัสผ่าน
 const changePassword = async () => {
@@ -169,20 +211,34 @@ const changePassword = async () => {
   }
 };
 
-// ดึงข้อมูลผู้ใช้เมื่อคอมโพเนนต์ถูกโหลด
-onMounted(() => {
-  fetchUserProfile();
-});
+
 </script>
 
 <template>
   <div class="flex flex-row w-full justify-center p-20">
     <Sidebar />
-    <div class="pl-2 w-5/12 h-full">
+    <div class="pl-2 flex flex-col w-1/2 h-full rounded-xl">
       <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
         <div class="flex flex-col space-y-6">
+          
+          <!-- แสดงข้อความ Success -->
+          <div v-if="successMessage" class="bg-green-200 text-green-800 p-3 rounded-lg mb-4">
+            {{ successMessage }}
+          </div>
+
+          <!-- แสดงแถบ Loading ถ้าอยู่ในสถานะกำลังโหลด -->
+          <div v-if="loading" class="bg-blue-200 text-blue-800 p-3 rounded-lg mb-4">
+            กำลังบันทึก...
+          </div>
+
+          <!-- แสดงข้อความ Error ถ้าไม่สำเร็จ -->
+          <div v-if="errorMessage" class="bg-red-200 text-red-800 p-3 rounded-lg mb-4">
+            {{ errorMessage }}
+          </div>
+
           <h1 class="text-3xl">แก้ไขข้อมูลสมาชิก</h1>
 
+          <!-- ข้อมูลผู้ใช้ -->
           <div class="flex flex-row items-center">
             <p for="username" class="w-32 text-lg">ชื่อผู้ใช้:</p>
             <input v-model="username" type="text" class="input-style" placeholder="username" />
@@ -207,7 +263,7 @@ onMounted(() => {
           </div>
           <span v-if="errors.phone" class="pl-32 text-red-500 text-sm mt-1">{{ errors.phone }}</span>
 
-          <button @click="updateProfile" class="ml-32 btn bg-orange-500 text-white hover:bg-orange-600 w-9/12">บันทึกข้อมูล</button>
+          <button @click="updateProfile" :disabled="!validateData()"  class="ml-32 btn bg-orange-500 text-white hover:bg-orange-600 w-9/12">บันทึกข้อมูล</button>
 
           <h1 class="text-3xl">เปลี่ยนรหัสผ่าน</h1>
           <div class="flex flex-row items-center relative">
@@ -258,9 +314,10 @@ onMounted(() => {
   </div>
 </template>
 
+
 <style>
 .input-style {
-  width: 80%;
+  width: 75%;
   padding: 10px 14px;
   border: 2px solid #ddd;
   border-radius: 8px;

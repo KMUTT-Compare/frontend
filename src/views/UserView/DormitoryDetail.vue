@@ -10,6 +10,7 @@ import CompareButton from '@/components/buttons/CompareButton.vue';
 import { storeToRefs } from 'pinia';
 import { useCompareStore } from '@/stores/compareStore'; // นำเข้าจาก store ที่สร้างไว้
 import BorderButton from '@/components/buttons/BorderButton.vue';
+import { useUIStore } from '@/stores/uiStore';
 const compareStore = useCompareStore();
 const { compareItems } = storeToRefs(compareStore);
 console.log(compareItems.value)
@@ -156,12 +157,22 @@ function initMap(addressObject) {
 //---------------------------------- Reservation ----------------------------------
 
 // ดูรายละเอียดหอพัก
-const reserveDorm = (dormitoryId) =>{
-  router.push({
-    name : 'reservation',
-    params : {id : dormitoryId, action: 'add'}
-  })
-}
+const reserveDorm = (dormitoryId) => {
+  // ตรวจสอบว่า token มีอยู่ใน localStorage หรือไม่
+  const token = localStorage.getItem('token');
+  if (!token) {
+    // ถ้าไม่มี token ให้เรียก openLoginPopup
+    const uiStore = useUIStore();  // ใช้ store เพื่อเรียกฟังก์ชัน openLoginPopup
+    uiStore.openLoginPopup();
+  } else {
+    // ถ้ามี token ให้ไปที่หน้าจองหอพัก
+    router.push({
+      name: 'reservation',
+      params: { id: dormitoryId, action: 'add' }
+    });
+  }
+};
+
 
 </script>
 

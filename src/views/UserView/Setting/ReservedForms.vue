@@ -63,6 +63,11 @@ const toggleDetail = () => {
           กำลังโหลดข้อมูล...
         </div>
 
+        <ul v-else-if="sortedForms.length === 0" class="space-y-6">
+          <div class="text-center text-gray-600">
+            ยังไม่มีฟอร์มที่ส่ง
+          </div>
+        </ul>
 
         <ul v-else class="space-y-6">
           <li v-for="form in sortedForms" :key="form.id"
