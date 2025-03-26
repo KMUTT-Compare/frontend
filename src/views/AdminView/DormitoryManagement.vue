@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { formatDate } from '@/composables/formatDate';
 import { useRouter } from 'vue-router'
-import { getDormitories } from '@/composables/getDormitories';
+import { getDormitories } from '@/composables/GetDormitories/getDormitories';
 import SortComponent from '@/components/filters/SortComponent.vue';
 import SearchComponent from '@/components/filters/SearchComponent.vue';
 

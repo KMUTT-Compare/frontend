@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, computed, ref } from 'vue';
 import { formatDate } from '@/composables/formatDate';
-import { getUsers } from '@/composables/getUsers';
+import { getUsers } from '@/composables/GetUsers/getUsers';
 import { useRouter } from 'vue-router';
 import SearchComponent from '@/components/filters/SearchComponent.vue';
 
@@ -26,7 +26,7 @@ const deleteUser = async (userId) => {
   );
   if (confirmed) {
     try {
-      const res = await fetch(`${API_ROOT}/users/${userId}`, {
+      const res = await fetch(`${API_ROOT}/admin/user/${userId}`, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`

@@ -7,7 +7,7 @@ export const getUserById = async (userId) => {
   if (!userId) return null; // ถ้าไม่มี userId ให้คืนค่า null
 
   try {
-    let res = await fetch(`${API_ROOT}/users/${userId}`, {
+    let res = await fetch(`${API_ROOT}/admin/user/${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -21,7 +21,7 @@ export const getUserById = async (userId) => {
 
     if (res.status === 401) {
       await getNewToken(); // รีเฟรช token
-      res = await fetch(`${API_ROOT}/users/${userId}`, {
+      res = await fetch(`${API_ROOT}/admin/user/${userId}`, {
         headers: {
           "Content-Type": "application/json",
           'Authorization': "Bearer " + localStorage.getItem('token')

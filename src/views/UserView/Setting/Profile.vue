@@ -97,7 +97,7 @@ const validateData = () => {
 // ฟังก์ชันดึงข้อมูลผู้ใช้
 const fetchUserProfile = async () => {
   try {
-    const response = await fetch(`${API_ROOT}/users/me`, {
+    const response = await fetch(`${API_ROOT}/user/me`, {
       method: 'GET',
       headers: {
         'Authorization': "Bearer " + localStorage.getItem('token')
@@ -139,7 +139,7 @@ const updateProfile = async () => {
   };
 
   try {
-    const response = await fetch(`${API_ROOT}/users/userId`, {
+    const response = await fetch(`${API_ROOT}/user/me`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

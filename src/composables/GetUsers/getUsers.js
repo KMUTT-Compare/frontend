@@ -1,10 +1,10 @@
 const API_ROOT = import.meta.env.VITE_API_ROOT;
-import { getNewToken } from "./Authentication/getNewToken";
+import { getNewToken } from "../Authentication/getNewToken";
 
 // ฟังก์ชันสำหรับดึงข้อมูล user ในระบบ
 const getUsers = async () => {
   try {
-    let res = await fetch(`${API_ROOT}/users`, {
+    let res = await fetch(`${API_ROOT}/admin/users`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -18,7 +18,7 @@ const getUsers = async () => {
 
     if (res.status === 401) {
       await getNewToken(); // รีเฟรช token
-      res = await fetch(`${API_ROOT}/users`, {
+      res = await fetch(`${API_ROOT}/admin/users`, {
         headers: {
           "Content-Type": "application/json",
           'Authorization': "Bearer " + localStorage.getItem('token')

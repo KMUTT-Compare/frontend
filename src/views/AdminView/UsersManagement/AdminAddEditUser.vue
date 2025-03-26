@@ -1,17 +1,17 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { getUserById } from '@/composables/getUserById';
+import { getUserById } from '@/composables/GetUsers/getUserById';
 import { useRoute } from 'vue-router';
-import { useAuthorize } from '@/stores/authorize';
-import { storeToRefs } from 'pinia';
-
-const user = useAuthorize();
-const { userId } = storeToRefs(user);
+import { validateEmail, validateName, validatePassword, validatePhone } from '@/composables/Validate/ValidateData';
+import SuccessModal from '@/components/modals/SuccessModal.vue';
+const isModalSuccessVisible = ref(false);
+const modalProps = ref({ title: '', message: '' });
 
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 const { params } = useRoute();
 const router = useRouter();
+
 const userData = ref({
   username: '',
   name: '',
@@ -52,26 +52,31 @@ const generatePassword = () => {
 
 // ฟังก์ชันที่ใช้ validate ฟอร์ม
 const validateForm = () => {
-  errorMessages.value = { username: '', email: '', password: '', phone: '' }; // รีเซ็ตรหัสผิดสำหรับ phone
+  errorMessages.value = { username: '', name: '', email: '', password: '', phone: '' };
   let valid = true;
 
-  if (!userData.value.username) {
-    errorMessages.value.username = 'Username is required';
+  if (!userData.value.username ) {
+    errorMessages.value.username = 'กรุณากรอกชื่อผู้ใช้';
     valid = false;
   }
 
-  if (!userData.value.email || !/\S+@\S+\.\S+/.test(userData.value.email)) {
-    errorMessages.value.email = 'Please enter a valid email';
+  if (!userData.value.name || !validateName(userData.value.name)) {
+    errorMessages.value.name = 'กรุณากรอกชื่อ-นามสกุล';
     valid = false;
   }
 
-  if (mode.value === 'add' && (!userData.value.password || userData.value.password.length < 8)) {
-    errorMessages.value.password = 'Password must be at least 8 characters long';
+  if (!userData.value.email || !validateEmail(userData.value.email)) {
+    errorMessages.value.email = 'กรุณากรอกอีเมลที่ถูกต้อง';
     valid = false;
   }
 
-  if (!userData.value.phone || !/^\+?[0-9]\d{1,14}$/.test(userData.value.phone)) { // ตรวจสอบเบอร์โทรศัพท์
-    errorMessages.value.phone = 'Phone number must be exactly 10 digits';
+  if (mode.value === 'add' && (!userData.value.password || !validatePassword(userData.value.password))) {
+    errorMessages.value.password = 'รหัสผ่านต้องมีอย่างน้อย 8 ตัว และประกอบด้วย ตัวพิมพ์ใหญ่ ตัวเลข และอักขระพิเศษ (@$!%*?&_-)';
+    valid = false;
+  }
+
+  if (!userData.value.phone || !validatePhone(userData.value.phone)) { // ตรวจสอบเบอร์โทรศัพท์
+    errorMessages.value.phone = 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)';
     valid = false;
   }
 
@@ -98,7 +103,7 @@ const save = async () => {
 
   try {
     const response = mode.value === 'add'
-      ? await fetch(`${API_ROOT}/users`, {
+      ? await fetch(`${API_ROOT}/admin/user`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -121,9 +126,9 @@ const save = async () => {
       
       // ตรวจสอบ error message และแสดงข้อความ
       if (errorData.message === 'Email already exists') {
-        errorMessages.value.email = 'Email already exists';
+        errorMessages.value.email = 'อีเมลนี้มีผู้ใช้งานแล้ว';
       } else if (errorData.message === 'Username already exists') {
-        errorMessages.value.username = 'Username already exists';
+        errorMessages.value.username = 'ชื่อผู้ใช้นี้มีผู้ใช้งานแล้ว';
       } else {
         alert(errorData.message || 'Failed to save user data');
       }
@@ -132,11 +137,16 @@ const save = async () => {
     }
 
     // ถ้าส่งข้อมูลสำเร็จ
-    alert(mode.value === 'add' ? 'User added successfully' : 'User updated successfully');
-    router.back(); // กลับไปยังหน้าก่อนหน้า
+
+    isModalSuccessVisible.value = true;
+        modalProps.value = { title: 'จัดการผู้ใช้สำเร็จ', message: mode.value === 'add' 
+        ? 'เพิ่มผู้ใช้เรียบร้อยแล้ว' 
+        : 'อัปเดตข้อมูลผู้ใช้เรียบร้อยแล้ว' 
+      };
+
   } catch (error) {
-    console.error('Error saving user:', error);
-    alert('An error occurred while saving the user data');
+    // console.error('Error saving user:', error);
+    // alert('An error occurred while saving the user data');
   }
 };
 
@@ -160,6 +170,7 @@ const save = async () => {
         <div>
           <label for="name" class="block text-sm font-medium text-gray-600">Name</label>
           <input id="name" v-model="userData.name" placeholder="Name" class="input" />
+          <span v-if="errorMessages.name" class="text-red-500 text-sm">{{ errorMessages.name }}</span>
         </div>
 
         <!-- Email -->
@@ -218,6 +229,8 @@ const save = async () => {
       </div>
     </div>
   </div>
+
+  <SuccessModal v-if="isModalSuccessVisible" :title="modalProps.title" :message="modalProps.message" context="users" @close="isModalSuccessVisible = false" />
 </template>
 
 <style scoped>

@@ -2,7 +2,7 @@
 import { storeToRefs } from 'pinia';
 import { useCompareStore } from '@/stores/compareStore';
 import { computed, ref, onMounted } from 'vue';
-import { getDormitories } from '@/composables/getDormitories';
+import { getDormitories } from '@/composables/GetDormitories/getDormitories';
 import SearchComponent from '@/components/filters/SearchComponent.vue';
 
 const compareStore = useCompareStore();

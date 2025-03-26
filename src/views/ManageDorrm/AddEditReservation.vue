@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import SuccessModal from '@/components/modals/SuccessModal.vue';
 import { formatLocalDateTime } from '@/composables/formatDate';
+import { validateEmail, validateName, validatePhone } from '@/composables/Validate/ValidateData';
 
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 const { params } = useRoute();
@@ -26,7 +27,9 @@ onMounted(async () => {
 
   // ตรวจสอบว่า params.action คือ 'cancel' และ form มีข้อมูล
   if (params.action === 'cancel' && form.value) {
-    cancelForm();
+    await fetchFormData(params.id);
+    form.value.description = 'ยกเลิกการจอง' 
+    submitForm()
   }
   
   // แสดงค่าของ params สำหรับการตรวจสอบ
@@ -62,15 +65,6 @@ const scrollToError = (field) => {
   }
 };
 
-// เช็คอีเมลให้ถูกต้อง
-const validateEmail = (email) => {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-};
-
-// เช็คเบอร์โทรให้เป็นตัวเลข
-const validatePhone = (phone) => {
-  return /^[0-9]{1,10}$/.test(phone);
-};
 
 // คำนวณจำนวนตัวอักษรที่เหลือ
 const remainingChars = computed(() => maxLength - form.value.description.length);
@@ -89,7 +83,7 @@ const validateField = (field) => {
         errors.value.name = 'กรุณากรอกชื่อ-นามสกุล';
       } else if (form.value.name.length > 50) {
         errors.value.name = 'ชื่อ-นามสกุลต้องไม่เกิน 50 ตัวอักษร';
-      } else if (!/^[A-Za-zก-๙\s]+$/.test(form.value.name)) {
+      } else if (!validateName(form.value.name)) {
         errors.value.name = 'ชื่อ-นามสกุลต้องเป็นตัวอักษรเท่านั้น';
       } else {
         errors.value.name = '';
@@ -224,8 +218,8 @@ const submitForm = async () => {
   isLoading.value = true;
 
   try {
-    const url = `${API_ROOT}/forms${params.action === 'edit' ? `/${params.id}` : ''}`;
-    const method = params.action === 'edit' ? 'PUT' : 'POST';
+    const url = `${API_ROOT}/forms${params.action === 'edit' || params.action === 'cancel' ? `/${params.id}` : ''}`;
+    const method = params.action === 'edit' || params.action === 'cancel' ? 'PUT' : 'POST';
     
     const response = await fetch(url, {
       method,
@@ -237,15 +231,17 @@ const submitForm = async () => {
     });
 
     if (response.ok) {
-      isModalSuccessVisible.value = true;
-      modalProps.value = { title: 'ส่งฟอร์มสำเร็จ', message: form.value.description === 'ยกเลิกการจอง' 
+        isModalSuccessVisible.value = true;
+        modalProps.value = { title: 'ส่งฟอร์มสำเร็จ', message: form.value.description === 'ยกเลิกการจอง' 
         ? 'ยกเลิกการจองเรียบร้อยแล้ว' 
         : 'ส่งฟอร์มจองหอพักเรียบร้อยแล้ว' 
       };
-      if (params.action !== 'edit') {
-        // ไปที่หน้ารายการฟอร์มหลังจากส่งเสร็จ
-        router.push('/reservedForms');
+
+      if (params.action === 'edit') {
+        isModalSuccessVisible.value = true;
+        modalProps.value = { title: 'ส่งฟอร์มสำเร็จ', message: 'อัปเดตฟอร์มจองหอพักเรียบร้อยแล้ว'};
       }
+      
     } else {
       console.error('ไม่สามารถส่งข้อมูลได้');
     }
@@ -253,58 +249,7 @@ const submitForm = async () => {
     console.error('เกิดข้อผิดพลาด:', error);
   } finally {
     isLoading.value = false;
-  }
-};
-
-
-const cancelForm = async () => {
-  if (!params.id) return;
-
-  isLoading.value = true;
-  
-  try {
-    // ดึงข้อมูลเดิมจาก API
-    const response = await fetch(`${API_ROOT}/forms/${params.id}`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-
-    if (!response.ok) {
-      console.error('ไม่สามารถดึงข้อมูลฟอร์มได้');
-      return;
-    }
-
-    const data = await response.json();
-
-    // ใช้ข้อมูลเดิม แต่เปลี่ยน description
-    const updatedForm = {
-      ...data,
-      description: 'ยกเลิกการจอง'
-    };
-
-    // ส่งข้อมูลไปอัปเดต
-    const updateResponse = await fetch(`${API_ROOT}/forms/${params.id}`, {
-      method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify(updatedForm),
-    });
-
-    if (updateResponse.ok) {
-      isModalSuccessVisible.value = true;
-      modalProps.value = { title: 'ยกเลิกการจองสำเร็จ', message: 'ยกเลิกการจองเรียบร้อยแล้ว' };
-      
-      router.push('/reservedForms'); // กลับไปหน้ารายการจอง
-    } else {
-      console.error('ไม่สามารถยกเลิกการจองได้');
-    }
-  } catch (error) {
-    console.error('เกิดข้อผิดพลาด:', error);
-  } finally {
-    isLoading.value = false;
+    
   }
 };
 

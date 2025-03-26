@@ -60,7 +60,7 @@ const removeFromFavorites = async (dormId) => {
       <!-- Rank 1 Section -->
       <div class="rank1-container" v-if="topDorm">
         <div class="rank1-image-left">
-          <img src="../../components/icons/rank.png" alt="Rank Image" class="w-60 animate-scale">
+          <img src="../../components/icons/Favorite/rank.png" alt="Rank Image" class="w-60 animate-scale">
         </div>
         <div class="rank1-details">
           <div class="details text-left pl-3">
@@ -69,7 +69,7 @@ const removeFromFavorites = async (dormId) => {
           </div>
         </div>
         <div class="rank1-image-right p-4">
-          <img src="../../components/icons/jip2.gif" alt="Rank 1 GIF" class="w-72 rounded-full">
+          <img src="../../components/icons/Favorite/jip2.gif" alt="Rank 1 GIF" class="w-72 rounded-full">
         </div>
       </div>
       <p v-else class="text-red-500 text-center text-xl">ยังไม่มีรายการโปรด</p>
@@ -113,7 +113,7 @@ const removeFromFavorites = async (dormId) => {
               <button 
                 @click="removeFromFavorites(dorm.dormId)" 
                 class="transition-transform transform hover:scale-110 hover:rotate-6">
-                <img src="../../components/icons/bin.png" alt="" class="w-8">
+                <img src="../../components/icons/Favorite/bin.png" alt="" class="w-8">
               </button>
             </td>
           </tr>

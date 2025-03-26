@@ -5,8 +5,8 @@ import { Pie } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale } from 'chart.js'
 import { getDashboardStats } from '@/composables/getDashboardStats'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
-import EditIcon from '@/components/icons/EditIcon.vue'
-import EditUserIcon from '@/components/icons/EditUserIcon.vue'
+import EditDormIcon from '@/components/icons/Dashboard/EditDormIcon.vue'
+import EditUserIcon from '@/components/icons/Dashboard/EditUserIcon.vue'
 
 ChartJS.register(ChartDataLabels, Title, Tooltip, Legend, ArcElement, CategoryScale)
 
@@ -121,7 +121,7 @@ const goToUserManagement = () => {
       <p class="text-white">ดูและจัดการหอพักทั้งหมด</p>
     </div>
     <div class="w-full h-full flex flex-col items-end justify-center">
-      <EditIcon/>
+      <EditDormIcon/>
     </div>
   </div>
 

@@ -26,6 +26,8 @@ const closeModal = () => {
     router.push('/dormlists')
   }else if(props.context == "reservation"){
     router.push('/reservedForms')
+  }else if(props.context == "users"){
+    router.push('/admin/user-management')
   }else{
     router.push('/')
   }

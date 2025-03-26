@@ -1,11 +1,15 @@
 <script setup>
 // Modal visibility state
 import { defineProps, defineEmits } from 'vue';
+import router from '@/router';
 
 const props = defineProps({
   isVisible: {
     type: Boolean,
     required: true
+  },
+  formOd:{
+    type: Number,
   },
   dormId: {
     type: Number,
@@ -16,7 +20,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['close', 'confirm']);
+const emit = defineEmits(['close', 'confirm','delete', 'cancel']);
 
 const closeModal = () => {
   emit('close');
@@ -33,6 +37,12 @@ const confirmDelete = () => {
   emit('delete');  // ส่ง event 'delete' เมื่อกดยืนยัน
   closeModal();
 };
+
+const confirmCancel = () => {
+  emit('cancel');  // ส่ง event 'cancel' เมื่อกดยืนยัน
+  closeModal();
+  
+};
 </script>
 
 <template>
@@ -47,7 +57,7 @@ const confirmDelete = () => {
           </button>
         </div>
         <div class="p-6 pt-0 text-center">
-          <svg v-if="context === 'delete'" class="w-20 h-20 text-red-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <svg v-if="context === 'delete' || context === 'cancel' " class="w-20 h-20 text-red-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
           <svg v-if="context === 'add'" class="w-20 h-20 text-green-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -60,10 +70,14 @@ const confirmDelete = () => {
             <span v-if="context === 'delete'">คุณต้องการลบหอพักนี้จริงๆ หรือไม่? กระบวนการนี้ไม่สามารถย้อนกลับได้</span>
             <span v-if="context === 'add'">คุณแน่ใจหรือไม่ว่าต้องการเพิ่มหอพักนี้ ?</span>
             <span v-if="context === 'update'">คุณแน่ใจหรือไม่ว่าต้องการอัปเดตข้อมูลหอพักนี้ ?</span>
+            <span v-if="context === 'cancel'">คุณต้องการยกเลิกการจองหอพักนี้จริงๆ ใช่ไหม? กระบวนการนี้ไม่สามารถย้อนกลับได้ ?</span>
           </h3>
             <div class="flex flex-row items-center justify-center">
               <div class="w-1/2">
                 <a href="#" @click="confirmDelete" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-10 py-3 text-center mr-2" v-if="context === 'delete'">
+                  ใช่, ฉันแน่ใจ
+                </a>
+                <a href="#" @click="confirmCancel" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-10 py-3 text-center mr-2" v-if="context === 'cancel'">
                   ใช่, ฉันแน่ใจ
                 </a>
                 <a href="#" @click="confirmAction" class="text-white bg-green-600 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-base inline-flex items-center px-12 py-3 text-center mr-2" v-if="context === 'add'">

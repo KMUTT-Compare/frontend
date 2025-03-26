@@ -1,18 +1,15 @@
 <script setup>
 import Sidebar from '@/components/Sidebar.vue';
-import { getUserDormByUserId } from '@/composables/getUserDormByUserId';
+import { getUserDorm } from '@/composables/GetDormitories/getUserDorm';
 import { onMounted, ref, computed } from 'vue';
 import router from '@/router';
 import DeleteModal from '@/components/modals/ConfirmModal.vue';
 import SuccessModal from '@/components/modals/SuccessModal.vue';
 import { formatPrice } from '@/composables/formatPrice';
 import SortComponent from '@/components/filters/SortComponent.vue';
-import { useAuthorize } from '@/stores/authorize';
-import { storeToRefs } from 'pinia';
 import SearchComponent from '@/components/filters/SearchComponent.vue';
 
-const user = useAuthorize();
-const { userId } = storeToRefs(user);
+
 
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 const dormitories = ref([]);
@@ -21,7 +18,7 @@ const dormIdToDelete = ref(null);
 const isSuccessModalVisible = ref(false)
 
 onMounted(async () => {
-  dormitories.value = await getUserDormByUserId(userId.value);
+  dormitories.value = await getUserDorm();
 });
 
 const showDetail = (dormitoryId) => {
@@ -84,10 +81,9 @@ const deleteDormitory = async () => {
       });
 
       if (res.ok) {
-        dormitories.value = await getUserDormByUserId(userId.value);  // ดึงข้อมูลใหม่หลังการลบ
+        dormitories.value = await getUserDorm();  // ดึงข้อมูลใหม่หลังการลบ
         closeModal();  // ปิด Modal หลังจากการลบสำเร็จ
         isSuccessModalVisible.value = true;
-        await getUserDormByUserId(userId.value)
       } else {
         alert(`There are no dormitory with id = ${dormIdToDelete.value}`);
         throw new Error('Cannot delete data!');

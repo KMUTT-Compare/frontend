@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, computed,watch } from 'vue'
 import router from '@/router';
-import { getDormitories } from '@/composables/getDormitories';
+import { getDormitories } from '@/composables/GetDormitories/getDormitories';
 import { formatPrice } from '@/composables/formatPrice';
 import { getFavorites } from '@/composables/getFavorites';
 import SortComponent from '@/components/filters/SortComponent.vue';

@@ -5,6 +5,24 @@ import { formatDate } from '@/composables/formatDate';
 import { formatPhoneNumber } from '@/composables/formatPhoneNumber';
 import { useRouter } from 'vue-router';  // Import vue-router for navigation
 import { useSubmittedForms } from '@/composables/getSubmittedForms';
+import ConfirmModal from '@/components/modals/ConfirmModal.vue';
+
+const isModalVisible = ref(false);
+const formIdToCancel = ref(null);
+
+// Show the modal when cancel button is clicked
+const showConfirmModal = (formId) => {
+  formIdToCancel.value = formId;  // Store the formId to cancel
+  isModalVisible.value = true;  // Show the modal
+};
+
+const closeModal = () => {
+  isModalVisible.value = false;
+  formIdToCancel.value = null;  // Reset formId when modal is closed
+};
+
+
+
 
 const { isLoading, fetchSubmittedForms, submittedForms } = useSubmittedForms();
 
@@ -30,8 +48,8 @@ const goToEditPage = (formId) => {
 
 
 // Modify handleCancelBooking to accept formId and action
-const handleCancelBooking = (id) => {
-  router.push({ name: "reservation", params: { id: id, action: 'cancel' } });
+const handleCancelBooking = () => {
+  router.push({ name: "reservation", params: { id: formIdToCancel.value, action: 'cancel' } });
 };
 
 
@@ -112,7 +130,7 @@ const toggleDetail = () => {
                 แก้ไข
               </button>
               <button class="btn p-3 bg-red-500 text-white hover:bg-red-600 w-32" type="button" 
-                @click="handleCancelBooking(form.formId)">
+                @click="showConfirmModal(form.formId)">
                 ยกเลิกการจอง
               </button>
             </div>
@@ -127,6 +145,14 @@ const toggleDetail = () => {
       </div>
     </div>
   </div>
+
+  <ConfirmModal
+    :isVisible="isModalVisible" 
+    :formId="formIdToCancel" 
+    @close="closeModal" 
+    @cancel="handleCancelBooking" 
+    context="cancel" 
+  />
 </template>
 
 

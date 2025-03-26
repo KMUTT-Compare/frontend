@@ -1,4 +1,4 @@
-import { getNewToken } from "./Authentication/getNewToken";
+import { getNewToken } from "../Authentication/getNewToken";
 
 const API_ROOT = import.meta.env.VITE_API_ROOT
 
@@ -13,10 +13,10 @@ const getDormitories = async () => {
       return await res.json();
     }
 
-    console.error(`Error fetching dormitories: ${res.status}`);
+    // console.error(`Error fetching dormitories: ${res.status}`);
     return []; 
   } catch (error) {
-    console.error('Error:', error);
+    // console.error('Error:', error);
     return [];
   }
 };

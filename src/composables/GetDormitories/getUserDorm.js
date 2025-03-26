@@ -2,11 +2,9 @@ import { getNewToken } from "@/composables/Authentication/getNewToken";
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 
 // ฟังก์ชันสำหรับดึงข้อมูล dormitories ของ user โดยใช้ userId ในระบบ
-export const getUserDormByUserId = async (userId) => {
-  if (!userId) return []; // ถ้าไม่มี userId ให้คืนค่า []
-
+export const getUserDorm = async () => {
   try {
-    let res = await fetch(`${API_ROOT}/dormitories/user/${userId}`, {
+    let res = await fetch(`${API_ROOT}/dormitories/user`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -20,7 +18,7 @@ export const getUserDormByUserId = async (userId) => {
 
     if (res.status === 401) {
       await getNewToken(); // รีเฟรช token
-      res = await fetch(`${API_ROOT}/dormitories/user/${userId}`, {
+      res = await fetch(`${API_ROOT}/dormitories/user`, {
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer " + localStorage.getItem("token"),
@@ -32,7 +30,6 @@ export const getUserDormByUserId = async (userId) => {
       }
     }
 
-    console.error(`Error fetching user dormitories (ID: ${userId}): ${res.status}`);
     return []; // คืนค่า [] แทน null
   } catch (error) {
     console.error("Error:", error);

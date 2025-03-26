@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { formatDate } from '@/composables/formatDate';
-import { getDormitoryById } from '@/composables/getDormitoryById';
+import { getDormitoryById } from '@/composables/GetDormitories/getDormitoryById';
 import { formatPrice } from '@/composables/formatPrice';
 import router from '@/router';
 import { formatPhoneNumber } from '@/composables/formatPhoneNumber';

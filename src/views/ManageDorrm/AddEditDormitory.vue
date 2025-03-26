@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import router from '@/router';
-import { getDormitoryById } from '@/composables/getDormitoryById'; // นำเข้าฟังก์ชัน composable
+import { getDormitoryById } from '@/composables/GetDormitories/getDormitoryById'; // นำเข้าฟังก์ชัน composable
 import { useRoute } from 'vue-router'
 import { useAuthorize } from '@/stores/authorize';
 import { storeToRefs } from 'pinia';
