@@ -377,57 +377,62 @@ const filteredDormitories = computed(() => {
 
 
 
+      <!-- items (กึ่งกลาง) -->
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 w-full">
+          <div
+            v-if="filteredDormitories !== null && filteredDormitories.length !== 0"
+            v-for="dorm in filteredDormitories"
+            :key="dorm.dormId"
+            class="rounded-lg border-2 shadow-lg p-3 bg-white"
+          >
+            <div class="w-full h-48 md:h-64 flex justify-center items-center">
+              <div
+                class="w-full h-full bg-cover bg-center rounded-lg"
+                :style="{ backgroundImage: `url(${dorm.image[0] || '/images/no_image.jpg'})` }"
+                alt="Dormitory Image"
+              ></div>
+            </div>
 
-      <!-------------------------------- Items --------------------------------->
-      <div class="flex flex-row items-stretch space-x-2 w-full pb-4">
-          <div v-if="filteredDormitories !== null && filteredDormitories.length !== 0" class="container">
-            <div v-for="dorm in filteredDormitories" :key="dorm.dormId" class="holding-items">
-              <div class="items rounded-lg border-2">
-                
-                <div class="w-8/12 flex h-64 justify-center items-center">
-                  <div class="w-full h-full bg-cover bg-center rounded-lg" :style="{ backgroundImage: `url(${dorm.image[0] || '/images/no_image.jpg'})` }" alt="Dormitory Image"></div>
+            <div class="flex flex-col w-full p-3">
+              <div class="flex justify-between items-center">
+                <h1 @click="showDetail(dorm.dormId)" class="dormname cursor-pointer font-semibold">
+                  {{ dorm.dormName }}
+                </h1>
+                <div v-if="userRole !== 'guest'">
+                  <button
+                    @click="handleToggleFavorite(dorm.dormId)"
+                    class="p-2 rounded-full border border-gray-300 hover:bg-red-100 transition"
+                  >
+                    <span :class="isFavorite(dorm.dormId) ? 'text-red-500' : 'text-gray-500'">
+                      {{ isFavorite(dorm.dormId) ? '❤️' : '🤍' }}
+                    </span>
+                  </button>
                 </div>
+              </div>
 
-                <div class="flex flex-col w-full h-full p-3 justify-center">
-                  <div class="flex w-full">
-                    <div class="item w-full">
-                      <div class="flex flex-row w-full justify-between">
-                        <h1 @click="showDetail(dorm.dormId)" class="dormname cursor-pointer">{{ dorm.dormName }}</h1>
+              <h2 class="text-green-600 text-lg">
+                {{ formatPrice(dorm.min_price) }} - {{ formatPrice(dorm.max_price) }} บาท/เดือน
+              </h2>
+              <h2>ระยะทาง: <span>{{ dorm.distance }} กม.</span></h2>
+              <h2>
+                ประเภทหอพัก:
+                <span v-if="dorm.type === 'all'">รวม</span>
+                <span v-else-if="dorm.type === 'f'">หญิง</span>
+                <span v-else-if="dorm.type === 'm'">ชาย</span>
+                <span v-else>{{ dorm.type }}</span>
+              </h2>
+              <p class="text-sm text-gray-600">
+                ที่อยู่: {{ dorm.address.street }}, {{ dorm.address.subdistrict }}, {{ dorm.address.district }},
+                {{ dorm.address.province }} {{ dorm.address.postalCode }}
+              </p>
 
-                        <div v-if="userRole !== 'guest'">
-                          <!-- ปุ่ม Favorite -->
-                          <button 
-                            @click="handleToggleFavorite(dorm.dormId)" 
-                            class="p-2 rounded-full border border-gray-300 hover:bg-red-100 transition-colors"
-                          >
-                            <span :class="isFavorite(dorm.dormId) ? 'text-red-500' : 'text-gray-500'">
-                              {{ isFavorite(dorm.dormId) ? '❤️' : '🤍' }}
-                            </span>
-                          </button>
-                        </div>
-                      </div>
-                      <h2><span style="color: green; font-size: larger;">{{ formatPrice(dorm.min_price) }} - {{ formatPrice(dorm.max_price) }}</span> บาท/เดือน</h2>
-                      <h2>ระยะทาง <span>{{ dorm.distance }} กม.</span></h2>
-                      <h2>
-                        ประเภทหอพัก:
-                        <span v-if="dorm.type === 'all'">รวม</span>
-                        <span v-else-if="dorm.type === 'f'">หญิง</span>
-                        <span v-else-if="dorm.type === 'm'">ชาย</span>
-                        <span v-else>{{ dorm.type }}</span>
-                      </h2>
-                      <p class="text-sm">ที่อยู่: {{ dorm.address.street }}, {{ dorm.address.subdistrict }}, {{ dorm.address.district }}, {{ dorm.address.province }} {{ dorm.address.postalCode }}</p>      
-                    </div>
-                  </div>
-                    <!-- Button -->
-                  <div class="flex space-x-2 mt-2 items-end justify-start w-full">
-                      <BorderButton @click="addDormToCompare(dorm.dormId)" context="เพิ่มลงในรายการเปรียบเทียบ"/>
-                  </div>
-
-                </div>
+              <div class="flex space-x-2 mt-2 justify-center pt-5 w-full">
+                <BorderButton @click="addDormToCompare(dorm.dormId)" context="เพิ่มลงในรายการเปรียบเทียบ" />
               </div>
             </div>
           </div>
         </div>
+
 
           <div v-if="dormitories.length === 0" class="text-2xl text-red-600 text-center">No Dormitory</div>
           
@@ -474,22 +479,6 @@ const filteredDormitories = computed(() => {
   flex-direction: row;
 }
 
-.container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-  gap: 10px;
-  width: 100%; /* ให้เต็มพื้นที่ที่มีอยู่ */
-  overflow-wrap: break-word; /* ตัดคำถ้าเกินพื้นที่ */
-  
-}
-
-.holding-items {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  min-width: 0; /* ให้ขนาดลดลงตามพื้นที่ */
-  max-width: 100%; /* ให้ไม่เกินพื้นที่ */
-}
 
 /* ภาพพื้นหลังด้านบน */
 .background img {
@@ -566,100 +555,7 @@ hr{
   width: 250px;
 }
 
-.filter h2{
-  font-size: 1.2rem;
-}
 
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.filter {
-  background: white;
-  padding: 20px;
-  padding-left: 40px;
-  border-radius: 8px;
-  width: 700px;
-  max-width: 100%;
-  height: 80%;
-  position: relative;
-}
-
-
-@media screen and (max-width: 768px) {
-  .filter {
-    padding: 20px;
-    width: 70%;
-    height: 90%;
-    font-size: 0.8rem;
-  }
-
-  .btn {
-    width: 20%;
-  }
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2 คอลัมน์บนขนาดหน้าจอปกติ */
-  gap: 16px;
-}
-
-
-
-.close-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  border: none;
-  background: none;
-  cursor: pointer;
-}
-
-
-
-.table {
-  border-collapse: separate; /* ใช้ border-collapse: separate เพื่อให้การโค้งมนทำงาน */
-  border-spacing: 0; /* กำหนดระยะห่างระหว่างเซลล์ */
-  border-radius: 1rem; /* กำหนดความโค้งมนของตาราง */
-  overflow: hidden; /* ป้องกันไม่ให้มุมโค้งมนปรากฏ */
-}
-
-.table th, .table td {
-  border: 1px solid #ccc; /* กำหนดขอบให้กับ th และ td */
-  padding: 12px; /* เพิ่มการเว้นระยะภายใน */
-}
-
-/* ปรับปรุงสไตล์ของ th */
-.table th {
-  background-color: #f2f2f2; /* พื้นหลังสีของ header */
-  font-weight: bold; /* ทำให้ตัวหนา */
-}
-
-/* ปรับปรุงสไตล์ของ td */
-.table td {
-  background-color: #fff; /* พื้นหลังสีของเซลล์ */
-}
-
-input[type="range"] {
-  width: 100%;
-  height: 8px;
-  -webkit-appearance: none;
-  appearance: none;
-  background: #ddd;
-  border-radius: 5px;
-  outline: none;
-  transition: background 0.3s ease;
-}
 
 input[type="range"]::-webkit-slider-runnable-track {
   width: 100%;
@@ -691,7 +587,7 @@ input[type="range"]:focus {
 
 
 .dormname {
-  font-size: 1.5rem; /* ขนาดเริ่มต้น */
+  font-size: 1.8rem; /* ขนาดเริ่มต้น */
   color: #F4845F;    /* สีเริ่มต้น */
   transition: transform 0.3s ease, color 0.3s ease; /* เพิ่มการเคลื่อนไหวอย่างนุ่มนวล */
 }

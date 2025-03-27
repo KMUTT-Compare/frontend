@@ -3,7 +3,6 @@ const clearToken = () => {
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("userRole")
     localStorage.removeItem("username")
-    window.location.reload();
   };
   
   export { clearToken };

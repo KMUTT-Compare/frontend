@@ -1,6 +1,7 @@
 <script setup>
 import { useUIStore } from '@/stores/uiStore';
 import { ref, watch } from 'vue';
+import { validatePhone, validateEmail, validateName, validatePassword } from '@/composables/Validate/ValidateData';
 const FETCH_API = import.meta.env.VITE_API_ROOT;
 const uiStore = useUIStore();
 
@@ -27,55 +28,51 @@ const errors = ref({
     isAccept: ''
 });
 
-const validateName = () => {
-    errors.value.name = name.value.trim() ? '' : 'กรุณากรอกชื่อ-นามสกุล';
-};
+const touched = ref(false);
 
-const validateUsername = () => {
-    errors.value.username = username.value.trim() ? '' : 'กรุณากรอกชื่อผู้ใช้';
-};
+const validateData = () => {
+  touched.value = true; // เมื่อกด submit ให้ถือว่า touched
 
-const validateEmail = () => {
-    errors.value.email = /^\S+@\S+\.\S+$/.test(email.value) ? '' : 'กรุณากรอกอีเมลที่ถูกต้อง';
-};
+  errors.value.username = username.value || !touched.value ? '' : 'กรุณากรอกชื่อผู้ใช้';
+  errors.value.name = !name.value || validateName(name.value) ? '' : 'กรุณากรอกชื่อ-นามสกุล โดยจะต้องเป็นตัวอักษรและไม่เกิน 50 ตัว';
+  errors.value.email = !email.value || validateEmail(email.value) ? '' : 'กรุณากรอกอีเมลให้ถูกต้อง';
+  errors.value.phone = !phone.value || validatePhone(phone.value) ? '' : 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)';
 
-const validatePassword = () => {
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_\-])[A-Za-z\d@$!%*?&_\-]{8,}$/;
-    errors.value.password = passwordRegex.test(password.value)
-        ? ''
-        : 'รหัสผ่านต้องมีอย่างน้อย 8 ตัว และประกอบด้วย ตัวพิมพ์ใหญ่ ตัวเลข และอักขระพิเศษ (@$!%*?&_-)';
+  return !errors.value.username && !errors.value.name && !errors.value.email && !errors.value.phone;
 };
 
 const validateConfirmPassword = () => {
     errors.value.confirmPassword = confirmPassword.value === password.value ? '' : 'รหัสผ่านไม่ตรงกัน';
 };
 
-const validatePhone = () => {
-    errors.value.phone = /^\d{10}$/.test(phone.value) ? '' : 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)';
-};
 
 const validateIsAccept = () => {
     errors.value.isAccept = isAccept.value ? '' : 'กรุณายอมรับเงื่อนไขก่อนสมัครสมาชิก';
 };
 
-// 🔹 ใช้ watch() เพื่อทำ Real-time Validation
-watch(name, validateName);
-watch(username, validateUsername);
-watch(email, validateEmail);
-watch(password, validatePassword);
-watch(confirmPassword, validateConfirmPassword);
-watch(phone, validatePhone);
-watch(isAccept, validateIsAccept);
+watch([password, confirmPassword], () => {
+    validateConfirmPassword(); // เรียกตรวจสอบรหัสผ่านทุกครั้งที่ newPassword หรือ confirmPassword เปลี่ยนค่า
+});
+
+
+watch([name], () => {
+  validateData(); 
+});
+
+watch([email], () => {
+  validateData(); 
+});
+
+watch([phone], () => {
+  validateData(); 
+});
+
+
 
 
 const register = async () => {
     // ตรวจสอบ validation ก่อน
-    validateName();
-    validateUsername();
-    validateEmail();
-    validatePassword();
-    validateConfirmPassword();
-    validatePhone();
+    validateData()
     validateIsAccept();
 
     // ถ้ามี error ในฟอร์ม ให้ return ออกก่อน
@@ -101,16 +98,20 @@ const register = async () => {
             // ปิด popup และเปิดหน้า login
             switchPopup();
         } else {
-            const data = await response.json();
-            // ดึง message จาก backend และแสดงข้อความ error
-            if (data.message) {
-                if (data.message.includes('Email already exists')) {
-                    errors.value.email = 'อีเมลนี้มีผู้ใช้แล้ว';
-                } else if (data.message.includes('Username already exists')) {
-                    errors.value.username = 'ชื่อผู้ใช้นี้มีผู้ใช้แล้ว';
+            const errorData = await response.json();
+                // เช็คว่า message มาจาก backend ว่า "Username already exists"
+                if (errorData.message === "Username already exists") {
+                    errors.value.username = '❌ username นี้มีผู้ใช้แล้ว';  // แสดงข้อความนี้
+                } 
+                else if (errorData.message === "Email already exists") {
+                    errors.value.email = '❌ email นี้มีผู้ใช้แล้ว';  // แสดงข้อความนี้
+                } 
+                else {
+                    console.log(errorData)  // ข้อความทั่วไป
                 }
-            }
-        }
+
+                throw new Error('ไม่สามารถอัปเดตข้อมูลได้');
+                }
     } catch (error) {
         console.error('Error:', error.message);
     }

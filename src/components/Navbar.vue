@@ -24,6 +24,8 @@ const confirmLogout = () => {
   clearToken();
   // Add any additional logic for logging out the user, such as redirecting
   closeLogoutConfirm();
+  window.location.reload();
+  
 };
 
 const authStore = useAuthorize()

@@ -87,7 +87,7 @@ watch([phone], () => {
 
 const validateData = () => {
   errors.value.username = username.value ? '' : 'กรุณากรอกชื่อผู้ใช้';
-  errors.value.name = validateName(name.value) ? '' : 'กรุณากรอกชื่อ-นามสกุล';
+  errors.value.name = validateName(name.value) ? '' : 'กรุณากรอกชื่อ-นามสกุล โดยจะต้องเป็นตัวอักษรและไม่เกิน 50 ตัว';
   errors.value.email = validateEmail(email.value) ? '' : 'กรุณากรอกอีเมลให้ถูกต้อง';
   errors.value.phone = validatePhone(phone.value) ? '' : 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)';
 
