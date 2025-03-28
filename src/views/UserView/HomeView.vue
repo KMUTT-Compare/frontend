@@ -425,6 +425,10 @@ const filteredDormitories = computed(() => {
                 ที่อยู่: {{ dorm.address.street }}, {{ dorm.address.subdistrict }}, {{ dorm.address.district }},
                 {{ dorm.address.province }} {{ dorm.address.postalCode }}
               </p>
+              <div class="flex flex-row space-x-2 mt-5">
+                  <img class="w-6" src="/star.png" alt="">
+                  <h2>{{ dorm.score }}</h2>
+              </div>
 
               <div class="flex space-x-2 mt-2 justify-center pt-5 w-full">
                 <BorderButton @click="addDormToCompare(dorm.dormId)" context="เพิ่มลงในรายการเปรียบเทียบ" />

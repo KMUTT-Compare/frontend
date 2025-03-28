@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import SuccessModal from '@/components/modals/SuccessModal.vue';
 import { formatLocalDateTime } from '@/composables/formatDate';
-import { validateEmail, validateName, validatePhone } from '@/composables/Validate/ValidateData';
+import { validateEmail, validateName, validatePhone } from '@/composables/Validate/validateUserData';
 
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 const { params } = useRoute();

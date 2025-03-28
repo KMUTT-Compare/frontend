@@ -46,7 +46,7 @@ const closeDropdown = (event) => {
 
 onMounted(() => {
   window.addEventListener('click', closeDropdown);
-  console.log("userRole Right Now:"+authStore.userRole)
+  // console.log("userRole Right Now:"+authStore.userRole)
 });
 
 onBeforeUnmount(() => {

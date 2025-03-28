@@ -31,10 +31,9 @@ const getFavorites = async () => {
       }
     }
 
-    console.error(`Error fetching favorites: ${res.status}`);
     return []; // คืนค่า [] ถ้าข้อมูลผิดพลาด
   } catch (error) {
-    console.error("Error:", error);
+    // console.error("Error:", error);
     return []; // คืนค่า [] ถ้า request ล้มเหลว
   }
 };

@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { getUserById } from '@/composables/GetUsers/getUserById';
 import { useRoute } from 'vue-router';
-import { validateEmail, validateName, validatePassword, validatePhone } from '@/composables/Validate/ValidateData';
+import { validateEmail, validateName, validatePassword, validatePhone } from '@/composables/Validate/validateUserData';
 import SuccessModal from '@/components/modals/SuccessModal.vue';
 const isModalSuccessVisible = ref(false);
 const modalProps = ref({ title: '', message: '' });

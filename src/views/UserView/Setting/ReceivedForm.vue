@@ -7,22 +7,14 @@ import { useRouter } from 'vue-router';  // Import vue-router for navigation
 import { useSubmittedForms } from '@/composables/getSubmittedForms';
 import ConfirmModal from '@/components/modals/ConfirmModal.vue';
 
+
 const isModalVisible = ref(false);
 const formIdToCancel = ref(null);
-
-// Show the modal when cancel button is clicked
-const showConfirmModal = (formId) => {
-  formIdToCancel.value = formId;  // Store the formId to cancel
-  isModalVisible.value = true;  // Show the modal
-};
 
 const closeModal = () => {
   isModalVisible.value = false;
   formIdToCancel.value = null;  // Reset formId when modal is closed
 };
-
-
-
 
 const { isLoading, fetchSubmittedForms, submittedForms } = useSubmittedForms();
 
@@ -38,20 +30,11 @@ const sortedForms = computed(() => {
   });
 });
 
-// Function to navigate to the edit page
-const goToEditPage = (formId) => {
-  router.push({
-    name : 'reservation',
-    params : {id : formId, action: 'edit'}
-  })
-};
-
 
 // Modify handleCancelBooking to accept formId and action
 const handleCancelBooking = () => {
   router.push({ name: "reservation", params: { id: formIdToCancel.value, action: 'cancel' } });
 };
-
 
 onMounted(() => {
   fetchSubmittedForms();
@@ -66,34 +49,6 @@ const toggleDetail = () => {
 };
 
 
-const isRatingModalOpen = ref(false)
-const selectedScore = ref(0);
-const hoveredScore = ref(0);
-
-const setScore = (score) => {
-  selectedScore.value = score;
-  console.log(
-    selectedScore.value)
-};
-
-const hoverStar = (score) => {
-  hoveredScore.value = score;
-};
-
-const resetHover = () => {
-  hoveredScore.value = 0;
-};
-
-const closeRatingModal = () => {
-  isRatingModalOpen.value = false;
-};
-
-const submitRating = () => {
-  console.log("Submitted rating:", selectedScore.value);
-  closeRatingModal();
-};
-
-
 </script>
 
 <template>
@@ -101,7 +56,7 @@ const submitRating = () => {
     <Sidebar />
     <div class="pl-2 w-1/2 h-full">
       <div class="p-6 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
-        <h1 class="font-bold text-3xl mb-8">ฟอร์มที่ส่งแล้ว</h1>
+        <h1 class="font-bold text-3xl mb-8">ฟอร์มที่ได้รับ</h1>
 
         <div v-if="isLoading" class="text-center text-gray-600">
           กำลังโหลดข้อมูล...
@@ -109,7 +64,7 @@ const submitRating = () => {
 
         <ul v-else-if="sortedForms.length === 0" class="space-y-6">
           <div class="text-center text-gray-600">
-            ยังไม่มีฟอร์มที่ส่ง
+            ยังไม่มีฟอร์มที่ได้รับ
           </div>
         </ul>
 
@@ -152,79 +107,29 @@ const submitRating = () => {
 
             <!-- ปุ่มแก้ไขและยกเลิกจะถูกซ่อนไปหาก description มีคำว่า 'ยกเลิกการจอง' -->
             <div v-if="!form.description.includes('ยกเลิกการจอง')" class="flex space-x-6 mt-6">
-              
-              <!-- จองไว้ แต่ยังไม่เช็คอิน -->
-              <button v-if="form.status === 'reserved' " class="btn p-3 bg-blue-500 text-white hover:bg-blue-600 w-32" @click="goToEditPage(form.formId)">
-                แก้ไข
-              </button>
-              <button v-if="form.status === 'reserved' " class="btn p-3 bg-red-500 text-white hover:bg-red-600 w-32" type="button" 
-                @click="showConfirmModal(form.formId)">
-                ยกเลิกการจอง
-              </button>
+                <button 
+                    v-if="form.status === 'reserved'" 
+                    class="btn p-3 bg-blue-500 text-white hover:bg-blue-600 w-32"
+                    @click=""
+                    :disabled="isUpdating"
+                    >
+                    {{ isUpdating ? 'กำลังอัปเดต...' : 'เช็คอิน' }}
+                </button>
 
-            <!-- เช็คอินแล้ว -->
-              <button v-if="form.status === 'checkIn'" class="btn bg-white p-3 border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white w-32" @click="isRatingModalOpen=!isRatingModalOpen">
-                ให้คะแนน
-              </button>
-
-               <!-- ให้คะแนนแล้ว -->
-              <p  v-if="form.status === 'success'">รีวิวแล้ว</p>
+                <p v-if="form.status === 'checkIn'" class="p-3 bg-blue-500 text-white hover:bg-blue-600 w-32" @click="changeFormStatus('success')">รอคะแนนรีวิว</p>
+                <p v-if="form.status === 'success'" class="p-3 bg-blue-500 text-white hover:bg-blue-600 w-32">ผู้ใช้ให้คะแนนหอพักเรียบร้อยแล้ว</p>
             </div>
             
-
             <!-- ข้อความแสดงเมื่อ description มีคำว่า 'ยกเลิกการจอง' -->
             <div v-if="form.description.includes('ยกเลิกการจอง')" class="text-right text-gray-500 mt-4 text-2xl">
               ยกเลิกการจองแล้ว
             </div>
+
           </li>
         </ul>
 
       </div>
     </div>
-
-              <button @click="isRatingModalOpen=!isRatingModalOpen" class="btn bg-white p-3 border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white w-32">
-                ให้คะแนน
-              </button>
-
-
-              <!-- Modal ให้คะแนน -->
-              <div v-if="isRatingModalOpen" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-                <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-                  <h2 class="text-2xl text-center">คุณพอใจกับการใช้บริการหอพักนี้มากแค่ไหน</h2>
-
-                  <div class="flex justify-center space-x-2 mt-4">
-                    <span
-                      v-for="star in 5"
-                      :key="star"
-                      class="cursor-pointer transition-transform duration-200 transform"
-                      :class="{
-                        'scale-125': star === hoveredScore  // ขยายขนาดเมื่อ hover
-                      }"
-                      @click="setScore(star)"
-                      @mouseover="hoverStar(star)"
-                      @mouseleave="resetHover"
-                    >
-                      <img 
-                        :src="star <= (hoveredScore || selectedScore) ? '/star.png' : '/star3.png'" 
-                        alt="ดาว" 
-                        class="w-10"
-                      >
-                    </span>
-                  </div>
-
-
-
-                  <div class="flex justify-between mt-6">
-                    <button @click="closeRatingModal" class="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500">
-                      ยกเลิก
-                    </button>
-                    <button @click="submitRating()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600" :disabled="!selectedScore">
-                      ส่งคะแนน
-                    </button>
-                  </div>
-                </div>
-              </div>
-
   </div>
 
   <ConfirmModal
@@ -245,6 +150,11 @@ h1{
     color: #2b2b2b; 
 }
 
+h2{
+    font-size: 1.5rem;
+    color: #333;
+    font-weight: bold;
+}
 
 p {
     font-size: 1.1rem;

@@ -1,7 +1,7 @@
 <script setup>
 import { useUIStore } from '@/stores/uiStore';
 import { ref, watch } from 'vue';
-import { validatePhone, validateEmail, validateName, validatePassword } from '@/composables/Validate/ValidateData';
+import { validatePhone, validateEmail, validateName, validatePassword } from '@/composables/Validate/validateUserData';
 const FETCH_API = import.meta.env.VITE_API_ROOT;
 const uiStore = useUIStore();
 

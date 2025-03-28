@@ -1,7 +1,7 @@
 <script setup>
 import Sidebar from '@/components/Sidebar.vue';
 import { getNewToken } from '@/composables/Authentication/getNewToken';
-import { validatePhone, validateEmail, validateName, validatePassword } from '@/composables/Validate/ValidateData';
+import { validatePhone, validateEmail, validateName, validatePassword } from '@/composables/Validate/validateUserData';
 import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 

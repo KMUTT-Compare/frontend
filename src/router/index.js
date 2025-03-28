@@ -67,6 +67,13 @@ const router = createRouter({
       meta: { requiresUserOrAdmin: true }
     },
     {
+      path: '/receivedForms',
+      name: 'receivedForms',
+      component: () => import('../views/UserView/Setting/ReceivedForm.vue'),
+      props: true, // เปิดให้รับค่า params เป็น props
+      meta: { requiresUserOrAdmin: true }
+    },
+    {
       path: '/support',
       name: 'support',
       component: () => import('../views/UserView/Setting/Support.vue')
@@ -112,18 +119,18 @@ router.beforeEach((to, from, next) => {
 
   if (to.meta.requiresUserOrAdmin) {
     if (userRole.value === 'user' || userRole.value === 'admin') {
-      console.log(userRole.value)
+      // console.log(userRole.value)
       next(); 
     } else {
-      console.log(userRole.value)
-      alert('คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
+      // console.log(userRole.value)
+      // alert('คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
       next({ name: '404' }); // ไปหน้า 404
     }
   }else if(to.meta.requiresAdmin){
     if (userRole.value === 'admin') { 
       next();
     } else {
-      alert('คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
+      // alert('คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
       next({ name: '404' }); // ไปหน้า 404
     }
   }else {

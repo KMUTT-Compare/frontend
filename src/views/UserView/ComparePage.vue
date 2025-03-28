@@ -106,8 +106,15 @@ const prevPage = () => {
     
     <div class="container mx-auto grid grid-cols-2 gap-6">
       <!-- หอพักซ้าย -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <img :src="compareItems[0]?.image || '/images/no_image.jpg'" alt="Dorm 1 Image" class="w-full h-52 object-cover mb-4 rounded-lg" />
+      <div class="bg-white p-6 rounded-lg shadow-md relative">
+        <img :src="compareItems[0]?.image[0] || '/images/no_image.jpg'" alt="Dorm 1 Image" class="w-full h-52 object-cover mb-4 rounded-lg" />
+        
+        <!-- Rating ที่จะอยู่มุมขวาบนของรูป -->
+        <div class="absolute top-2 right-2 bg-white px-2 py-1 rounded-lg shadow-md flex items-center justify-center space-x-1">
+          <img src="/star.png" alt="Star" class="w-6">
+          <strong class="text-gray-800">{{ compareItems[0]?.score }}</strong>
+        </div>
+
         <div class="flex flex-row items-center justify-center space-x-2">
           <h2 class="text-xl font-bold text-gray-800 text-center">{{ compareItems[0]?.dormName }}</h2>
           <div class="flex items-center justify-end">
@@ -118,21 +125,25 @@ const prevPage = () => {
           <li><strong>ที่อยู่:</strong> {{ formatAddress(compareItems[0]?.address) }}</li>
           <li>
             <span v-if="dorm1Comparison.min_price">✅</span>
+            <span v-else>❌</span>
             <strong>ราคาเริ่มต้น:</strong> 
             {{ compareItems[0]?.min_price }} บาท
           </li>
         <li>
           <span v-if="dorm1Comparison.max_price">✅</span>
+          <span v-else>❌</span>
           <strong>ราคาสูงสุด:</strong> 
           {{ compareItems[0]?.max_price }} บาท
         </li>
         <li>
           <span v-if="dorm1Comparison.size">✅</span>
+          <span v-else>❌</span>
           <strong>ขนาดห้อง:</strong> 
           {{ compareItems[0]?.size }} ตร.ม.
         </li>
         <li>
           <span v-if="dorm1Comparison.distance">✅</span>
+          <span v-else>❌</span>
           <strong>ระยะทาง:</strong> 
           {{ compareItems[0]?.distance }} กม.
         </li>
@@ -140,8 +151,17 @@ const prevPage = () => {
       </div>
 
       <!-- หอพักขวา -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <img :src="compareItems[1]?.image || '/images/no_image.jpg'" alt="Dorm 2 Image" class="w-full h-52 object-cover mb-4 rounded-lg" />
+      <div class="bg-white p-6 rounded-lg shadow-md relative">
+        <img :src="compareItems[1]?.image[0] || '/images/no_image.jpg'" alt="Dorm 2 Image" class="w-full h-52 object-cover mb-4 rounded-lg" />
+        
+  
+      <!-- Rating ที่จะอยู่มุมขวาบนของรูป -->
+      <div class="absolute top-2 right-2 bg-white px-2 py-1 rounded-lg shadow-md flex items-center justify-center space-x-1">
+        <img src="/star.png" alt="Star" class="w-6">
+        <strong class="text-gray-800">{{ compareItems[1]?.score }}</strong>
+      </div>
+
+
         <div class="flex flex-row items-center justify-center space-x-2">
           <h2 class="text-xl font-bold text-gray-800 text-center">{{ compareItems[1]?.dormName }}</h2>
           <div class="flex items-center justify-end">
@@ -152,21 +172,25 @@ const prevPage = () => {
           <li><strong>ที่อยู่:</strong> {{ formatAddress(compareItems[1]?.address) }}</li>
           <li>
             <span v-if="dorm2Comparison.min_price">✅</span>
+            <span v-else>❌</span>
             <strong>ราคาเริ่มต้น:</strong> 
             {{ compareItems[1]?.min_price }} บาท
         </li>
         <li>
           <span v-if="dorm2Comparison.max_price">✅</span>
+          <span v-else>❌</span>
           <strong>ราคาสูงสุด:</strong> 
           {{ compareItems[1]?.max_price }} บาท
         </li>
         <li>
           <span v-if="dorm2Comparison.size">✅</span>
+          <span v-else>❌</span>
           <strong>ขนาดห้อง:</strong> 
           {{ compareItems[1]?.size }} ตร.ม.
         </li>
         <li>
           <span v-if="dorm2Comparison.distance">✅</span>
+          <span v-else>❌</span>
           <strong>ระยะทาง:</strong> 
           {{ compareItems[1]?.distance }} กม.
         </li>
