@@ -1,13 +1,13 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import SuccessModal from '@/components/modals/SuccessModal.vue';
 import { formatLocalDateTime } from '@/composables/formatDate';
 import { validateEmail, validateName, validatePhone } from '@/composables/Validate/validateUserData';
 
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 const { params } = useRoute();
-const router = useRouter();
+
 
 const isModalSuccessVisible = ref(false);
 const modalProps = ref({ title: '', message: '' });
@@ -33,7 +33,6 @@ onMounted(async () => {
   }
   
   // แสดงค่าของ params สำหรับการตรวจสอบ
-  console.log(params);
   console.log(params);
 });
 
@@ -160,7 +159,7 @@ const fetchFormData = async (f) => {
   isLoading.value = true;  // เริ่มโหลดข้อมูล
   try {
     // ดึงข้อมูลจาก API
-    const response = await fetch(`${API_ROOT}/forms/${params.id}`, {
+    const response = await fetch(`${API_ROOT}/sent-form/${params.id}`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}` // ใช้ token ใน localStorage
       }
@@ -218,7 +217,7 @@ const submitForm = async () => {
   isLoading.value = true;
 
   try {
-    const url = `${API_ROOT}/forms${params.action === 'edit' || params.action === 'cancel' ? `/${params.id}` : ''}`;
+    const url = `${API_ROOT}/user/sent-form${params.action === 'edit' || params.action === 'cancel' ? `/${params.id}` : ''}`;
     const method = params.action === 'edit' || params.action === 'cancel' ? 'PUT' : 'POST';
     
     const response = await fetch(url, {

@@ -112,7 +112,7 @@ const prevPage = () => {
         <!-- Rating ที่จะอยู่มุมขวาบนของรูป -->
         <div class="absolute top-2 right-2 bg-white px-2 py-1 rounded-lg shadow-md flex items-center justify-center space-x-1">
           <img src="/star.png" alt="Star" class="w-6">
-          <strong class="text-gray-800">{{ compareItems[0]?.score }}</strong>
+          <strong class="text-gray-800">{{ compareItems[0]?.rating?.totalScore }}</strong>
         </div>
 
         <div class="flex flex-row items-center justify-center space-x-2">
@@ -158,7 +158,7 @@ const prevPage = () => {
       <!-- Rating ที่จะอยู่มุมขวาบนของรูป -->
       <div class="absolute top-2 right-2 bg-white px-2 py-1 rounded-lg shadow-md flex items-center justify-center space-x-1">
         <img src="/star.png" alt="Star" class="w-6">
-        <strong class="text-gray-800">{{ compareItems[1]?.score }}</strong>
+        <strong class="text-gray-800">{{ compareItems[1]?.rating?.totalScore }}</strong>
       </div>
 
 

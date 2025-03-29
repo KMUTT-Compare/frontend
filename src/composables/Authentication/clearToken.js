@@ -1,3 +1,10 @@
+const clearAllToken = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("userRole")
+    localStorage.removeItem("username")
+    console.log("Logout successful");
+}
 const API_ROOT = import.meta.env.VITE_API_ROOT;
   const clearToken = async () => {
     try {
@@ -10,17 +17,15 @@ const API_ROOT = import.meta.env.VITE_API_ROOT;
         });
 
         if (response.ok) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("refreshToken");
-          localStorage.removeItem("userRole")
-          localStorage.removeItem("username")
+          clearAllToken()
           console.log("Logout successful");
         } else {
             console.error("Logout failed");
         }
     } catch (error) {
+        clearAllToken()
         console.error("Error logging out:", error);
     }
 };
 
-export { clearToken };
+export { clearToken, clearAllToken };

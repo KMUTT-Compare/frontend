@@ -15,8 +15,8 @@ const props = defineProps({
 <style scoped>
 button {
   border: 1px solid rgb(0, 0, 0);
-  max-width: 10rem; /* กำหนดความกว้างสูงสุด */
-  height: 2.5rem; /* สูงคงที่ */
+  width: 100%; /* ทำให้ปุ่มกว้างเท่ากับ div */
+  height: 2.5rem; /* กำหนดความสูงของปุ่ม */
   font-size: 1rem; /* ขนาดฟอนต์เริ่มต้น */
   padding: 0.5rem; /* ลดการเว้นระยะภายใน */
   display: flex; /* ทำให้เป็น flex container */
@@ -38,13 +38,11 @@ button {
 @media (min-width: 1024px) {
   button {
     font-size: 1rem; /* ขนาดฟอนต์สำหรับหน้าจอใหญ่ */
-    width: 100%; /* เพิ่มความกว้างของปุ่มเป็น 70% */
-    max-width: 20rem; /* กำหนดความกว้างสูงสุด */
-    height: 3rem;
+    height: 3rem; /* ปรับความสูง */
   }
 }
 
 button:hover {
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 </style>

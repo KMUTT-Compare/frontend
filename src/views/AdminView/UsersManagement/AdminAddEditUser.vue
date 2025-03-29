@@ -56,22 +56,22 @@ const validateForm = () => {
   let valid = true;
 
   if (!userData.value.username ) {
-    errorMessages.value.username = 'กรุณากรอกชื่อผู้ใช้';
+    errorMessages.value.username = 'กรุณากรอกชื่อผู้ใช้ (ไม่เกิน 50 ตัวอักษร)';
     valid = false;
   }
 
   if (!userData.value.name || !validateName(userData.value.name)) {
-    errorMessages.value.name = 'กรุณากรอกชื่อ-นามสกุล';
+    errorMessages.value.name = 'กรุณากรอกชื่อ-นามสกุล โดยจะต้องเป็นตัวอักษรและไม่เกิน 50 ตัวอักษร';
     valid = false;
   }
 
   if (!userData.value.email || !validateEmail(userData.value.email)) {
-    errorMessages.value.email = 'กรุณากรอกอีเมลที่ถูกต้อง';
+    errorMessages.value.email = 'กรุณากรอกอีเมล โดยอีเมลจะต้องมีรูปแบบที่ถูกต้อง (เช่น example@domain.com)';
     valid = false;
   }
 
   if (mode.value === 'add' && (!userData.value.password || !validatePassword(userData.value.password))) {
-    errorMessages.value.password = 'รหัสผ่านต้องมีอย่างน้อย 8 ตัว และประกอบด้วย ตัวพิมพ์ใหญ่ ตัวเลข และอักขระพิเศษ (@$!%*?&_-)';
+    errorMessages.value.password = 'กรุณากรอกรหัสผ่าน รหัสผ่านต้องมีตัวอักษรเล็ก, ตัวอักษรใหญ่, ตัวเลข, อักขระพิเศษ และความยาวระหว่าง 8 ถึง 20 ตัว โดยไม่สามารถมีช่องว่างได้';
     valid = false;
   }
 

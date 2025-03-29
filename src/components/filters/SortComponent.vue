@@ -3,7 +3,6 @@
       <select v-model="sortBy" @change="handleSortChange"
               class="cursor-pointer bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
         <option value="name">เรียงตามชื่อ</option>
-        <option value="score">คะแนน</option>
         <option value="min_price">ราคาต่ำสุด</option>
         <option value="max_price">ราคาสูงสุด</option>
         <option value="distance">ระยะทาง</option>
@@ -28,8 +27,6 @@
   const sortDormitories = (sortType) => {
   if (sortType === 'min_price') {
     props.dormitories.sort((a, b) => a.min_price - b.min_price); // ราคาต่ำสุด -> สูงสุด
-  } else if (sortType === 'score') {
-    props.dormitories.sort((a, b) => b.score - a.score); // มาก -> น้อย
   } else if (sortType === 'max_price') {
     props.dormitories.sort((a, b) => b.max_price - a.max_price); // ราคาสูงสุด -> ต่ำสุด
   } else if (sortType === 'distance') {

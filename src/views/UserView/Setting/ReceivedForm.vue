@@ -4,26 +4,19 @@ import Sidebar from '@/components/Sidebar.vue';
 import { formatDate } from '@/composables/formatDate';
 import { formatPhoneNumber } from '@/composables/formatPhoneNumber';
 import { useRouter } from 'vue-router';  // Import vue-router for navigation
-import { useSubmittedForms } from '@/composables/getSubmittedForms';
+import { useReceivedForms } from '@/composables/getReceivedForms';
 import ConfirmModal from '@/components/modals/ConfirmModal.vue';
 
+const API_ROOT = import.meta.env.VITE_API_ROOT;
 
-const isModalVisible = ref(false);
-const formIdToCancel = ref(null);
-
-const closeModal = () => {
-  isModalVisible.value = false;
-  formIdToCancel.value = null;  // Reset formId when modal is closed
-};
-
-const { isLoading, fetchSubmittedForms, submittedForms } = useSubmittedForms();
+const { isLoading, fetchReceivedForms, receivedForms } = useReceivedForms();
 
 // Create a router instance
 const router = useRouter();
 
 // Sort submitted forms by form_date
 const sortedForms = computed(() => {
-  return submittedForms.value.sort((a, b) => {
+  return receivedForms.value.sort((a, b) => {
     const dateA = new Date(a.form_date);
     const dateB = new Date(b.form_date);
     return dateB - dateA;  // ถ้าคุณต้องการเรียงจากใหม่ไปเก่า
@@ -36,8 +29,9 @@ const handleCancelBooking = () => {
   router.push({ name: "reservation", params: { id: formIdToCancel.value, action: 'cancel' } });
 };
 
+
 onMounted(() => {
-  fetchSubmittedForms();
+  fetchReceivedForms();
 });
 
 
@@ -49,6 +43,41 @@ const toggleDetail = () => {
 };
 
 
+
+
+const checkIn = async (formId) => {
+
+  try {
+    const response = await fetch(`${API_ROOT}/user/form/${formId}/check-in`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ status: 'checkIn' })
+    });
+
+    // ตรวจสอบสถานะ response และแสดงข้อความตามประเภทของ response
+    if (response.ok) {
+      alert("เช็คอินสำเร็จ!");
+      fetchReceivedForms()
+
+      
+    } else {
+      alert(`ไม่สามารถเช็คอินได้`);
+
+    }
+  } catch (error) {
+    console.error("Error Check-In:", error);
+    alert("เกิดข้อผิดพลาดในการเช็คอิน");
+  }
+};
+
+
+
+
+
+
 </script>
 
 <template>
@@ -56,7 +85,7 @@ const toggleDetail = () => {
     <Sidebar />
     <div class="pl-2 w-1/2 h-full">
       <div class="p-6 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
-        <h1 class="font-bold text-3xl mb-8">ฟอร์มที่ได้รับ</h1>
+        <h1 class="font-bold text-3xl mb-8">ฟอร์มที่ส่งแล้ว</h1>
 
         <div v-if="isLoading" class="text-center text-gray-600">
           กำลังโหลดข้อมูล...
@@ -64,7 +93,7 @@ const toggleDetail = () => {
 
         <ul v-else-if="sortedForms.length === 0" class="space-y-6">
           <div class="text-center text-gray-600">
-            ยังไม่มีฟอร์มที่ได้รับ
+            ยังไม่มีฟอร์มที่ส่ง
           </div>
         </ul>
 
@@ -85,51 +114,91 @@ const toggleDetail = () => {
                   <div>
                     <p class="text-sm text-gray-600">ชื่อผู้จองหอพัก: {{ form.name || 'ไม่มีข้อมูล' }}</p>
                   </div>
-                  <div class="text-xl text-gray-800 font-semibold cursor-pointer hover:text-black hover:scale-105" @click="toggleDetail">
+                  <div class="text-lg text-blue-900 font-semibold cursor-pointer hover:text-black hover:scale-105 underline" @click="toggleDetail">
                     {{ isShowDetail ? 'ซ่อนรายละเอียด' : 'รายละเอียดเพิ่มเติม' }}
                   </div>
                 </div>
                 
                 <p class="text-sm text-gray-600">เบอร์ติดต่อ: {{ formatPhoneNumber(form.phone || 'ไม่มีข้อมูล') }}</p>
-                <p class="text-sm text-gray-600">อีเมล: {{ form.email || 'ไม่มีข้อมูล' }}</p>
+                <p class="text-sm text-gray-600">อีเมล: {{form.email || 'ไม่มีข้อมูล' }}</p>
               </div>
 
               
               <!-- หาก isShowDetail เป็น true จะแสดงรายละเอียด -->
               <div v-if="isShowDetail" class="mt-4 p-4 bg-gray-100 rounded-lg">
-                <p class="text-sm text-gray-600">ชื่อผู้จองหอพัก: {{ form.name || 'ไม่มีข้อมูล' }}</p>
-                <p class="text-sm text-gray-600">เบอร์ติดต่อ: {{ form.phone || 'ไม่มีข้อมูล' }}</p>
-                <p class="text-sm text-gray-600">อีเมล: {{ form.email || 'ไม่มีข้อมูล' }}</p>
+                <p class="text-sm text-gray-600">ชื่อเจ้าของหอพัก: {{ form.owner.name || 'ไม่มีข้อมูล' }}</p>
+                <p class="text-sm text-gray-600">เบอร์ติดต่อ: {{ form.owner.phone || 'ไม่มีข้อมูล' }}</p>
+                <p class="text-sm text-gray-600">อีเมล: {{ form.owner.email || 'ไม่มีข้อมูล' }}</p>
                 <p class="text-sm text-gray-600">รายละเอียดเพิ่มเติม: {{ form.description || 'ไม่มีข้อมูล' }}</p>
                 <p class="text-sm text-gray-600">วันที่เข้าพัก: {{ formatDate(form.date_in || 'ไม่มีข้อมูล') }}</p>
                 <p class="text-sm text-gray-600">วันที่ออก: {{ formatDate(form.date_out|| 'ไม่มีข้อมูล') }}</p>
               </div>
 
             <!-- ปุ่มแก้ไขและยกเลิกจะถูกซ่อนไปหาก description มีคำว่า 'ยกเลิกการจอง' -->
-            <div v-if="!form.description.includes('ยกเลิกการจอง')" class="flex space-x-6 mt-6">
-                <button 
-                    v-if="form.status === 'reserved'" 
-                    class="btn p-3 bg-blue-500 text-white hover:bg-blue-600 w-32"
-                    @click=""
-                    :disabled="isUpdating"
-                    >
-                    {{ isUpdating ? 'กำลังอัปเดต...' : 'เช็คอิน' }}
-                </button>
+            <div v-if="!form.description.includes('ยกเลิกการจอง')" class="flex justify-end space-x-6 mt-6">
+              
+            <!-- เช็คอินแล้ว -->
+              <button v-if="form.status === 'reserved'" class="btn bg-green-500 text-white p-3 hover:bg-green-600 hover:text-white w-32" @click="checkIn(form.formId)">
+                เช็คอิน
+              </button>
 
-                <p v-if="form.status === 'checkIn'" class="p-3 bg-blue-500 text-white hover:bg-blue-600 w-32" @click="changeFormStatus('success')">รอคะแนนรีวิว</p>
-                <p v-if="form.status === 'success'" class="p-3 bg-blue-500 text-white hover:bg-blue-600 w-32">ผู้ใช้ให้คะแนนหอพักเรียบร้อยแล้ว</p>
+               <!-- ให้คะแนนแล้ว -->
+               <p  v-if="form.status === 'checkIn'">⏳ รอคะแนนรีวิว </p>
+
+               <!-- ให้คะแนนแล้ว -->
+              <p  v-if="form.status === 'success'">✔️ ผู้เข้าพักให้คะแนนแล้ว</p>
             </div>
             
+
             <!-- ข้อความแสดงเมื่อ description มีคำว่า 'ยกเลิกการจอง' -->
-            <div v-if="form.description.includes('ยกเลิกการจอง')" class="text-right text-gray-500 mt-4 text-2xl">
+            <div v-if="form.description.includes('ยกเลิกการจอง')" class="text-right text-gray-500 mt-4">
               ยกเลิกการจองแล้ว
             </div>
-
           </li>
         </ul>
 
       </div>
     </div>
+
+
+              <!-- Modal ให้คะแนน -->
+              <div v-if="isRatingModalOpen" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+                <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+                  <h2 class="text-2xl text-center">คุณพอใจกับการใช้บริการหอพักนี้มากแค่ไหน</h2>
+
+                  <div class="flex justify-center space-x-2 mt-4">
+                    <span
+                      v-for="star in 5"
+                      :key="star"
+                      class="cursor-pointer transition-transform duration-200 transform"
+                      :class="{
+                        'scale-125': star === hoveredScore  // ขยายขนาดเมื่อ hover
+                      }"
+                      @click="setScore(star)"
+                      @mouseover="hoverStar(star)"
+                      @mouseleave="resetHover"
+                    >
+                      <img 
+                        :src="star <= (hoveredScore || selectedScore) ? '/star.png' : '/star3.png'" 
+                        alt="ดาว" 
+                        class="w-10"
+                      >
+                    </span>
+                  </div>
+
+
+
+                  <div class="flex justify-between mt-6">
+                    <button @click="closeRatingModal" class="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500">
+                      ยกเลิก
+                    </button>
+                    <button @click="submitRating(dormId)" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600" :disabled="!selectedScore">
+                      ส่งคะแนน
+                    </button>
+                  </div>
+                </div>
+              </div>
+
   </div>
 
   <ConfirmModal
@@ -150,11 +219,6 @@ h1{
     color: #2b2b2b; 
 }
 
-h2{
-    font-size: 1.5rem;
-    color: #333;
-    font-weight: bold;
-}
 
 p {
     font-size: 1.1rem;

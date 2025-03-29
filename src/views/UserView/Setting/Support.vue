@@ -85,18 +85,18 @@ const confirmDelete = async () => {
             <h2 class="text-2xl font-semibold mb-4">วิธีการติดต่อเรา</h2>
             <p class="mb-4">คุณสามารถติดต่อเราผ่านช่องทางต่างๆ ดังนี้:</p>
             <ul class="list-disc pl-6 mb-6">
-                <li><span class="font-medium">อีเมล:</span> <a href="mailto:support@example.com" class="text-blue-500">jipjip.kmutt.compare@gmail.com</a></li>
+                <li><span class="font-medium">อีเมล:</span> <a href="mailto:support@example.com" class="text-blue-500 underline hover:text-blue-800">jipjip.kmutt.compare@gmail.com</a></li>
                 <li><span class="font-medium">เบอร์โทรศัพท์:</span> 123-456-7890 (จันทร์ - ศุกร์, 9.00 - 18.00 น.)</li>
                 <li><span class="font-medium">แชทออนไลน์:</span> คุณสามารถใช้ฟีเจอร์แชทของเราผ่านทางเว็บไซต์เพื่อพูดคุยกับตัวแทนฝ่ายสนับสนุนได้ทันที</li>
             </ul>
 
             <!-- Section for FAQs -->
             <h2 class="text-2xl font-semibold mb-4">คำถามที่พบบ่อย</h2>
-            <p class="mb-4">หากคุณมีคำถามที่พบบ่อย, เราขอแนะนำให้คุณตรวจสอบคำถามที่พบบ่อยที่หน้า <a href="/faq" class="text-blue-500">คำถามที่พบบ่อย</a> ของเรา ซึ่งอาจช่วยให้คุณแก้ไขปัญหาหรือข้อสงสัยได้ทันที</p>
+            <p class="mb-4">หากคุณมีคำถามที่พบบ่อย, เราขอแนะนำให้คุณตรวจสอบคำถามที่พบบ่อยที่หน้า <a href="/faq" class="text-blue-500 underline hover:text-blue-800">คำถามที่พบบ่อย</a> ของเรา ซึ่งอาจช่วยให้คุณแก้ไขปัญหาหรือข้อสงสัยได้ทันที</p>
 
             <!-- Section for Issue Reporting -->
             <h2 class="text-2xl font-semibold mb-4">แจ้งปัญหาหรือข้อเสนอแนะ</h2>
-            <p class="mb-4">หากคุณพบปัญหาในการใช้งานเว็บไซต์ หรือมีข้อเสนอแนะในการปรับปรุง, กรุณาส่งอีเมลมาที่ <a href="mailto:support@example.com" class="text-blue-500">jipjip.kmutt.compare@gmail.com</a>.</p>
+            <p class="mb-4">หากคุณพบปัญหาในการใช้งานเว็บไซต์ หรือมีข้อเสนอแนะในการปรับปรุง, กรุณาส่งอีเมลมาที่ <a href="mailto:support@example.com" class="text-blue-500 underline hover:text-blue-800">jipjip.kmutt.compare@gmail.com</a>.</p>
             
             <!-- Delete Account -->
             <h2 class="text-2xl font-semibold mb-4">การเป็นเจ้าของและการควบคุมบัญชี</h2>

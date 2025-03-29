@@ -4,8 +4,10 @@ import Sidebar from '@/components/Sidebar.vue';
 import { formatDate } from '@/composables/formatDate';
 import { formatPhoneNumber } from '@/composables/formatPhoneNumber';
 import { useRouter } from 'vue-router';  // Import vue-router for navigation
-import { useSubmittedForms } from '@/composables/getSubmittedForms';
+import { useReservedForms } from '@/composables/getReservedForms';
 import ConfirmModal from '@/components/modals/ConfirmModal.vue';
+
+const API_ROOT = import.meta.env.VITE_API_ROOT;
 
 const isModalVisible = ref(false);
 const formIdToCancel = ref(null);
@@ -24,14 +26,14 @@ const closeModal = () => {
 
 
 
-const { isLoading, fetchSubmittedForms, submittedForms } = useSubmittedForms();
+const { isLoading, fetchReservedForms, reservedForms } = useReservedForms();
 
 // Create a router instance
 const router = useRouter();
 
 // Sort submitted forms by form_date
 const sortedForms = computed(() => {
-  return submittedForms.value.sort((a, b) => {
+  return reservedForms.value.sort((a, b) => {
     const dateA = new Date(a.form_date);
     const dateB = new Date(b.form_date);
     return dateB - dateA;  // ถ้าคุณต้องการเรียงจากใหม่ไปเก่า
@@ -54,7 +56,7 @@ const handleCancelBooking = () => {
 
 
 onMounted(() => {
-  fetchSubmittedForms();
+  fetchReservedForms();
 });
 
 
@@ -88,10 +90,47 @@ const closeRatingModal = () => {
   isRatingModalOpen.value = false;
 };
 
-const submitRating = () => {
+const dormId = ref(0)
+
+const voteRating = (id) =>{
+  dormId.value = id
+  console.log(dormId.value)
+  isRatingModalOpen.value =! isRatingModalOpen.value
+
+}
+
+const submitRating = async () => {
   console.log("Submitted rating:", selectedScore.value);
-  closeRatingModal();
+
+  try {
+    const response = await fetch(`${API_ROOT}/user/votes/dormitory/${dormId.value}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ totalScore: selectedScore.value })
+    });
+
+    // ตรวจสอบสถานะ response และแสดงข้อความตามประเภทของ response
+    if (response.ok) {
+      alert("โหวตสำเร็จ!");
+      fetchReservedForms()
+      closeRatingModal();
+      
+    } else {
+      alert(`ไม่สามารถโหวตได้`);
+      closeRatingModal();
+    }
+  } catch (error) {
+    console.error("Error submitting rating:", error);
+    alert("เกิดข้อผิดพลาดในการโหวต");
+  }
 };
+
+
+
+
 
 
 </script>
@@ -128,15 +167,15 @@ const submitRating = () => {
               <div class="rounded-lg">
                 <div class="flex flex-row justify-between">
                   <div>
-                    <p class="text-sm text-gray-600">ชื่อผู้จองหอพัก: {{ form.name || 'ไม่มีข้อมูล' }}</p>
+                    <p class="text-sm text-gray-600">ชื่อเจ้าของหอพัก: {{ form.owner.name || 'ไม่มีข้อมูล' }}</p>
                   </div>
-                  <div class="text-xl text-gray-800 font-semibold cursor-pointer hover:text-black hover:scale-105" @click="toggleDetail">
+                  <div class="text-lg text-blue-900 font-semibold cursor-pointer hover:text-black hover:scale-105 underline" @click="toggleDetail">
                     {{ isShowDetail ? 'ซ่อนรายละเอียด' : 'รายละเอียดเพิ่มเติม' }}
                   </div>
                 </div>
                 
-                <p class="text-sm text-gray-600">เบอร์ติดต่อ: {{ formatPhoneNumber(form.phone || 'ไม่มีข้อมูล') }}</p>
-                <p class="text-sm text-gray-600">อีเมล: {{ form.email || 'ไม่มีข้อมูล' }}</p>
+                <p class="text-sm text-gray-600">เบอร์ติดต่อ: {{ formatPhoneNumber(form.owner.phone || 'ไม่มีข้อมูล') }}</p>
+                <p class="text-sm text-gray-600">อีเมล: {{form.owner.email || 'ไม่มีข้อมูล' }}</p>
               </div>
 
               
@@ -151,7 +190,7 @@ const submitRating = () => {
               </div>
 
             <!-- ปุ่มแก้ไขและยกเลิกจะถูกซ่อนไปหาก description มีคำว่า 'ยกเลิกการจอง' -->
-            <div v-if="!form.description.includes('ยกเลิกการจอง')" class="flex space-x-6 mt-6">
+            <div v-if="!form.description.includes('ยกเลิกการจอง')" class="flex justify-end space-x-6 mt-6">
               
               <!-- จองไว้ แต่ยังไม่เช็คอิน -->
               <button v-if="form.status === 'reserved' " class="btn p-3 bg-blue-500 text-white hover:bg-blue-600 w-32" @click="goToEditPage(form.formId)">
@@ -163,17 +202,17 @@ const submitRating = () => {
               </button>
 
             <!-- เช็คอินแล้ว -->
-              <button v-if="form.status === 'checkIn'" class="btn bg-white p-3 border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white w-32" @click="isRatingModalOpen=!isRatingModalOpen">
+              <button v-if="form.status === 'checkIn'" class="btn bg-white p-3 border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white w-32" @click="voteRating(form.dormId)">
                 ให้คะแนน
               </button>
 
                <!-- ให้คะแนนแล้ว -->
-              <p  v-if="form.status === 'success'">รีวิวแล้ว</p>
+              <p  v-if="form.status === 'success'">✔️ ให้คะแนนแล้ว</p>
             </div>
             
 
             <!-- ข้อความแสดงเมื่อ description มีคำว่า 'ยกเลิกการจอง' -->
-            <div v-if="form.description.includes('ยกเลิกการจอง')" class="text-right text-gray-500 mt-4 text-2xl">
+            <div v-if="form.description.includes('ยกเลิกการจอง')" class="text-right text-gray-500 mt-4">
               ยกเลิกการจองแล้ว
             </div>
           </li>
@@ -181,10 +220,6 @@ const submitRating = () => {
 
       </div>
     </div>
-
-              <button @click="isRatingModalOpen=!isRatingModalOpen" class="btn bg-white p-3 border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white w-32">
-                ให้คะแนน
-              </button>
 
 
               <!-- Modal ให้คะแนน -->
@@ -218,7 +253,7 @@ const submitRating = () => {
                     <button @click="closeRatingModal" class="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500">
                       ยกเลิก
                     </button>
-                    <button @click="submitRating()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600" :disabled="!selectedScore">
+                    <button @click="submitRating(dormId)" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600" :disabled="!selectedScore">
                       ส่งคะแนน
                     </button>
                   </div>

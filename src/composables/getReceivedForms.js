@@ -1,13 +1,13 @@
 import { ref } from 'vue';
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 
-export const useSubmittedForms = () => {
+export const useReceivedForms = () => {
   const isLoading = ref(true);
-  const submittedForms = ref([]);
+  const receivedForms = ref([]);
 
-  const fetchSubmittedForms = async () => {
+  const fetchReceivedForms = async () => {
     try {
-      const response = await fetch(`${API_ROOT}/forms/user`, {
+      const response = await fetch(`${API_ROOT}/user/receive-form`, {
         method: 'GET',
         headers: {
           "Content-Type": "application/json",
@@ -34,13 +34,13 @@ export const useSubmittedForms = () => {
 
       // ถ้าไม่มีข้อมูลให้ตั้งค่าเป็น [] (array ว่าง)
       if (data && Array.isArray(data) && data.length > 0) {
-        submittedForms.value = data; // เก็บข้อมูลลงใน reactive variable
+        receivedForms.value = data; // เก็บข้อมูลลงใน reactive variable
       } else {
-        submittedForms.value = []; // กรณีไม่มีข้อมูล
+        receivedForms.value = []; // กรณีไม่มีข้อมูล
       }
     } catch (error) {
       // console.error('เกิดข้อผิดพลาดในการโหลดข้อมูล:', error);
-      submittedForms.value = []; // กรณีเกิดข้อผิดพลาดในการดึงข้อมูล
+      receivedForms.value = []; // กรณีเกิดข้อผิดพลาดในการดึงข้อมูล
     } finally {
       isLoading.value = false;
     }
@@ -48,7 +48,7 @@ export const useSubmittedForms = () => {
 
   return {
     isLoading,
-    submittedForms,
-    fetchSubmittedForms
+    receivedForms,
+    fetchReceivedForms
   };
 };

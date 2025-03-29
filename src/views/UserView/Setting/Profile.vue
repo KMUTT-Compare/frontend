@@ -1,9 +1,13 @@
 <script setup>
 import Sidebar from '@/components/Sidebar.vue';
+import { clearAllToken, clearToken } from '@/composables/Authentication/clearToken';
 import { getNewToken } from '@/composables/Authentication/getNewToken';
 import { validatePhone, validateEmail, validateName, validatePassword } from '@/composables/Validate/validateUserData';
+import { useUIStore } from '@/stores/uiStore';
 import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
+
+const uiStore = useUIStore()
 
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 const router = useRouter();
@@ -58,7 +62,7 @@ const validatePasswordField = () => {
     return false;
   }
   if (!validatePassword(newPassword.value)) {
-    errors.value.confirmPassword = 'รหัสผ่านต้องมีอย่างน้อย 1 ตัวอักษรพิมพ์ใหญ่, 1 ตัวเลข และ 1 สัญลักษณ์พิเศษ';
+    errors.value.confirmPassword = 'กรุณากรอกรหัสผ่าน รหัสผ่านต้องมีตัวอักษรเล็ก, ตัวอักษรใหญ่, ตัวเลข, อักขระพิเศษ และความยาวระหว่าง 8 ถึง 20 ตัว โดยไม่สามารถมีช่องว่างได้';
     return false;
   }
   errors.value.confirmPassword = '';
@@ -86,9 +90,9 @@ watch([phone], () => {
 
 
 const validateData = () => {
-  errors.value.username = username.value ? '' : 'กรุณากรอกชื่อผู้ใช้';
-  errors.value.name = validateName(name.value) ? '' : 'กรุณากรอกชื่อ-นามสกุล โดยจะต้องเป็นตัวอักษรและไม่เกิน 50 ตัว';
-  errors.value.email = validateEmail(email.value) ? '' : 'กรุณากรอกอีเมลให้ถูกต้อง';
+  errors.value.username = username.value ? '' : 'กรุณากรอกชื่อผู้ใช้ (ไม่เกิน 50 ตัวอักษร)';
+  errors.value.name = validateName(name.value) ? '' : 'กรุณากรอกชื่อ-นามสกุล โดยจะต้องเป็นตัวอักษรและไม่เกิน 50 ตัวอักษร';
+  errors.value.email = validateEmail(email.value) ? '' : 'กรุณากรอกอีเมล โดยอีเมลจะต้องมีรูปแบบที่ถูกต้อง (เช่น example@domain.com)';
   errors.value.phone = validatePhone(phone.value) ? '' : 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)';
 
   return !errors.value.username && !errors.value.name && !errors.value.email && !errors.value.phone;
@@ -104,7 +108,7 @@ const fetchUserProfile = async () => {
       }
     });
 
-    if (response.status === 404) {
+    if (response.status === 401) {
       // ถ้า token หมดอายุ ให้เรียก getNewToken
       await getNewToken();
       // หลังจากนั้นลองทำการดึงข้อมูลผู้ใช้ใหม่อีกครั้ง
@@ -123,13 +127,14 @@ const fetchUserProfile = async () => {
   }
 };
 
-// ฟังก์ชันอัปเดตข้อมูลผู้ใช้
 const updateProfile = async () => {
   if (!validateData()) return;
 
   loading.value = true;
   successMessage.value = '';
   errorMessage.value = ''; // เคลียร์ข้อความ error ก่อนการอัปเดต
+
+  const oldUsername = localStorage.getItem('username'); // ดึง username เดิมมาเช็ค
 
   const formData = {
     username: username.value,
@@ -151,15 +156,14 @@ const updateProfile = async () => {
     if (!response.ok) {
       const errorData = await response.json();
 
-      // เช็คว่า message มาจาก backend ว่า "Username already exists"
       if (errorData.message === "Username already exists") {
-        errorMessage.value = '❌ username นี้มีผู้ใช้แล้ว';  // แสดงข้อความนี้
+        errorMessage.value = '❌ username นี้มีผู้ใช้แล้ว'; 
       } 
       else if (errorData.message === "Email already exists") {
-        errorMessage.value = '❌ email นี้มีผู้ใช้แล้ว';  // แสดงข้อความนี้
+        errorMessage.value = '❌ email นี้มีผู้ใช้แล้ว';  
       } 
       else {
-        errorMessage.value = '❌ บันทึกข้อมูลไม่สำเร็จ';  // ข้อความทั่วไป
+        errorMessage.value = '❌ บันทึกข้อมูลไม่สำเร็จ';
       }
 
       throw new Error('ไม่สามารถอัปเดตข้อมูลได้');
@@ -168,13 +172,21 @@ const updateProfile = async () => {
     loading.value = false;
     successMessage.value = '✅ บันทึกข้อมูลสำเร็จ';
 
+    // ✅ เช็คว่ามีการเปลี่ยน username ไหม
+    if (oldUsername && oldUsername !== username.value) {
+      setTimeout(() => {
+        clearAllToken()
+        alert('กรุณาเข้าสู่ระบบใหม่อีกครั้ง')
+        uiStore.openLoginPopup()
+      }, 1500); // รอให้ข้อความ success แสดงก่อน logout
+    }
+
     setTimeout(() => {
       successMessage.value = '';
     }, 3000);
 
   } catch (error) {
     loading.value = false;
-    // ข้อความ error จะถูกแสดงจากข้อผิดพลาดใน try-catch
   }
 };
 
@@ -208,6 +220,7 @@ const changePassword = async () => {
       errorMessage.value = '❌ รหัสผ่านเดิมไม่ถูกต้อง';
       throw new Error('ไม่สามารถอัปเดตข้อมูลได้');
     }
+
     loading.value = false;
     successMessage.value = '✅ เปลี่ยนรหัสผ่านสำเร็จ';
 
@@ -222,7 +235,7 @@ const changePassword = async () => {
 };
 
 
-
+const isEditUsername = ref(false)
 </script>
 
 <template>
@@ -249,9 +262,8 @@ const changePassword = async () => {
 
           <h1 class="text-3xl">แก้ไขข้อมูลสมาชิก</h1>
 
-          <!-- ข้อมูลผู้ใช้ -->
           <div class="flex flex-row items-center">
-            <p for="username" class="w-32 text-lg">ชื่อผู้ใช้:</p>
+            <p for="name_surname" class="w-32 text-lg">ชื่อผู้ใช้:</p>
             <input v-model="username" type="text" class="input-style" placeholder="username" />
           </div>
           <span v-if="errors.username" class="pl-32 text-red-500 text-sm mt-1">{{ errors.username }}</span>
@@ -356,7 +368,7 @@ const changePassword = async () => {
 
 .toggle-btn {
   position: absolute;
-  right: 10px;
+  right: 50px;
   cursor: pointer;
   background: none;
   border: none;

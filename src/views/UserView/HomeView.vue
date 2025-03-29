@@ -427,7 +427,7 @@ const filteredDormitories = computed(() => {
               </p>
               <div class="flex flex-row space-x-2 mt-5">
                   <img class="w-6" src="/star.png" alt="">
-                  <h2>{{ dorm.score }}</h2>
+                  <h2>{{ dorm.rating.totalScore < 1 ? 'ยังไม่มีคะแนน' : dorm.rating.totalScore }}</h2>
               </div>
 
               <div class="flex space-x-2 mt-2 justify-center pt-5 w-full">

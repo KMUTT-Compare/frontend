@@ -125,6 +125,7 @@ const editUser = (userId) => {
             <th class="p-3">Role</th>
             <th class="p-3">Created On</th>
             <th class="p-3">Updated On</th>
+            <th class="p-3">Status</th>
             <th class="p-3 text-center">Action</th>
           </tr>
         </thead>
@@ -137,6 +138,7 @@ const editUser = (userId) => {
             <td class="p-3">{{ user.role }}</td>
             <td class="p-3">{{ user.createdOn ? formatDate(user.createdOn) : '-' }}</td>
             <td class="p-3">{{ user.updatedOn ? formatDate(user.updatedOn) : '-' }}</td>
+            <td class="p-3" :class="user.active ? 'text-green-500' : 'text-gray-500'">{{ user.active ? 'online' : 'offline'}}</td>
             <td class="p-3 flex justify-center space-x-3">
               <button @click="editUser(user.userId)" class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition">
                 Edit

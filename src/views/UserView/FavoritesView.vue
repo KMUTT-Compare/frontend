@@ -23,11 +23,6 @@ onMounted(async () => {
 
 
 
-// คำนวณหอพักที่มีคะแนนสูงสุด
-const topDorm = computed(() => {
-  if (dormitories.value.length === 0) return null;
-  return [...dormitories.value].sort((a, b) => b.score - a.score)[0];
-});
 
 // ฟังก์ชันลบออกจากรายการโปรด
 const removeFromFavorites = async (dormId) => {
@@ -58,21 +53,17 @@ const removeFromFavorites = async (dormId) => {
     <div class="favorites-page">
       
       <!-- Rank 1 Section -->
-      <div class="rank1-container" v-if="topDorm">
-        <div class="rank1-image-left">
-          <img src="../../components/icons/Favorite/rank.png" alt="Rank Image" class="w-60 animate-scale">
-        </div>
+      <div class="rank1-container" v-if="dormitories">
         <div class="rank1-details">
           <div class="details text-left pl-3">
-            <h2 class="text-3xl font-bold text-blue-800">{{ topDorm.dormName }}</h2>
-            <p class="score pt-2">Rating: <span class="font-semibold">{{ topDorm.score }}</span></p>
+            <h2 class="text-3xl font-bold text-blue-800">Favorites</h2>
+            <p class="score pt-2">รายชื่อหอพักในรายการโปรด</p>
           </div>
         </div>
         <div class="rank1-image-right p-4">
           <img src="../../components/icons/Favorite/jip2.gif" alt="Rank 1 GIF" class="w-72 rounded-full">
         </div>
       </div>
-      <p v-else class="text-red-500 text-center text-xl">ยังไม่มีรายการโปรด</p>
 
       <!-- Header -->
       <header class="header flex w-full mt-5 mb-5">
@@ -90,7 +81,6 @@ const removeFromFavorites = async (dormId) => {
           <tr>
             <th>#</th>
             <th>ชื่อหอพัก</th>
-            <th>คะแนน</th>
             <th>ขนาดห้อง</th>
             <th>ราคาต่ำสุด</th>
             <th>ราคาสูงสุด</th>
@@ -99,12 +89,12 @@ const removeFromFavorites = async (dormId) => {
           </tr>
         </thead>
         <tbody>
+
           <tr v-for="(dorm, index) in dormitories" :key="dorm.id">
             <td>{{ index + 1 }}</td>
             <td @click="showDetail(dorm.dormId)" class="cursor-pointer animated-hover">
               {{ dorm.dormName }}
             </td>
-            <td>{{ dorm.score }}</td>
             <td>{{ dorm.size }} ตร.ม.</td>
             <td>{{ dorm.min_price }} บาท</td>
             <td>{{ dorm.max_price }} บาท</td>
@@ -119,6 +109,9 @@ const removeFromFavorites = async (dormId) => {
           </tr>
         </tbody>
       </table>
+
+        <p  v-if="dormitories.length===0" class="flex text-xl text-gray-400 justify-center mt-10">ยังไม่มีรายการโปรด</p>
+
     </div>
   </div>
 </template>

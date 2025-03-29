@@ -79,10 +79,17 @@ const clickReservedForms = ()=>{
   router.push('/reservedForms')
 }
 
+const clickReceivedForms = ()=>{
+  toggleDropdown()
+  router.push('/receivedForms')
+}
+
 const clickSupport = ()=>{
   toggleDropdown()
   router.push('/support')
 }
+
+
 
 
 
@@ -142,6 +149,9 @@ const clickSupport = ()=>{
                 </li>
                 <li>
                   <p @click="clickReservedForms" class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">หอพักที่จอง</p>
+                </li>
+                <li>
+                  <p @click="clickReceivedForms" class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">ฟอร์มที่ได้รับ</p>
                 </li>
                 <li>
                   <p @click="clickSupport" class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">ความช่วยเหลือและการสนับสนุน</p>

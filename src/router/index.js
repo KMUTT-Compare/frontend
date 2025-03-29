@@ -123,14 +123,14 @@ router.beforeEach((to, from, next) => {
       next(); 
     } else {
       // console.log(userRole.value)
-      // alert('คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
+      alert('คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
       next({ name: '404' }); // ไปหน้า 404
     }
   }else if(to.meta.requiresAdmin){
     if (userRole.value === 'admin') { 
       next();
     } else {
-      // alert('คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
+      alert('คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
       next({ name: '404' }); // ไปหน้า 404
     }
   }else {

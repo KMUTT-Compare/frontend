@@ -1,7 +1,7 @@
 <script setup>
 import { useUIStore } from '@/stores/uiStore';
 import { ref, watch } from 'vue';
-import { validatePhone, validateEmail, validateName, validatePassword } from '@/composables/Validate/validateUserData';
+import { validatePhone, validateEmail, validateName, validatePassword, validateUsername } from '@/composables/Validate/validateUserData';
 const FETCH_API = import.meta.env.VITE_API_ROOT;
 const uiStore = useUIStore();
 
@@ -33,18 +33,22 @@ const touched = ref(false);
 const validateData = () => {
   touched.value = true; // เมื่อกด submit ให้ถือว่า touched
 
-  errors.value.username = username.value || !touched.value ? '' : 'กรุณากรอกชื่อผู้ใช้';
-  errors.value.name = !name.value || validateName(name.value) ? '' : 'กรุณากรอกชื่อ-นามสกุล โดยจะต้องเป็นตัวอักษรและไม่เกิน 50 ตัว';
-  errors.value.email = !email.value || validateEmail(email.value) ? '' : 'กรุณากรอกอีเมลให้ถูกต้อง';
+  errors.value.username = !username.value || validateUsername(username.value) || !touched.value ? '' : 'กรุณากรอกชื่อผู้ใช้ (ไม่เกิน 50 ตัวอักษร)';
+  errors.value.name = !name.value || validateName(name.value) ? '' : 'กรุณากรอกชื่อ-นามสกุล โดยจะต้องเป็นตัวอักษรและไม่เกิน 50 ตัวอักษร';
+  errors.value.email = !email.value || validateEmail(email.value) ? '' : 'กรุณากรอกอีเมล โดยอีเมลจะต้องมีรูปแบบที่ถูกต้อง (เช่น example@domain.com)';
   errors.value.phone = !phone.value || validatePhone(phone.value) ? '' : 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)';
+  errors.value.password = !password.value || validatePassword(password.value) ? '' : 'กรุณากรอกรหัสผ่าน รหัสผ่านต้องมีตัวอักษรเล็ก, ตัวอักษรใหญ่, ตัวเลข, อักขระพิเศษ และความยาวระหว่าง 8 ถึง 20 ตัว โดยไม่สามารถมีช่องว่างได้';
 
-  return !errors.value.username && !errors.value.name && !errors.value.email && !errors.value.phone;
+  return !errors.value.username && !errors.value.name && !errors.value.email && !errors.value.phone && !errors.value.password;
 };
 
 const validateConfirmPassword = () => {
+  if (!confirmPassword.value) {
+    errors.value.confirmPassword = '';  // ไม่แสดง error ถ้ายังไม่ได้กรอก
+  } else {
     errors.value.confirmPassword = confirmPassword.value === password.value ? '' : 'รหัสผ่านไม่ตรงกัน';
+  }
 };
-
 
 const validateIsAccept = () => {
     errors.value.isAccept = isAccept.value ? '' : 'กรุณายอมรับเงื่อนไขก่อนสมัครสมาชิก';
@@ -54,6 +58,10 @@ watch([password, confirmPassword], () => {
     validateConfirmPassword(); // เรียกตรวจสอบรหัสผ่านทุกครั้งที่ newPassword หรือ confirmPassword เปลี่ยนค่า
 });
 
+
+watch([username], () => {
+  validateData(); 
+});
 
 watch([name], () => {
   validateData(); 
@@ -67,6 +75,9 @@ watch([phone], () => {
   validateData(); 
 });
 
+watch([password], () => {
+  validateData(); 
+});
 
 
 
