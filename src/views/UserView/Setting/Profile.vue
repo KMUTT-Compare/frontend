@@ -2,15 +2,14 @@
 import Sidebar from '@/components/Sidebar.vue';
 import { clearAllToken, clearToken } from '@/composables/Authentication/clearToken';
 import { getNewToken } from '@/composables/Authentication/getNewToken';
+import { fetchUserProfile } from '@/composables/GetUsers/getUserProfile';
 import { validatePhone, validateEmail, validateName, validatePassword } from '@/composables/Validate/validateUserData';
 import { useUIStore } from '@/stores/uiStore';
 import { ref, onMounted, watch } from 'vue';
-import { useRouter } from 'vue-router';
 
 const uiStore = useUIStore()
 
 const API_ROOT = import.meta.env.VITE_API_ROOT;
-const router = useRouter();
 
 const loading = ref(false);
 const successMessage = ref('');
@@ -98,34 +97,7 @@ const validateData = () => {
   return !errors.value.username && !errors.value.name && !errors.value.email && !errors.value.phone;
 };
 
-// ฟังก์ชันดึงข้อมูลผู้ใช้
-const fetchUserProfile = async () => {
-  try {
-    const response = await fetch(`${API_ROOT}/user/me`, {
-      method: 'GET',
-      headers: {
-        'Authorization': "Bearer " + localStorage.getItem('token')
-      }
-    });
 
-    if (response.status === 401) {
-      // ถ้า token หมดอายุ ให้เรียก getNewToken
-      await getNewToken();
-      // หลังจากนั้นลองทำการดึงข้อมูลผู้ใช้ใหม่อีกครั้ง
-      return await fetchUserProfile();
-    }
-
-    if (!response.ok) {
-      throw new Error('ไม่สามารถดึงข้อมูลผู้ใช้ได้');
-    }
-
-    const data = await response.json();
-    return data;
-
-  } catch (error) {
-    alert(error.message);
-  }
-};
 
 const updateProfile = async () => {
   if (!validateData()) return;
