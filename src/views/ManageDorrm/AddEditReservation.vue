@@ -34,7 +34,7 @@ onMounted(async () => {
   }
   
   const profileData = await fetchUserProfile();
-  console.log(profileData.name)
+  // console.log(profileData.name)
   if (profileData) {
     form.value.name = profileData.name;
     form.value.email = profileData.email;
@@ -158,7 +158,7 @@ const validateField = (field) => {
 const fetchFormData = async (f) => {
   // ตรวจสอบว่า params.id มีค่าหรือไม่
   if (!params.id) {
-    console.error('ID ไม่ถูกต้อง');
+    // console.error('ID ไม่ถูกต้อง');
     return;
   }
 
@@ -188,10 +188,10 @@ const fetchFormData = async (f) => {
       await getNewToken();  // รีเฟรช token
       await fetchFormData(f);  // พยายามดึงข้อมูลใหม่หลังจากรีเฟรช token
     } else {
-      console.error('ไม่สามารถดึงข้อมูลฟอร์มได้');
+      // console.error('ไม่สามารถดึงข้อมูลฟอร์มได้');
     }
   } catch (error) {
-    console.error('เกิดข้อผิดพลาด:', error);
+    // console.error('เกิดข้อผิดพลาด:', error);
   } finally {
     isLoading.value = false;  // สิ้นสุดการโหลดข้อมูล
   }
@@ -248,10 +248,10 @@ const submitForm = async () => {
       }
       
     } else {
-      console.error('ไม่สามารถส่งข้อมูลได้');
+      // console.error('ไม่สามารถส่งข้อมูลได้');
     }
   } catch (error) {
-    console.error('เกิดข้อผิดพลาด:', error);
+    // console.error('เกิดข้อผิดพลาด:', error);
   } finally {
     isLoading.value = false;
     

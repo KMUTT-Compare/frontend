@@ -25,14 +25,14 @@ const getNewToken = async () => {
       const data = await res.json();
       const newToken = data.accessToken;
       localStorage.setItem('token', newToken);
-      console.log('Token refreshed successfully:', newToken);
+      // console.log('Token refreshed successfully:', newToken);
     } else {
       clearAllToken();
       alert('Please login.');
       uiStore.openLoginPopup();
     }
   } catch (err) {
-    console.error('An error occurred while refreshing the token', err);
+    // console.error('An error occurred while refreshing the token', err);
     throw new Error(err);
   }
 };

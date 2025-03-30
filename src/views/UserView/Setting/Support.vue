@@ -60,7 +60,7 @@ const confirmDelete = async () => {
         // สามารถทำการ redirect หรืออัปเดตหน้าต่างหลังลบ
         window.location.href = '/';  // ตัวอย่างการเปลี่ยนหน้าไปยังหน้าล็อกอินหลังจากลบบัญชี
     } catch (error) {
-        console.error('เกิดข้อผิดพลาด:', error);
+        // console.error('เกิดข้อผิดพลาด:', error);
         alert("เกิดข้อผิดพลาดในการลบบัญชี");
     }
 };

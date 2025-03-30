@@ -23,7 +23,7 @@ const getDormitoryById = async (id) => {
       // ไปที่หน้า home เมื่อผู้ใช้กดยืนยัน
       window.location.href = '/'; // เปลี่ยนเส้นทางไปที่หน้า home
     }
-    console.error('Error fetching data:', error);
+    // console.error('Error fetching data:', error);
     throw error;
   }
 };

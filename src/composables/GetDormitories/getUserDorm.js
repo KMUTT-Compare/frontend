@@ -32,7 +32,7 @@ export const getUserDorm = async () => {
 
     return []; // คืนค่า [] แทน null
   } catch (error) {
-    console.error("Error:", error);
+    // console.error("Error:", error);
     return []; // คืนค่า [] ในกรณีที่เกิดข้อผิดพลาด
   }
 };

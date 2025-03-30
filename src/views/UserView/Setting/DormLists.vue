@@ -96,7 +96,7 @@ const deleteDormitory = async () => {
         throw new Error('Cannot delete data!');
       }
     } catch (error) {
-      console.log(`ERROR: ${error}`);
+      // console.log(`ERROR: ${error}`);
     }
   }
 };

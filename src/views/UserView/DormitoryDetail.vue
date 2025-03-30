@@ -13,7 +13,7 @@ import BorderButton from '@/components/buttons/BorderButton.vue';
 import { useUIStore } from '@/stores/uiStore';
 const compareStore = useCompareStore();
 const { compareItems } = storeToRefs(compareStore);
-console.log(compareItems.value)
+// console.log(compareItems.value)
 
 const addDormDetailToCompare = (dormitoryDetaill) => {
   compareStore.addDormDetailToCompare(dormitoryDetaill);
@@ -42,7 +42,7 @@ function closeModal() {
 onMounted(async () => {
   try {
     dormitoryDetaill.value = await getDormitoryById(params.id);
-    console.log(dormitoryDetaill.value)
+    // console.log(dormitoryDetaill.value)
 
      // กำหนดค่า dormImages จากข้อมูลที่ได้จาก server
      dormImages.value = dormitoryDetaill.value.image;
@@ -143,13 +143,13 @@ function initMap(addressObject) {
         if (status === google.maps.DirectionsStatus.OK) {
           directionsRenderer.setDirections(result);
         } else {
-          console.error("Error with DirectionsService: " + status);
+          // console.error("Error with DirectionsService: " + status);
         }
       });
 
     } else {
       alert('ไม่สามารถค้นหาที่อยู่ได้: ' + status);
-      console.error('Geocoding failed with status: ' + status);  // แสดงข้อผิดพลาดในกรณีที่การค้นหาล้มเหลว
+      // console.error('Geocoding failed with status: ' + status);  // แสดงข้อผิดพลาดในกรณีที่การค้นหาล้มเหลว
     }
   });
 }

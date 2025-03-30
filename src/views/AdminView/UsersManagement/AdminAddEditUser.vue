@@ -106,7 +106,7 @@ const save = async () => {
       } else if (errorData.message === 'Username already exists') {
         errorMessages.value.username = 'ชื่อผู้ใช้นี้มีผู้ใช้งานแล้ว';
       } else {
-        alert(errorData.message || 'Failed to save user data');
+        // alert(errorData.message || 'Failed to save user data');
       }
       return;
     }
@@ -120,8 +120,8 @@ const save = async () => {
     };
 
   } catch (error) {
-    console.error('Error saving user:', error);
-    alert('An error occurred while saving the user data');
+    // console.error('Error saving user:', error);
+    // alert('An error occurred while saving the user data');
   }
 };
 

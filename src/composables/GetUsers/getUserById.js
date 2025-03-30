@@ -19,7 +19,7 @@ export const getUserById = async (userId) => {
       return await res.json();
     }
 
-    if (res.status === 401 || response.status === 403) {
+    if (res.status === 401 || res.status === 403) {
       await getNewToken(); // รีเฟรช token
       res = await fetch(`${API_ROOT}/admin/user/${userId}`, {
         headers: {
@@ -33,10 +33,10 @@ export const getUserById = async (userId) => {
       }
     }
 
-    console.error(`Error fetching user (ID: ${userId}): ${res.status}`);
+    // console.error(`Error fetching user (ID: ${userId}): ${res.status}`);
     return null; 
   } catch (error) {
-    console.error('Error:', error);
+    // console.error('Error:', error);
     return null;
   }
 };

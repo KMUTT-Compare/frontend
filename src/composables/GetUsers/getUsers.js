@@ -16,7 +16,7 @@ const getUsers = async () => {
       return await res.json();
     }
 
-    if (res.status === 401 || response.status === 403) {
+    if (res.status === 401 || res.status === 403) {
       await getNewToken(); // รีเฟรช token
       res = await fetch(`${API_ROOT}/admin/users`, {
         headers: {
@@ -31,10 +31,10 @@ const getUsers = async () => {
 
     }
 
-    console.error(`Error fetching users: ${res.status}`);
+    // console.error(`Error fetching users: ${res.status}`);
     return []; 
   } catch (error) {
-    console.error('Error:', error);
+    // console.error('Error:', error);
     return [];
   }
 };

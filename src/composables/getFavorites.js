@@ -16,7 +16,7 @@ const getFavorites = async () => {
       return await res.json();
     }
 
-    if (res.status === 401 || response.status === 403) {
+    if (res.status === 401 || res.status === 403) {
       await getNewToken(); // รีเฟรช token ใหม่
       res = await fetch(`${API_ROOT}/favorites/user`, {  // 🔥 ใช้ endpoint เดิม
         method: "GET",

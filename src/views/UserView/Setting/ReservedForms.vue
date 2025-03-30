@@ -74,8 +74,6 @@ const hoveredScore = ref(0);
 
 const setScore = (score) => {
   selectedScore.value = score;
-  console.log(
-    selectedScore.value)
 };
 
 const hoverStar = (score) => {
@@ -94,13 +92,13 @@ const dormId = ref(0)
 
 const voteRating = (id) =>{
   dormId.value = id
-  console.log(dormId.value)
+  // console.log(dormId.value)
   isRatingModalOpen.value =! isRatingModalOpen.value
 
 }
 
 const submitRating = async () => {
-  console.log("Submitted rating:", selectedScore.value);
+  // console.log("Submitted rating:", selectedScore.value);
 
   try {
     const response = await fetch(`${API_ROOT}/user/votes/dormitory/${dormId.value}`, {
@@ -123,8 +121,8 @@ const submitRating = async () => {
       closeRatingModal();
     }
   } catch (error) {
-    console.error("Error submitting rating:", error);
-    alert("เกิดข้อผิดพลาดในการโหวต");
+    // console.error("Error submitting rating:", error);
+    // alert("เกิดข้อผิดพลาดในการโหวต");
   }
 };
 

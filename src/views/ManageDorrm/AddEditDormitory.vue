@@ -57,7 +57,7 @@ onMounted(async () => {
       // ดึงข้อมูลหอพักตาม id และรอผลลัพธ์
       oldDormitory.value = await getDormitoryById(dormitoryId);
 
-      console.log(oldDormitory.value); // แสดงผลข้อมูลที่ได้จาก API
+      // console.log(oldDormitory.value); // แสดงผลข้อมูลที่ได้จาก API
 
       // นำข้อมูลจาก oldDormitory มาใส่ในตัวแปรที่เกี่ยวข้อง
       dormName.value = oldDormitory.value.dormName || '';
@@ -85,11 +85,11 @@ onMounted(async () => {
 
       // กำหนดรูปภาพที่เลือก
       selectedImages.value = oldDormitory.value.image || [];
-      console.log('ข้อมูลรูปที่ดึงมาจากเดิม' + selectedImages.value)
+      // console.log('ข้อมูลรูปที่ดึงมาจากเดิม' + selectedImages.value)
 
       
     } catch (error) {
-      console.error('Error fetching dormitory:', error);
+      // console.error('Error fetching dormitory:', error);
     }
   }
 });
@@ -246,23 +246,23 @@ const uploadImage = async (file) => {
       const index = selectedImages.value.findIndex(img => img.file === file);
       if (index !== -1) {
         selectedImages.value[index] = uploadedImageUrl;  // อัปเดต uploadedImageUrl
-        console.log('Selected Image')
-        console.log(selectedImages.value)
+        // console.log('Selected Image')
+        // console.log(selectedImages.value)
       }
     });
 
-    console.log('Image uploaded successfully:', data);
+  
 
   } catch (error) {
-    console.error('Error uploading image:', error);
+    // console.error('Error uploading image:', error);
   }
 };
 
 // ลบภาพจากเซิร์ฟเวอร์
 const deleteImage = async (imageUrl) => {
-  console.log(imageUrl)
+  // console.log(imageUrl)
   const imageId = imageUrl.split('/').pop();  // ดึง ID จาก URL ของภาพที่อัปโหลดหรือที่เลือก
-  console.log(imageId)
+  // console.log(imageId)
   
 
   try {
@@ -279,12 +279,12 @@ const deleteImage = async (imageUrl) => {
 
     // ลบภาพที่ถูกลบออกจาก selectedImages
     
-    console.log('ลบสำเร็จ');
-    console.log(selectedImages.value)
+    // console.log('ลบสำเร็จ');
+    // console.log(selectedImages.value)
     selectedImages.value = selectedImages.value.filter(img => img !== imageUrl);
 
   } catch (error) {
-    console.error('Error deleting image:', error);
+    // console.error('Error deleting image:', error);
   }
 };
 
@@ -496,7 +496,7 @@ const handleSubmit = async () => {
 
 // ฟังก์ชันที่จัดการกับการยืนยันใน modal
 const handleConfirmAction = async (context) => {
-  console.log('Confirm action for:', context);
+  // console.log('Confirm action for:', context);
 
   dormitoryData.value = {
     userId: userId.value,
@@ -555,15 +555,15 @@ const handleConfirmAction = async (context) => {
       // ส่งข้อมูลไปยัง modal
       isModalSuccessVisible.value = true; // ให้แสดง modal
       modalProps.value = successMessage; // ส่งข้อมูล props ไปที่ modal
-      console.log(modalContext.value)
+      // console.log(modalContext.value)
 
     } else {
       const errorResponse = await res.json();
       alert(`ไม่สามารถ ${context === 'update' ? 'อัปเดต' : 'เพิ่ม'} หอพักได้: ${errorResponse.message || 'โปรดลองใหม่อีกครั้ง'}`);
     }
   } catch (error) {
-    console.error('เกิดข้อผิดพลาดในการส่งข้อมูล:', error);
-    alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
+    // console.error('เกิดข้อผิดพลาดในการส่งข้อมูล:', error);
+    // alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
   }
 
   // Close the modal after action

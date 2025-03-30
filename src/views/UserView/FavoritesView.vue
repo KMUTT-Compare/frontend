@@ -39,10 +39,10 @@ const removeFromFavorites = async (dormId) => {
       dormitories.value = await getFavorites();
       
     } else {
-      console.error('Failed to delete dorm:', response.statusText);
+      // console.error('Failed to delete dorm:', response.statusText);
     }
   } catch (error) {
-    console.error('Error deleting dorm:', error);
+    // console.error('Error deleting dorm:', error);
   }
 };
 </script>

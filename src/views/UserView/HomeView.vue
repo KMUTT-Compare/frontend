@@ -94,7 +94,7 @@ const handleToggleFavorite = async (id) => {
       if (res.ok) {
         favorites.value = favorites.value.filter((fav) => fav.dormId !== id);
       } else {
-        console.error('Error removing favorite:', res.status);
+        // console.error('Error removing favorite:', res.status);
       }
     } else {
       // เพิ่มรายการโปรด
@@ -109,11 +109,11 @@ const handleToggleFavorite = async (id) => {
       if (res.ok) {
         favorites.value.push({ userId, dormId: id });
       } else {
-        console.error('Error adding favorite:', res.status);
+        // console.error('Error adding favorite:', res.status);
       }
     }
   } catch (error) {
-    console.error('Error toggling favorite:', error);
+    // console.error('Error toggling favorite:', error);
   }
 };
 

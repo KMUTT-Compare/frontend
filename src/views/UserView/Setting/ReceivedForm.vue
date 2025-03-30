@@ -58,8 +58,8 @@ const checkIn = async (formId) => {
       alert(`ไม่สามารถเช็คอินได้`);
     }
   } catch (error) {
-    console.error("Error Check-In:", error);
-    alert("เกิดข้อผิดพลาดในการเช็คอิน");
+    // console.error("Error Check-In:", error);
+    // alert("เกิดข้อผิดพลาดในการเช็คอิน");
   } finally {
     isLoadingCheckIn.value = false; // เมื่อเสร็จสิ้นการเช็คอินให้ซ่อนสถานะโหลด
   }

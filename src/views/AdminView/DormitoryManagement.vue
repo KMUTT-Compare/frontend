@@ -13,7 +13,7 @@ const searchQuery = ref('')  // ค่าของคำค้นหา
 
 onMounted(async () => {
   dormitories.value = await getDormitories()
-  console.log(dormitories.value)
+  // console.log(dormitories.value)
 })
 
 // ฟังก์ชันในการกรองหอพักตามคำค้นหา
@@ -50,7 +50,7 @@ const deleteDormitory = async (id) => {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
   } catch (error) {
-    console.error('Error deleting dormitory:', error);
+    // console.error('Error deleting dormitory:', error);
     alert('เกิดข้อผิดพลาดในการลบหอพัก');
   }
 }

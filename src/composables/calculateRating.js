@@ -29,7 +29,7 @@ export function calculateRating() {
 
       closeModal();  // ปิด Modal เมื่อส่งเสร็จ
     } catch (error) {
-      console.error('Error submitting rating:', error);
+      // console.error('Error submitting rating:', error);
     }
   };
 

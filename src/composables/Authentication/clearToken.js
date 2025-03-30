@@ -18,13 +18,11 @@ const API_ROOT = import.meta.env.VITE_API_ROOT;
 
         if (response.ok) {
           clearAllToken()
-          console.log("Logout successful");
-        } else {
-            console.error("Logout failed");
-        }
+        //   console.log("Logout successful");
+        } 
     } catch (error) {
         clearAllToken()
-        console.error("Error logging out:", error);
+        // console.error("Error logging out:", error);
     }
 };
 

@@ -47,7 +47,7 @@ const deleteUser = async (userId) => {
         throw new Error('Cannot delete user!');
       }
     } catch (error) {
-      console.error('Error:', error);
+      // console.error('Error:', error);
     }
   } else {
     router.push({ name: 'AdminUserView' });
