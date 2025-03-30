@@ -80,8 +80,8 @@ const login = async () => {
       localStorage.setItem("token", token.value);
       localStorage.setItem("refreshToken", refreshToken.value);
 
-      console.log("Token ตอน login: "+ token.value)
-      console.log("refreshToken ตอน login: "+ refreshToken.value)
+      // console.log("Token ตอน login: "+ token.value)
+      // console.log("refreshToken ตอน login: "+ refreshToken.value)
 
       uiStore.closeLoginPopup();
 

@@ -118,13 +118,13 @@ const register = async () => {
                     errors.value.email = '❌ email นี้มีผู้ใช้แล้ว';  // แสดงข้อความนี้
                 } 
                 else {
-                    console.log(errorData)  // ข้อความทั่วไป
+                    // console.log(errorData)  // ข้อความทั่วไป
                 }
 
                 throw new Error('ไม่สามารถอัปเดตข้อมูลได้');
                 }
     } catch (error) {
-        console.error('Error:', error.message);
+        // console.error('Error:', error.message);
     }
 };
 
