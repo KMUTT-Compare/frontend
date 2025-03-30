@@ -1,6 +1,7 @@
 import { ref, onMounted } from 'vue'
 import { getNewToken } from "@/composables/Authentication/getNewToken";
-
+import { useUIStore } from "@/stores/uiStore";
+const uiStore = useUIStore()
 // ฟังก์ชันสำหรับดึงข้อมูล Dashboard (เฉพาะ Admin)
 export function getDashboardStats(API_ROOT) {
   const totalDorms = ref(0)
@@ -21,12 +22,16 @@ export function getDashboardStats(API_ROOT) {
         }
       })
 
-      if (response.status === 401) {
+      if (response.status === 401 || response.status === 403) {
         const newToken = await getNewToken()
         if (newToken) {
           return fetchStats()
         }
+      }else if  (response.status === 404){
+        alert('Please Login again!')
+        uiStore.openLoginPopup()
       }
+      
 
       if (!response.ok) {
         throw new Error('Failed to fetch stats')

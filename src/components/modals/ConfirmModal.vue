@@ -1,7 +1,7 @@
 <script setup>
 // Modal visibility state
 import { defineProps, defineEmits } from 'vue';
-import router from '@/router';
+
 
 const props = defineProps({
   isVisible: {

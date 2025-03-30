@@ -1,4 +1,7 @@
 
+import { useUIStore } from "@/stores/uiStore";
+const uiStore = useUIStore()
+import { clearAllToken } from "../Authentication/clearToken";
 import { getNewToken } from "../Authentication/getNewToken";
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 const fetchUserProfile = async () => {
@@ -10,11 +13,16 @@ const fetchUserProfile = async () => {
         }
       });
   
-      if (response.status === 401) {
+      if (response.status === 401 || response.status === 403) {
         // ถ้า token หมดอายุ ให้เรียก getNewToken
         await getNewToken();
         // หลังจากนั้นลองทำการดึงข้อมูลผู้ใช้ใหม่อีกครั้ง
         return await fetchUserProfile();
+      
+      }else if(response.status === 404){
+        clearAllToken()
+        alert('Please Login again!')
+        uiStore.openLoginPopup()
       }
   
       if (!response.ok) {
@@ -25,7 +33,7 @@ const fetchUserProfile = async () => {
       return data;
   
     } catch (error) {
-      alert(error.message);
+      // alert(error.message);
     }
   };
 

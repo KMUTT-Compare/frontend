@@ -1,4 +1,4 @@
-import { clearToken } from './clearToken.js';
+import { clearAllToken, clearToken } from './clearToken.js';
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 import { useUIStore } from '@/stores/uiStore';
 const uiStore = useUIStore();
@@ -7,7 +7,7 @@ const getNewToken = async () => {
   try {
     const refreshToken = localStorage.getItem('refreshToken');
     if (!refreshToken) {
-      clearToken();
+      clearAllToken();
       alert('Please login.');
       uiStore.openLoginPopup();
       return;
@@ -26,9 +26,8 @@ const getNewToken = async () => {
       const newToken = data.accessToken;
       localStorage.setItem('token', newToken);
       console.log('Token refreshed successfully:', newToken);
-      // console.log('Here: '+ localStorage.getItem('token'))
     } else {
-      clearToken();
+      clearAllToken();
       alert('Please login.');
       uiStore.openLoginPopup();
     }

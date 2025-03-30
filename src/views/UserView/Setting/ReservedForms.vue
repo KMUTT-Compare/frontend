@@ -26,7 +26,7 @@ const closeModal = () => {
 
 
 
-const { isLoading, fetchReservedForms, reservedForms } = useReservedForms();
+const { fetchReservedForms, reservedForms } = useReservedForms();
 
 // Create a router instance
 const router = useRouter();
@@ -142,15 +142,9 @@ const submitRating = async () => {
       <div class="p-6 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
         <h1 class="font-bold text-3xl mb-8">ฟอร์มที่ส่งแล้ว</h1>
 
-        <div v-if="isLoading" class="text-center text-gray-600">
-          กำลังโหลดข้อมูล...
+        <div v-if="sortedForms.length === 0" class="text-center text-gray-600">
+          ยังไม่มีฟอร์มที่ส่ง
         </div>
-
-        <ul v-else-if="sortedForms.length === 0" class="space-y-6">
-          <div class="text-center text-gray-600">
-            ยังไม่มีฟอร์มที่ส่ง
-          </div>
-        </ul>
 
         <ul v-else class="space-y-6">
           <li v-for="form in sortedForms" :key="form.id"

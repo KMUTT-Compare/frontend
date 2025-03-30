@@ -16,7 +16,7 @@ export const getUserDorm = async () => {
       return await res.json();
     }
 
-    if (res.status === 401) {
+    if (res.status === 401 || res.status === 403) {
       await getNewToken(); // รีเฟรช token
       res = await fetch(`${API_ROOT}/dormitories/user`, {
         headers: {

@@ -3,7 +3,7 @@ import Sidebar from '@/components/Sidebar.vue';
 import { clearAllToken, clearToken } from '@/composables/Authentication/clearToken';
 import { getNewToken } from '@/composables/Authentication/getNewToken';
 import { fetchUserProfile } from '@/composables/GetUsers/getUserProfile';
-import { validatePhone, validateEmail, validateName, validatePassword } from '@/composables/Validate/validateUserData';
+import { validatePhone, validateEmail, validateName, validatePassword, validateUsername } from '@/composables/Validate/validateUserData';
 import { useUIStore } from '@/stores/uiStore';
 import { ref, onMounted, watch } from 'vue';
 
@@ -89,7 +89,7 @@ watch([phone], () => {
 
 
 const validateData = () => {
-  errors.value.username = username.value ? '' : 'กรุณากรอกชื่อผู้ใช้ (ไม่เกิน 50 ตัวอักษร)';
+  errors.value.username = validateUsername(username.value) ? '' : 'กรุณากรอกชื่อผู้ใช้ (ไม่เกิน 50 ตัวอักษร)';
   errors.value.name = validateName(name.value) ? '' : 'กรุณากรอกชื่อ-นามสกุล โดยจะต้องเป็นตัวอักษรและไม่เกิน 50 ตัวอักษร';
   errors.value.email = validateEmail(email.value) ? '' : 'กรุณากรอกอีเมล โดยอีเมลจะต้องมีรูปแบบที่ถูกต้อง (เช่น example@domain.com)';
   errors.value.phone = validatePhone(phone.value) ? '' : 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)';

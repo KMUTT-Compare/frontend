@@ -22,7 +22,7 @@ const props = defineProps({
 const closeModal = () => {
   emit('close');
 
-  if(props.context == "add" || props.context == "update" | props.context == "delete"){
+  if(props.context == "add" || props.context == "update" || props.context == "delete" || props.context === "transfer" ){
     router.push('/dormlists')
   }else if(props.context == "reservation"){
     router.push('/reservedForms')

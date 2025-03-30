@@ -1,10 +1,10 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { getUserById } from '@/composables/GetUsers/getUserById';
-import { useRoute } from 'vue-router';
-import { validateEmail, validateName, validatePassword, validatePhone } from '@/composables/Validate/validateUserData';
+import { validateEmail, validateName, validatePassword, validatePhone, validateUsername } from '@/composables/Validate/validateUserData';
 import SuccessModal from '@/components/modals/SuccessModal.vue';
+
 const isModalSuccessVisible = ref(false);
 const modalProps = ref({ title: '', message: '' });
 
@@ -20,86 +20,65 @@ const userData = ref({
   role: 'user',
   password: ''
 });
+
 const mode = ref('add');
 const passwordVisible = ref(false); // สำหรับแสดง/ซ่อนรหัสผ่าน
 const errorMessages = ref({
   username: '',
   email: '',
   password: '',
-  phone: '' // เพิ่ม error message สำหรับ phone
+  phone: ''
 });
+
 
 const generatePassword = () => {
   const length = 12;
   const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const lowercase = "abcdefghijklmnopqrstuvwxyz";
   const numbers = "0123456789";
   const specialChars = "!@#$%^&*()_-+=<>?";
-  const allChars = "abcdefghijklmnopqrstuvwxyz" + uppercase + numbers + specialChars;
+  const allChars = lowercase + uppercase + numbers + specialChars;
 
   let password = "";
-  password += uppercase.charAt(Math.floor(Math.random() * uppercase.length)); // Ensure at least one uppercase
-  password += numbers.charAt(Math.floor(Math.random() * numbers.length)); // Ensure at least one number
-  password += specialChars.charAt(Math.floor(Math.random() * specialChars.length)); // Ensure at least one special character
+  // Ensure at least one character from each category
+  password += uppercase.charAt(Math.floor(Math.random() * uppercase.length)); 
+  password += numbers.charAt(Math.floor(Math.random() * numbers.length)); 
+  password += specialChars.charAt(Math.floor(Math.random() * specialChars.length));
 
-  for (let i = 3; i < length; i++) {
+  // Fill up the rest of the password
+  for (let i = password.length; i < length; i++) {
     password += allChars.charAt(Math.floor(Math.random() * allChars.length));
   }
 
   // Shuffle password to avoid predictable order
-  userData.value.password = password.split("").sort(() => 0.5 - Math.random()).join("");
-};
+  password = password.split("").sort(() => 0.5 - Math.random()).join("");
 
-
-// ฟังก์ชันที่ใช้ validate ฟอร์ม
-const validateForm = () => {
-  errorMessages.value = { username: '', name: '', email: '', password: '', phone: '' };
-  let valid = true;
-
-  if (!userData.value.username ) {
-    errorMessages.value.username = 'กรุณากรอกชื่อผู้ใช้ (ไม่เกิน 50 ตัวอักษร)';
-    valid = false;
-  }
-
-  if (!userData.value.name || !validateName(userData.value.name)) {
-    errorMessages.value.name = 'กรุณากรอกชื่อ-นามสกุล โดยจะต้องเป็นตัวอักษรและไม่เกิน 50 ตัวอักษร';
-    valid = false;
-  }
-
-  if (!userData.value.email || !validateEmail(userData.value.email)) {
-    errorMessages.value.email = 'กรุณากรอกอีเมล โดยอีเมลจะต้องมีรูปแบบที่ถูกต้อง (เช่น example@domain.com)';
-    valid = false;
-  }
-
-  if (mode.value === 'add' && (!userData.value.password || !validatePassword(userData.value.password))) {
-    errorMessages.value.password = 'กรุณากรอกรหัสผ่าน รหัสผ่านต้องมีตัวอักษรเล็ก, ตัวอักษรใหญ่, ตัวเลข, อักขระพิเศษ และความยาวระหว่าง 8 ถึง 20 ตัว โดยไม่สามารถมีช่องว่างได้';
-    valid = false;
-  }
-
-  if (!userData.value.phone || !validatePhone(userData.value.phone)) { // ตรวจสอบเบอร์โทรศัพท์
-    errorMessages.value.phone = 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)';
-    valid = false;
-  }
-
-  return valid;
-};
-
-onMounted(async () => {
-  if (params.id) {
-    mode.value = 'edit';
-    userData.value = await getUserById(params.id);
+  // Ensure the password meets validation criteria
+  if (validatePassword(password)) {
+    userData.value.password = password;
   } else {
-    mode.value = 'add';
+    // In case the generated password doesn't meet the validation, regenerate it
+    generatePassword();
   }
-});
+};
 
-// ฟังก์ชันที่ใช้บันทึกข้อมูล
+
+// ฟังก์ชันการตรวจสอบข้อมูล
+const validateData = () => {
+  errorMessages.value.username = !userData.value.username || validateUsername(userData.value.username) ? '' : 'กรุณากรอกชื่อผู้ใช้ (ไม่เกิน 50 ตัวอักษร)';
+  errorMessages.value.name = !userData.value.name || validateName(userData.value.name) ? '' : 'กรุณากรอกชื่อ-นามสกุล โดยจะต้องเป็นตัวอักษรและไม่เกิน 50 ตัวอักษร';
+  errorMessages.value.email = !userData.value.email || validateEmail(userData.value.email) ? '' : 'กรุณากรอกอีเมล โดยอีเมลจะต้องมีรูปแบบที่ถูกต้อง (เช่น example@domain.com)';
+  errorMessages.value.phone = !userData.value.phone || validatePhone(userData.value.phone) ? '' : 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)';
+  errorMessages.value.password = !userData.value.password || validatePassword(userData.value.password) ? '' : 'กรุณากรอกรหัสผ่าน รหัสผ่านต้องมีตัวอักษรเล็ก, ตัวอักษรใหญ่, ตัวเลข, อักขระพิเศษ และความยาวระหว่าง 8 ถึง 20 ตัว โดยไม่สามารถมีช่องว่างได้';
+};
+
+// ฟังก์ชันการบันทึกข้อมูล
 const save = async () => {
-  if (!validateForm()) {
-    return;
-  }
-
-    // เช็คว่า userData มีข้อมูลที่สมบูรณ์ก่อนการส่ง
-    console.log('User Data:', userData.value);  // ตรวจสอบข้อมูลที่ส่ง
+  // ตรวจสอบข้อมูลก่อนบันทึก
+  validateData();
+  
+  // ถ้ามี error ในฟอร์ม ให้ return ออกก่อน
+  if (Object.values(errorMessages.value).some(error => error)) return;
 
   try {
     const response = mode.value === 'add'
@@ -120,11 +99,8 @@ const save = async () => {
           body: JSON.stringify(userData.value),
         });
 
-    // ถ้า response ไม่ ok (เช่น 400, 500 เป็นต้น)
     if (!response.ok) {
       const errorData = await response.json();
-      
-      // ตรวจสอบ error message และแสดงข้อความ
       if (errorData.message === 'Email already exists') {
         errorMessages.value.email = 'อีเมลนี้มีผู้ใช้งานแล้ว';
       } else if (errorData.message === 'Username already exists') {
@@ -132,24 +108,43 @@ const save = async () => {
       } else {
         alert(errorData.message || 'Failed to save user data');
       }
-
-      return; // หยุดการทำงานเมื่อเกิดข้อผิดพลาด
+      return;
     }
 
-    // ถ้าส่งข้อมูลสำเร็จ
-
     isModalSuccessVisible.value = true;
-        modalProps.value = { title: 'จัดการผู้ใช้สำเร็จ', message: mode.value === 'add' 
-        ? 'เพิ่มผู้ใช้เรียบร้อยแล้ว' 
-        : 'อัปเดตข้อมูลผู้ใช้เรียบร้อยแล้ว' 
-      };
+    modalProps.value = {
+      title: 'จัดการผู้ใช้สำเร็จ',
+      message: mode.value === 'add'
+        ? 'เพิ่มผู้ใช้เรียบร้อยแล้ว'
+        : 'อัปเดตข้อมูลผู้ใช้เรียบร้อยแล้ว'
+    };
 
   } catch (error) {
-    // console.error('Error saving user:', error);
-    // alert('An error occurred while saving the user data');
+    console.error('Error saving user:', error);
+    alert('An error occurred while saving the user data');
   }
 };
 
+onMounted(async () => {
+  if (params.id) {
+    mode.value = 'edit';
+    userData.value = await getUserById(params.id);
+  } else {
+    mode.value = 'add';
+  }
+});
+
+// Watch สำหรับตรวจสอบค่าทุกฟิลด์ของ userData และตรวจสอบข้อผิดพลาดแบบ realtime
+watch(
+  [
+    () => userData.value.username,
+    () => userData.value.name,
+    () => userData.value.email,
+    () => userData.value.phone,
+    () => userData.value.password
+  ],
+  validateData
+);
 </script>
 
 <template>

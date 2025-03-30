@@ -112,7 +112,10 @@ const prevPage = () => {
         <!-- Rating ที่จะอยู่มุมขวาบนของรูป -->
         <div class="absolute top-2 right-2 bg-white px-2 py-1 rounded-lg shadow-md flex items-center justify-center space-x-1">
           <img src="/star.png" alt="Star" class="w-6">
-          <strong class="text-gray-800">{{ compareItems[0]?.rating?.totalScore }}</strong>
+          <strong v-if="compareItems[0]?.rating?.totalScore && compareItems[0].rating.totalScore !== 0" class="text-gray-800">
+          {{ compareItems[0].rating.totalScore }}
+          </strong>
+          <strong v-else class="text-gray-800">ยังไม่มีคะแนน</strong>
         </div>
 
         <div class="flex flex-row items-center justify-center space-x-2">
@@ -257,7 +260,7 @@ const prevPage = () => {
 
       <div class="space-y-4 border" v-for="dorm in paginatedDormitories" :key="dorm.dormId">
         <div @click="selectDorm(dorm)" class="flex flex-row  items-center justify-between block w-full text-left p-2 mb-2 rounded hover:bg-gray-300"> 
-          <div>{{ dorm.dormName }}</div>
+          <div class="text-lg">{{ dorm.dormName }}</div>
           <div><img :src="dorm?.image[0] || '/images/no_image.jpg'" class="h-10 bg-cover bg-center rounded-lg" alt="Dormitory Image"/></div>
         </div>
       </div>

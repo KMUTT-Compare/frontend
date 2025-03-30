@@ -3,16 +3,11 @@ import { ref, onMounted, computed } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import { formatDate } from '@/composables/formatDate';
 import { formatPhoneNumber } from '@/composables/formatPhoneNumber';
-import { useRouter } from 'vue-router';  // Import vue-router for navigation
 import { useReceivedForms } from '@/composables/getReceivedForms';
-import ConfirmModal from '@/components/modals/ConfirmModal.vue';
 
 const API_ROOT = import.meta.env.VITE_API_ROOT;
+const { fetchReceivedForms, receivedForms } = useReceivedForms();
 
-const { isLoading, fetchReceivedForms, receivedForms } = useReceivedForms();
-
-// Create a router instance
-const router = useRouter();
 
 // Sort submitted forms by form_date
 const sortedForms = computed(() => {
@@ -24,28 +19,26 @@ const sortedForms = computed(() => {
 });
 
 
-// Modify handleCancelBooking to accept formId and action
-const handleCancelBooking = () => {
-  router.push({ name: "reservation", params: { id: formIdToCancel.value, action: 'cancel' } });
-};
-
 
 onMounted(() => {
   fetchReceivedForms();
 });
 
 
-const isShowDetail = ref(false); // เริ่มต้นคือไม่แสดงรายละเอียด
 
-// ฟังก์ชั่นเพื่อสลับสถานะของ isShowDetail
+// -------------------------------- Show Detail --------------------------------
+const isShowDetail = ref(false); 
+
 const toggleDetail = () => {
   isShowDetail.value = !isShowDetail.value;
 };
 
 
-
+// -------------------------------- Show Detail --------------------------------
+const isLoadingCheckIn = ref(false); 
 
 const checkIn = async (formId) => {
+  isLoadingCheckIn.value = true; // เมื่อเริ่มการเช็คอินให้แสดงสถานะโหลด
 
   try {
     const response = await fetch(`${API_ROOT}/user/form/${formId}/check-in`, {
@@ -61,25 +54,17 @@ const checkIn = async (formId) => {
     if (response.ok) {
       alert("เช็คอินสำเร็จ!");
       fetchReceivedForms()
-
-      
     } else {
       alert(`ไม่สามารถเช็คอินได้`);
-
     }
   } catch (error) {
     console.error("Error Check-In:", error);
     alert("เกิดข้อผิดพลาดในการเช็คอิน");
+  } finally {
+    isLoadingCheckIn.value = false; // เมื่อเสร็จสิ้นการเช็คอินให้ซ่อนสถานะโหลด
   }
 };
-
-
-
-
-
-
 </script>
-
 <template>
   <div class="flex flex-row w-full justify-center p-20">
     <Sidebar />
@@ -87,15 +72,9 @@ const checkIn = async (formId) => {
       <div class="p-6 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
         <h1 class="font-bold text-3xl mb-8">ฟอร์มที่ส่งแล้ว</h1>
 
-        <div v-if="isLoading" class="text-center text-gray-600">
-          กำลังโหลดข้อมูล...
+        <div v-if="sortedForms.length === 0" class="text-center text-gray-600">
+          ยังไม่มีฟอร์มที่ได้รับ
         </div>
-
-        <ul v-else-if="sortedForms.length === 0" class="space-y-6">
-          <div class="text-center text-gray-600">
-            ยังไม่มีฟอร์มที่ส่ง
-          </div>
-        </ul>
 
         <ul v-else class="space-y-6">
           <li v-for="form in sortedForms" :key="form.id"
@@ -137,10 +116,11 @@ const checkIn = async (formId) => {
             <!-- ปุ่มแก้ไขและยกเลิกจะถูกซ่อนไปหาก description มีคำว่า 'ยกเลิกการจอง' -->
             <div v-if="!form.description.includes('ยกเลิกการจอง')" class="flex justify-end space-x-6 mt-6">
               
-            <!-- เช็คอินแล้ว -->
-              <button v-if="form.status === 'reserved'" class="btn bg-green-500 text-white p-3 hover:bg-green-600 hover:text-white w-32" @click="checkIn(form.formId)">
-                เช็คอิน
-              </button>
+              <!-- ปุ่มเช็คอินแสดงข้อความโหลดหรือปกติ -->
+                <button v-if="form.status === 'reserved'" class="btn bg-green-500 text-white p-3 hover:bg-green-600 hover:text-white w-32" @click="checkIn(form.formId)" :disabled="isLoadingCheckIn">
+                  <span v-if="isLoadingCheckIn">กำลังเช็คอิน...</span>
+                  <span v-else>เช็คอิน</span>
+                </button>
 
                <!-- ให้คะแนนแล้ว -->
                <p  v-if="form.status === 'checkIn'">⏳ รอคะแนนรีวิว </p>
@@ -159,55 +139,8 @@ const checkIn = async (formId) => {
 
       </div>
     </div>
-
-
-              <!-- Modal ให้คะแนน -->
-              <div v-if="isRatingModalOpen" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-                <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-                  <h2 class="text-2xl text-center">คุณพอใจกับการใช้บริการหอพักนี้มากแค่ไหน</h2>
-
-                  <div class="flex justify-center space-x-2 mt-4">
-                    <span
-                      v-for="star in 5"
-                      :key="star"
-                      class="cursor-pointer transition-transform duration-200 transform"
-                      :class="{
-                        'scale-125': star === hoveredScore  // ขยายขนาดเมื่อ hover
-                      }"
-                      @click="setScore(star)"
-                      @mouseover="hoverStar(star)"
-                      @mouseleave="resetHover"
-                    >
-                      <img 
-                        :src="star <= (hoveredScore || selectedScore) ? '/star.png' : '/star3.png'" 
-                        alt="ดาว" 
-                        class="w-10"
-                      >
-                    </span>
-                  </div>
-
-
-
-                  <div class="flex justify-between mt-6">
-                    <button @click="closeRatingModal" class="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500">
-                      ยกเลิก
-                    </button>
-                    <button @click="submitRating(dormId)" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600" :disabled="!selectedScore">
-                      ส่งคะแนน
-                    </button>
-                  </div>
-                </div>
-              </div>
-
   </div>
 
-  <ConfirmModal
-    :isVisible="isModalVisible" 
-    :formId="formIdToCancel" 
-    @close="closeModal" 
-    @cancel="handleCancelBooking" 
-    context="cancel" 
-  />
 </template>
 
 
@@ -228,7 +161,6 @@ p {
 
 span {
    font-size: 1rem;
-   color: #333;
 }
 
 ul {

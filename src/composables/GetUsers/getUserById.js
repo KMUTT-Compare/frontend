@@ -19,7 +19,7 @@ export const getUserById = async (userId) => {
       return await res.json();
     }
 
-    if (res.status === 401) {
+    if (res.status === 401 || response.status === 403) {
       await getNewToken(); // รีเฟรช token
       res = await fetch(`${API_ROOT}/admin/user/${userId}`, {
         headers: {

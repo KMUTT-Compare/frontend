@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 const API_ROOT = import.meta.env.VITE_API_ROOT;
+import { getNewToken } from "@/composables/Authentication/getNewToken";
 
 export const useReceivedForms = () => {
   const isLoading = ref(true);
@@ -16,7 +17,7 @@ export const useReceivedForms = () => {
       });
 
       // ถ้าสถานะเป็น 401, รีเฟรช token และลองใหม่
-      if (response.status === 401) {
+      if (response.status === 401 || response.status === 403) {
         await getNewToken(); // รีเฟรช token ใหม่
         response = await fetch(`${API_ROOT}/forms/user`, {  // 🔥 ใช้ endpoint เดิม
           method: "GET",

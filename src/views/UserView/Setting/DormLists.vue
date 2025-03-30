@@ -16,7 +16,6 @@ const API_ROOT = import.meta.env.VITE_API_ROOT;
 const dormitories = ref([]);
 const isModalVisible = ref(false);
 const dormIdToDelete = ref(null);
-const isSuccessModalVisible = ref(false)
 
 onMounted(async () => {
   dormitories.value = await getUserDorm();
@@ -61,16 +60,17 @@ const showDeleteModal = (dormId) => {
   isModalVisible.value = true;
 };
 
-const closeSuccessModal = () => {
-  isSuccessModalVisible.value = false; // ปิด Modal เมื่อได้รับเหตุการณ์ close
-};
-
 const closeModal = () => {
+  isModalOpen.value = false
   isModalVisible.value = false;
   dormIdToDelete.value = null;
 };
 
+const isModalOpen = ref(false);
+const modalData = ref({ title: '', message: '', context: '' });
+
 const deleteDormitory = async () => {
+
   if (dormIdToDelete.value) {
     try {
       const res = await fetch(`${API_ROOT}/dormitories/${dormIdToDelete.value}`, {
@@ -83,8 +83,14 @@ const deleteDormitory = async () => {
 
       if (res.ok) {
         dormitories.value = await getUserDorm();  // ดึงข้อมูลใหม่หลังการลบ
-        closeModal();  // ปิด Modal หลังจากการลบสำเร็จ
-        isSuccessModalVisible.value = true;
+        closeModal(); 
+        modalData.value = {
+          title: 'ลบหอพักสำเร็จ',
+          message: 'ข้อมูลหอพักถูกลบเรียบร้อยแล้ว.',
+          context: 'delete'
+        };
+          isModalOpen.value = true;
+          dormitories.value = await getUserDorm();
       } else {
         alert(`There are no dormitory with id = ${dormIdToDelete.value}`);
         throw new Error('Cannot delete data!');
@@ -113,36 +119,41 @@ const closePopup = () => {
 // Function to handle the form submission
 const submitTransfer = async () => {
   if (email.value && isAgreed.value) {
-    // Prepare data to send to backend
-    const requestData = {
-      email: email.value,
-    }
 
     try {
       // Send data to backend using fetch
-      const response = await fetch('/dormitories/user/transfer', {
-        method: 'POST',
+      const response = await fetch(`${API_ROOT}/user/dormitory/change-user`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify(requestData), // Send email data in the request body
+        body: JSON.stringify({ email: email.value })
       })
 
-      if (!response.ok) {
-        throw new Error('การส่งข้อมูลไม่สำเร็จ')
+      if(response.ok){
+        closePopup()
+        modalData.value = {
+          title: 'โอนย้ายหอพักสำเร็จ',
+          message: `หอพักถูกโอนย้ายไปยัง ${email.value} เรียบร้อยแล้ว`,
+          context: 'transfer'
+        };
+        isModalOpen.value = true;
+        dormitories.value = getUserDorm()
       }
 
-      // Handle success
-      const data = await response.json()
-      console.log('Transfer successful:', data)
+      else if(!response.ok) {
+      if (response.status === 403) {
+        alert('ไม่มีผู้ใช้ Email นี้อยู่ในระบบ');
+      } else {
+        throw new Error('การส่งข้อมูลไม่สำเร็จ');
+      }
+    }
 
-      // Close popup after successful transfer
-      closePopup()
 
     } catch (error) {
       // Handle errors
-      console.error('Error:', error)
-      alert('เกิดข้อผิดพลาดในการโอนย้ายเจ้าของหอพัก')
+      // console.error('Error:', error)
     }
   } else {
     alert('กรุณากรอกอีเมลและยอมรับข้อตกลง')
@@ -223,7 +234,14 @@ const submitTransfer = async () => {
     @delete="deleteDormitory" 
     context="delete" 
   />
-  <SuccessModal v-if="isSuccessModalVisible" @close="closeSuccessModal"/>
+
+  <SuccessModal 
+    v-if="isModalOpen" 
+    :title="modalData.title" 
+    :message="modalData.message" 
+    :context="modalData.context" 
+    @close="closeModal"
+/>
 
 
   <!-- Popup for email input -->
