@@ -12,7 +12,7 @@ export const useAuthorize = defineStore('authorize', () => {
     if (!token) {  // ตรวจสอบว่า token เป็น null, undefined, หรือ empty string
       userRole.value = 'guest';
       localStorage.setItem("userRole", 'guest');
-      console.log("No token provided, setting userRole to guest");
+      // console.log("No token provided, setting userRole to guest");
       return;
     }
 
@@ -27,7 +27,7 @@ export const useAuthorize = defineStore('authorize', () => {
     localStorage.setItem("userRole", userRole.value);  // เก็บ role ที่ถูกต้องใน localStorage
     localStorage.setItem("username", username.value);
     localStorage.setItem("userId", userId.value);
-    console.log(userId.value)
+    // console.log(userId.value)
   };
 
   // ตรวจจับการเปลี่ยนแปลงใน localStorage และอัปเดตค่า userRole และ username

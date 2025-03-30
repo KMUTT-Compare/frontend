@@ -10,7 +10,7 @@ export const useCompareStore = defineStore('compare', () => {
     // ค้นหาหอพักที่มี dormId ตรงกับที่เลือก
     const dormToAdd = dormitories.find(dorm => dorm.dormId === id);
     if (!dormToAdd) {
-      console.log('Dorm not found');
+      // console.log('Dorm not found');
       return;
     }
 
@@ -18,7 +18,7 @@ export const useCompareStore = defineStore('compare', () => {
     const isAlreadyAdded = compareItems.value.some(dorm => dorm.dormId === id);
 
     if (isAlreadyAdded) {
-      console.log('This dorm has already been added to the comparison.');
+      // console.log('This dorm has already been added to the comparison.');
       return;
     }
 
@@ -30,7 +30,7 @@ export const useCompareStore = defineStore('compare', () => {
 
     // เพิ่มหอพักเข้า compareItems
     compareItems.value.push(dormToAdd);
-    console.log(compareItems.value);
+    // console.log(compareItems.value);
   };
 
   // ฟังก์ชัน addDormDetailToCompare
@@ -39,7 +39,7 @@ export const useCompareStore = defineStore('compare', () => {
     const isAlreadyAdded = compareItems.value.some(dorm => dorm.dormId === dormToAdd.dormId);
 
     if (isAlreadyAdded) {
-      console.log('This dorm has already been added to the comparison.');
+      // console.log('This dorm has already been added to the comparison.');
       return;
     }
 
@@ -51,14 +51,14 @@ export const useCompareStore = defineStore('compare', () => {
 
     // เพิ่มหอพักเข้า compareItems
     compareItems.value.push(dormToAdd);
-    console.log(compareItems.value);
+    // console.log(compareItems.value);
   };
 
 
   const replaceDormInCompare = (index, dormToReplace) => {
     // เช็คว่า index อยู่ในขอบเขตของ compareItems หรือไม่
     if (index < 0 || index >= compareItems.value.length) {
-      console.log('Invalid index');
+      // console.log('Invalid index');
       return;
     }
     
@@ -66,7 +66,7 @@ export const useCompareStore = defineStore('compare', () => {
     compareItems.value.splice(index, 1, dormToReplace);
 
     // ตรวจสอบผลลัพธ์หลังจากการแทนที่
-    console.log('Updated compareItems:', compareItems.value);
+    // console.log('Updated compareItems:', compareItems.value);
   };
 
   
