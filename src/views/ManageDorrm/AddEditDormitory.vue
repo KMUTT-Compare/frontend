@@ -208,17 +208,17 @@ function calculateDistance(destination) {
 // --------------------------------- Manage Images ---------------------------------
 
 const selectedImages = ref([]);
-const MAX_FILE_SIZE = 2097152;
+// const MAX_FILE_SIZE = 2097152;
 // การจัดการเมื่อเลือกไฟล์จากเครื่อง
 const handleFiles = async (event) => {
   const files = event.target.files;
   // console.log(files)
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
-    if(file.size > MAX_FILE_SIZE){
-      alert('ไฟล์มีขนาดใหญ่เกินไป กรุณาอัปโหลดไฟล์ที่มีขนาดน้อยกว่า 2 MB')
-      continue; // ข้ามไฟล์นี้และไปที่ไฟล์ถัดไป
-    }
+    // if(file.size > MAX_FILE_SIZE){
+    //   alert('ไฟล์มีขนาดใหญ่เกินไป กรุณาอัปโหลดไฟล์ที่มีขนาดน้อยกว่า 2 MB')
+    //   continue; // ข้ามไฟล์นี้และไปที่ไฟล์ถัดไป
+    // }
     const imageUrl = URL.createObjectURL(file);  // สร้าง URL สำหรับไฟล์ภาพที่เลือก
     selectedImages.value.push({ file, imageUrl, uploadedImageUrl: null });  // เก็บทั้ง file, imageUrl และ placeholder สำหรับ uploadedImageUrl
 
