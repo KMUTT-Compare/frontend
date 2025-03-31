@@ -102,63 +102,55 @@ const deleteDormitory = async () => {
 };
 
 // Reactive state
-const isInputEmailPopup = ref(false)
-const email = ref('')
-const isAgreed = ref(false)
+const isPopupOpen = ref(false);
+const selectedDorms = ref([]);
+const email = ref('');
+const isAgreed = ref(false);
 
-// Function to show the popup
-const transferDorm = () => {
-  isInputEmailPopup.value = true
-}
 
-// Function to close the popup
+const openPopup = (dormId) => {
+  selectedDorms.value = [dormId];
+  isPopupOpen.value = true;
+};
 const closePopup = () => {
-  isInputEmailPopup.value = false
-}
+  isPopupOpen.value = false;
+  selectedDorms.value = []; // เคลียร์ค่าหลังปิด popup
+};
 
-// Function to handle the form submission
+const isValid = computed(() => selectedDorms.value.length > 0 && email.value && isAgreed.value);
+
 const submitTransfer = async () => {
-  if (email.value && isAgreed.value) {
+  if (!isValid.value) return;
 
-    try {
-      // Send data to backend using fetch
-      const response = await fetch(`${API_ROOT}/user/dormitory/change-user`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ email: email.value })
-      })
+  try {
+    const response = await fetch(`${API_ROOT}/user/dormitory/change-user`, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+       },
+      body: JSON.stringify({ email: email.value, dormIds: selectedDorms.value })
+    });
 
-      if(response.ok){
-        closePopup()
-        modalData.value = {
+    if (response.ok) {
+      closePopup()
+      modalData.value = {
           title: 'โอนย้ายหอพักสำเร็จ',
-          message: `หอพักถูกโอนย้ายไปยัง ${email.value} เรียบร้อยแล้ว`,
-          context: 'transfer'
+          message: `ย้ายข้อมูลหอพักไปที่ ${email.value} เรียบร้อยแล้ว`,
+          context: 'delete'
         };
-        isModalOpen.value = true;
-        dormitories.value = getUserDorm()
-      }
-
-      else if(!response.ok) {
-      if (response.status === 403) {
-        alert('ไม่มีผู้ใช้ Email นี้อยู่ในระบบ');
-      } else {
-        throw new Error('การส่งข้อมูลไม่สำเร็จ');
+          isModalOpen.value = true;
+          dormitories.value = await getUserDorm();
+    } else {
+      if(response.status === 401){
+        alert('ไม่มีอีเมลผู้ใช้นี้อยู่ในระบบ')
       }
     }
-
-
-    } catch (error) {
-      // Handle errors
-      // console.error('Error:', error)
-    }
-  } else {
-    alert('กรุณากรอกอีเมลและยอมรับข้อตกลง')
+  } catch (error) {
+    console.error(error);
   }
-}
+};
+
 
 
 </script>
@@ -177,11 +169,11 @@ const submitTransfer = async () => {
             <SortComponent :dormitories="dormitories" />
           </div>
         </div>
-        <div v-if="filteredDormitories?.length > 0" class="container">
+        <div v-if="filteredDormitories?.length > 0" class="flex flex-col">
           <div v-for="dorm in filteredDormitories" :key="dorm.dormId" class="holding-items">
-            <div class="items rounded-lg border-2">
-              <div class="w-8/12 h-62 flex h-full justify-center items-center">
-                <img :src="dorm.image[0] || '/images/no_image.jpg'" class="h-full bg-cover bg-center rounded-lg" alt="Dormitory Image" />
+            <div class="items rounded-lg border-2 flex flex-row h-full">
+              <div class="flex h-full justify-center items-center h-full w-full">
+                <img :src="dorm.image[0] || '/images/no_image.jpg'" class="h-full bg-cover bg-center rounded-lg object-cover" alt="Dormitory Image" />
               </div>
 
               <div class="flex flex-col w-full h-full p-3 justify-center">
@@ -213,7 +205,7 @@ const submitTransfer = async () => {
                     <span v-else>{{ dorm.type }}</span>
                   </h2>
                   <p>ที่อยู่: {{ dorm.address.street }}, {{ dorm.address.subdistrict }}, {{ dorm.address.district }}, {{ dorm.address.province }} {{ dorm.address.postalCode }}</p>
-                  <BorderButton @click="transferDorm(dorm.dormId)" class="mt-4" context="โอนย้ายหอพัก"/>
+                  <BorderButton @click="openPopup(dorm.dormId)" class="mt-20" context="โอนย้ายหอพัก" />
                 </div>
               </div>
               
@@ -224,6 +216,48 @@ const submitTransfer = async () => {
       </div>
     </div>
   </div>
+
+  <div v-if="isPopupOpen" class="fixed pt-24 inset-0 flex items-center justify-center bg-black bg-opacity-50">
+  <div class="bg-white rounded-xl p-8 w-full max-w-lg shadow-2xl">
+    <h2 class="text-3xl font-bold text-center text-gray-800">เลือกหอพักที่ต้องการโอนย้าย</h2>
+
+    <!-- รายการหอพัก -->
+    <div class="mt-6 space-y-3 text-lg max-h-60 overflow-y-auto p-2 border rounded-lg">
+      <label v-for="dorm in dormitories" :key="dorm.dormId" class="flex items-center space-x-3">
+        <input type="checkbox" :value="dorm.dormId" v-model="selectedDorms" class="w-5 h-5 text-blue-500" />
+        <span class="text-gray-700">{{ dorm.dormName }}</span>
+      </label>
+    </div>
+
+    <!-- กรอกอีเมล -->
+    <div class="mt-6">
+      <input v-model="email" type="email" placeholder="กรอกอีเมล" class="text-lg border border-gray-300 p-3 w-full rounded-lg shadow-sm" />
+    </div>
+
+    <!-- ข้อตกลง -->
+    <div class="mt-4 p-5 bg-gray-100 rounded-lg text-lg shadow-inner">
+      <p class="font-semibold">📌 รายละเอียดข้อตกลง:</p>
+      <ul class="list-disc list-inside text-gray-600 space-y-2 mt-2">
+        <li>ผู้โอนสามารถดำเนินการโอนย้ายเจ้าของหอพักได้โดยไม่ต้องได้รับความยินยอมจากผู้รับโอน</li>
+        <li>ผู้โอนต้องตรวจสอบและยืนยันข้อมูลให้ถูกต้องก่อนโอนย้าย</li>
+        <li>เมื่อโอนย้ายเสร็จสมบูรณ์ ผู้โอนต้องรับผิดชอบหากเกิดปัญหาหรือข้อผิดพลาดจากการโอนย้าย</li>
+      </ul>
+    </div>
+
+    <!-- Checkbox ยอมรับข้อตกลง -->
+    <label class="flex items-center mt-4">
+      <input type="checkbox" v-model="isAgreed" class="w-5 h-5 text-blue-500" />
+      <span class="ml-3 text-gray-700">ยอมรับข้อตกลง</span>
+    </label>
+
+    <!-- ปุ่ม -->
+    <div class="flex justify-end mt-6 space-x-3">
+      <button @click="closePopup" class="border px-5 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition">ยกเลิก</button>
+      <button @click="submitTransfer" :disabled="!isValid" class="bg-blue-600 text-white px-5 py-3 rounded-lg shadow-md hover:bg-blue-700 disabled:opacity-50 transition">ยืนยัน</button>
+    </div>
+  </div>
+</div>
+
 
   <!-- Modal for deletion -->
     <!-- DeleteModal for deletion -->
@@ -243,70 +277,11 @@ const submitTransfer = async () => {
     @close="closeModal"
 />
 
-
-  <!-- Popup for email input -->
-  <div v-if="isInputEmailPopup" class="popup-overlay">
-  <div class="popup space-y-3">
-    <!-- Header Section -->
-    <h3 class="text-lg font-semibold">โปรดระบุอีเมลผู้รับโอนเพื่อโอนย้ายเจ้าของหอพัก</h3>
-    
-    <!-- Email Input Section -->
-    <div>
-      <input class="w-full my-2 rounded-sm" v-model="email" type="email" placeholder="กรอกอีเมล" />
-    </div>
-
-
-<!-- Agreement Section with scrollable content -->
-<div class="agreement-container space-y-2" style="max-height: 400px; overflow-y: auto; padding: 10px; border: 1px solid #ddd;">
-  <p><strong>รายละเอียดข้อตกลง:</strong></p>
-  <p>1.ผู้โอนสามารถดำเนินการโอนย้ายเจ้าของหอพักได้โดยไม่ต้องได้รับความยินยอมจากผู้รับโอน</p>
-  <p>2.ผู้โอนต้องตรวจสอบและยืนยันข้อมูลให้ถูกต้องก่อนโอนย้าย</p>
-  <p>3.เมื่อโอนย้ายเสร็จสมบูรณ์ ผู้โอนต้องรับผิดชอบหากเกิดปัญหาหรือข้อผิดพลาดจากการโอนย้าย</p>
-  <!-- เพิ่มเนื้อหาต่อได้ตามต้องการ -->
-</div>
-
-
-    <!-- Agreement Checkbox Section -->
-    <div>
-      <input v-model="isAgreed" type="checkbox" id="agreement" />
-      <label for="agreement" class="pl-2">ยอมรับข้อตกลง</label>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="flex flex-row justify-between">
-      <button class="btn px-10 bg-orange-500 text-white hover:bg-orange-600 cursor-pointer" @click="submitTransfer">ยืนยัน</button>
-      <button class="btn px-10 bg-gray-200 cursor-pointer hover:bg-gray-300" @click="isInputEmailPopup=false">ยกเลิก</button>
-    </div>
-  </div>
-</div>
-
   
 </template>
 
  
 <style scoped>
-.items{
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-}
-
-.container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-  gap: 10px;
-  width: 100%; /* ให้เต็มพื้นที่ที่มีอยู่ */
-  overflow-wrap: break-word; /* ตัดคำถ้าเกินพื้นที่ */
-  
-}
-
-.holding-items {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  min-width: 0; /* ให้ขนาดลดลงตามพื้นที่ */
-  max-width: 100%; /* ให้ไม่เกินพื้นที่ */
-}
 
 /* ภาพพื้นหลังด้านบน */
 .background img {
