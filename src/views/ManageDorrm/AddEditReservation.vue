@@ -199,23 +199,27 @@ const fetchFormData = async (f) => {
 
 
 
-const submitForm = async () => {
-  // Validate all fields before submitting
-  validateField('name');
-  validateField('email');
-  validateField('phone');
-  validateField('date_in');
-  validateField('date_out');
-  validateField('description');
 
-  // หากมีข้อผิดพลาดในฟิลด์ใดๆ ให้เลื่อนไปที่ฟิลด์นั้น
-  for (const field in errors.value) {
-    if (errors.value[field]) {
-      scrollToError(field);
-      return; // หยุดการส่งฟอร์มทันทีเมื่อพบข้อผิดพลาด
+
+
+const submitForm = async () => {
+  if (params.action !== 'cancel') {
+    // Validate all fields before submitting
+    validateField('name');
+    validateField('email');
+    validateField('phone');
+    validateField('date_in');
+    validateField('date_out');
+    validateField('description');
+
+    // หากมีข้อผิดพลาดในฟิลด์ใดๆ ให้เลื่อนไปที่ฟิลด์นั้น
+    for (const field in errors.value) {
+      if (errors.value[field]) {
+        scrollToError(field);
+        return; // หยุดการส่งฟอร์มทันทีเมื่อพบข้อผิดพลาด
+      }
     }
   }
-
   // แปลง date_in และ date_out ให้เป็น ISO ก่อนส่ง
   form.value.date_in = formatDateTime(form.value.date_in);
   form.value.date_out = formatDateTime(form.value.date_out);

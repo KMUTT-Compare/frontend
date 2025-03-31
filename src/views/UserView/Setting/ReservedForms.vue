@@ -6,6 +6,7 @@ import { formatPhoneNumber } from '@/composables/formatPhoneNumber';
 import { useRouter } from 'vue-router';  // Import vue-router for navigation
 import { useReservedForms } from '@/composables/getReservedForms';
 import ConfirmModal from '@/components/modals/ConfirmModal.vue';
+import SuccessModal from '@/components/modals/SuccessModal.vue';
 
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 
@@ -24,13 +25,6 @@ const closeModal = () => {
 };
 
 
-
-
-const { fetchReservedForms, reservedForms } = useReservedForms();
-
-// Create a router instance
-const router = useRouter();
-
 // Sort submitted forms by form_date
 const sortedForms = computed(() => {
   return reservedForms.value.sort((a, b) => {
@@ -39,6 +33,35 @@ const sortedForms = computed(() => {
     return dateB - dateA;  // ถ้าคุณต้องการเรียงจากใหม่ไปเก่า
   });
 });
+
+// Pagination
+const currentPage = ref(1);
+const itemsPerPage = ref(3); // จำนวนรายการต่อหน้า
+
+// คำนวณหน้าทั้งหมด
+const totalPages = computed(() => Math.ceil(sortedForms.value.length / itemsPerPage.value));
+
+// คำนวณรายการที่จะแสดงในหน้านี้
+const paginatedForms = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return sortedForms.value.slice(start, end);
+});
+
+// เปลี่ยนหน้า
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+  }
+};
+
+
+
+const { fetchReservedForms, reservedForms,isLoading } = useReservedForms();
+
+// Create a router instance
+const router = useRouter();
+
 
 // Function to navigate to the edit page
 const goToEditPage = (formId) => {
@@ -59,6 +82,9 @@ onMounted(() => {
   fetchReservedForms();
 });
 
+// -------------------------------- Success Modal --------------------------------
+const isModalOpen = ref(false)
+const modalData = ref({ title: '', message: '', context: '' });
 
 const isShowDetail = ref(false); // เริ่มต้นคือไม่แสดงรายละเอียด
 
@@ -112,7 +138,12 @@ const submitRating = async () => {
 
     // ตรวจสอบสถานะ response และแสดงข้อความตามประเภทของ response
     if (response.ok) {
-      alert("โหวตสำเร็จ!");
+      modalData.value = {
+          title: `ให้คะแนนสำเร็จ`,
+          message: `ขอบคุณสำหรับการให้คะแนน! เราหวังว่าคุณจะได้รับประสบการณ์ที่ดี`,
+          context: 'reservation'
+        };
+        isModalOpen.value = true
       fetchReservedForms()
       closeRatingModal();
       
@@ -140,12 +171,17 @@ const submitRating = async () => {
       <div class="p-6 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
         <h1 class="font-bold text-3xl mb-8">ฟอร์มที่ส่งแล้ว</h1>
 
-        <div v-if="sortedForms.length === 0" class="text-center text-gray-600">
+
+        <div v-if="isLoading" class="text-center text-gray-600">
+          กำลังโหลดข้อมูล...
+        </div>
+
+        <div v-else-if="paginatedForms.length === 0" class="text-center text-gray-600">
           ยังไม่มีฟอร์มที่ส่ง
         </div>
 
         <ul v-else class="space-y-6">
-          <li v-for="form in sortedForms" :key="form.id"
+          <li v-for="form in paginatedForms" :key="form.id"
               :class="{'bg-gray-300': form.description.includes('ยกเลิกการจอง')}"
               class="p-6 rounded-lg shadow-md bg-white space-y-4">
 
@@ -159,15 +195,15 @@ const submitRating = async () => {
               <div class="rounded-lg">
                 <div class="flex flex-row justify-between">
                   <div>
-                    <p class="text-sm text-gray-600">ชื่อเจ้าของหอพัก: {{ form.owner.name || 'ไม่มีข้อมูล' }}</p>
+                    <p v-if="form.owner" class="text-sm text-gray-600">ชื่อเจ้าของหอพัก: {{ form.owner.name || 'ไม่มีข้อมูล' }}</p>
                   </div>
                   <div class="text-lg text-blue-900 font-semibold cursor-pointer hover:text-black hover:scale-105 underline" @click="toggleDetail">
                     {{ isShowDetail ? 'ซ่อนรายละเอียด' : 'รายละเอียดเพิ่มเติม' }}
                   </div>
                 </div>
                 
-                <p class="text-sm text-gray-600">เบอร์ติดต่อ: {{ formatPhoneNumber(form.owner.phone || 'ไม่มีข้อมูล') }}</p>
-                <p class="text-sm text-gray-600">อีเมล: {{form.owner.email || 'ไม่มีข้อมูล' }}</p>
+                <p v-if="form.owner" class="text-sm text-gray-600">เบอร์ติดต่อ: {{ formatPhoneNumber(form.owner.phone || 'ไม่มีข้อมูล') }}</p>
+                <p v-if="form.owner" class="text-sm text-gray-600">อีเมล: {{form.owner.email || 'ไม่มีข้อมูล' }}</p>
               </div>
 
               
@@ -210,8 +246,29 @@ const submitRating = async () => {
           </li>
         </ul>
 
+        <!-- Pagination -->
+        <div class="flex justify-center items-center space-x-4 mt-6">
+          <button 
+            @click="goToPage(currentPage - 1)" 
+            :disabled="currentPage === 1" 
+            class="btn-pagination bg-orange-500 text-white hover:text-white hover:bg-orange-600 disabled:text-gray-400 disabled:bg-gray-200 py-2 px-4 rounded-md shadow-md transition duration-200">
+            «
+          </button>
+          
+          <span class="text-gray-700 font-semibold text-lg">หน้า {{ currentPage }} จาก {{ totalPages }}</span>
+          
+          <button 
+            @click="goToPage(currentPage + 1)" 
+            :disabled="currentPage === totalPages" 
+            class="btn-pagination bg-orange-500 text-white hover:text-white hover:bg-orange-600 disabled:text-gray-400 disabled:bg-gray-200 py-2 px-4 rounded-md shadow-md transition duration-200">
+            »
+          </button>
+        </div>
+
+
       </div>
     </div>
+
 
 
               <!-- Modal ให้คะแนน -->
@@ -261,6 +318,15 @@ const submitRating = async () => {
     @cancel="handleCancelBooking" 
     context="cancel" 
   />
+
+  <SuccessModal 
+    v-if="isModalOpen" 
+    :title="modalData.title" 
+    :message="modalData.message" 
+    :context="modalData.context" 
+    @close="isModalOpen = false"
+/>
+
 </template>
 
 

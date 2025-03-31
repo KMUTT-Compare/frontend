@@ -4,6 +4,8 @@ import { formatDate } from '@/composables/formatDate';
 import { getUsers } from '@/composables/GetUsers/getUsers';
 import { useRouter } from 'vue-router';
 import SearchComponent from '@/components/filters/SearchComponent.vue';
+import ConfirmModal from '@/components/modals/ConfirmModal.vue';
+import SuccessModal from '@/components/modals/SuccessModal.vue';
 
 const router = useRouter();
 const API_ROOT = import.meta.env.VITE_API_ROOT;
@@ -18,15 +20,32 @@ onMounted(async () => {
   // console.log('ข้อมูล user', userDetail.value);
 });
 
+// Success Modal
+const isModalOpen = ref(false)
+const modalData = ref({ title: '', message: '', context: '' });
+
+// Confirm Modal
+const isModalVisible = ref(false);
+const userIdTodelete = ref(null)
 
 
-const deleteUser = async (userId) => {
-  const confirmed = window.confirm(
-    'โปรดยืนยันการลบข้อมูลนี้ เนื่องจากการลบไม่สามารถย้อนกลับได้'
-  );
-  if (confirmed) {
+const showDeleteModal = (userId) => {
+  userIdTodelete.value = userId;
+  isModalVisible.value = true
+}
+
+const closeModal = () => {
+  isModalOpen.value = false
+  isModalVisible.value = false
+  userIdTodelete.value = null
+}
+
+const deleteUser = async () => {
+
+  if (userIdTodelete.value) {
+    const userId = userIdTodelete.value
     try {
-      const res = await fetch(`${API_ROOT}/admin/user/${userId}`, {
+      const res = await fetch(`${API_ROOT}/admin/user/${userIdTodelete.value}`, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -35,7 +54,15 @@ const deleteUser = async (userId) => {
       });
 
       if (res.ok) {
-        userDetail.value = userDetail.value.filter((user) => user.userId !== userId);
+        userDetail.value = await getUsers()
+        closeModal()
+        modalData.value = {
+          title: `ลบบัญชีผู้ใช้สำเร็จ`,
+          message: `บัญชีผู้ใช้ ID: ${userId} ถูกลบเรียบร้อยแล้ว`,
+          context: 'users'
+        };
+        isModalOpen.value = true
+        // console.log("SuccessModal เปิดใช้งาน:", isModalOpen.value, modalData.value);
       } else {
         if (res.status === 401) {
           alert('Access Denied!');
@@ -143,7 +170,7 @@ const editUser = (userId) => {
               <button @click="editUser(user.userId)" class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition">
                 Edit
               </button>
-              <button @click="deleteUser(user.userId)" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+              <button @click="showDeleteModal(user.userId)" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
                 Delete
               </button>
             </td>
@@ -152,6 +179,24 @@ const editUser = (userId) => {
       </table>
     </div>
   </div>
+
+
+  <ConfirmModal
+  :isVisible="isModalVisible"
+  :userId="userIdTodelete"
+  @close="closeModal"
+  @delete="deleteUser"
+  context="deleteUser"
+  />
+
+  <SuccessModal 
+    v-if="isModalOpen" 
+    :title="modalData.title" 
+    :message="modalData.message" 
+    :context="modalData.context" 
+    @close="closeModal"
+/>
+
 </template>
 
 <style scoped>

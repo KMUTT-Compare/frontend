@@ -57,7 +57,7 @@ const confirmCancel = () => {
           </button>
         </div>
         <div class="p-6 pt-0 text-center">
-          <svg v-if="context === 'delete' || context === 'cancel' " class="w-20 h-20 text-red-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <svg v-if="context === 'delete' || context === 'cancel' || context === 'deleteUser' " class="w-20 h-20 text-red-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
           <svg v-if="context === 'add'" class="w-20 h-20 text-green-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -71,10 +71,11 @@ const confirmCancel = () => {
             <span v-if="context === 'add'">คุณแน่ใจหรือไม่ว่าต้องการเพิ่มหอพักนี้ ?</span>
             <span v-if="context === 'update'">คุณแน่ใจหรือไม่ว่าต้องการอัปเดตข้อมูลหอพักนี้ ?</span>
             <span v-if="context === 'cancel'">คุณต้องการยกเลิกการจองหอพักนี้จริงๆ ใช่ไหม? กระบวนการนี้ไม่สามารถย้อนกลับได้ ?</span>
+            <span v-if="context === 'deleteUser'">คุณต้องการลบบัญชีผู้ใช้นี้จริงๆ หรือไม่? กระบวนการนี้ไม่สามารถย้อนกลับได้</span>
           </h3>
             <div class="flex flex-row items-center justify-center">
               <div class="w-1/2">
-                <a href="#" @click="confirmDelete" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-10 py-3 text-center mr-2" v-if="context === 'delete'">
+                <a href="#" @click="confirmDelete" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-10 py-3 text-center mr-2" v-if="context === 'delete' || context === 'deleteUser'">
                   ใช่, ฉันแน่ใจ
                 </a>
                 <a href="#" @click="confirmCancel" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-10 py-3 text-center mr-2" v-if="context === 'cancel'">

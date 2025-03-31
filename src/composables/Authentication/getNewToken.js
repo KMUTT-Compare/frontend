@@ -6,6 +6,7 @@ const uiStore = useUIStore();
 const getNewToken = async () => {
   try {
     const refreshToken = localStorage.getItem('refreshToken');
+    console.log(localStorage.getItem('token'))
     if (!refreshToken) {
       clearAllToken();
       alert('Please login.');

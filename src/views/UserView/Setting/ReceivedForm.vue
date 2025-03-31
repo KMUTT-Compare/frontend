@@ -4,9 +4,10 @@ import Sidebar from '@/components/Sidebar.vue';
 import { formatDate } from '@/composables/formatDate';
 import { formatPhoneNumber } from '@/composables/formatPhoneNumber';
 import { useReceivedForms } from '@/composables/getReceivedForms';
+import SuccessModal from '@/components/modals/SuccessModal.vue';
 
 const API_ROOT = import.meta.env.VITE_API_ROOT;
-const { fetchReceivedForms, receivedForms } = useReceivedForms();
+const { fetchReceivedForms, receivedForms, isLoading } = useReceivedForms();
 
 
 // Sort submitted forms by form_date
@@ -18,13 +19,35 @@ const sortedForms = computed(() => {
   });
 });
 
+// Pagination
+const currentPage = ref(1);
+const itemsPerPage = ref(3); // จำนวนรายการต่อหน้า
+
+// คำนวณหน้าทั้งหมด
+const totalPages = computed(() => Math.ceil(sortedForms.value.length / itemsPerPage.value));
+
+// คำนวณรายการที่จะแสดงในหน้านี้
+const paginatedForms = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return sortedForms.value.slice(start, end);
+});
+
+// เปลี่ยนหน้า
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+  }
+};
 
 
 onMounted(() => {
   fetchReceivedForms();
 });
 
-
+// -------------------------------- Success Modal --------------------------------
+const isModalOpen = ref(false)
+const modalData = ref({ title: '', message: '', context: '' });
 
 // -------------------------------- Show Detail --------------------------------
 const isShowDetail = ref(false); 
@@ -52,7 +75,12 @@ const checkIn = async (formId) => {
 
     // ตรวจสอบสถานะ response และแสดงข้อความตามประเภทของ response
     if (response.ok) {
-      alert("เช็คอินสำเร็จ!");
+      modalData.value = {
+          title: `เช็คอินสำเร็จ`,
+          message: `อัปเดตสถานะผู้เข้าพักเรียบร้อยแล้ว`,
+          context: 'checkIn'
+        };
+        isModalOpen.value = true
       fetchReceivedForms()
     } else {
       alert(`ไม่สามารถเช็คอินได้`);
@@ -72,12 +100,16 @@ const checkIn = async (formId) => {
       <div class="p-6 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
         <h1 class="font-bold text-3xl mb-8">ฟอร์มที่ส่งแล้ว</h1>
 
-        <div v-if="sortedForms.length === 0" class="text-center text-gray-600">
+        <div v-if="isLoading" class="text-center text-gray-600">
+          กำลังโหลดข้อมูล...
+        </div>
+
+        <div v-else-if="paginatedForms.length === 0" class="text-center text-gray-600">
           ยังไม่มีฟอร์มที่ได้รับ
         </div>
 
         <ul v-else class="space-y-6">
-          <li v-for="form in sortedForms" :key="form.id"
+          <li v-for="form in paginatedForms" :key="form.id"
               :class="{'bg-gray-300': form.description.includes('ยกเลิกการจอง')}"
               class="p-6 rounded-lg shadow-md bg-white space-y-4">
 
@@ -105,9 +137,9 @@ const checkIn = async (formId) => {
               
               <!-- หาก isShowDetail เป็น true จะแสดงรายละเอียด -->
               <div v-if="isShowDetail" class="mt-4 p-4 bg-gray-100 rounded-lg">
-                <p class="text-sm text-gray-600">ชื่อเจ้าของหอพัก: {{ form.owner.name || 'ไม่มีข้อมูล' }}</p>
-                <p class="text-sm text-gray-600">เบอร์ติดต่อ: {{ form.owner.phone || 'ไม่มีข้อมูล' }}</p>
-                <p class="text-sm text-gray-600">อีเมล: {{ form.owner.email || 'ไม่มีข้อมูล' }}</p>
+                <p v-if="form.owner" class="text-sm text-gray-600">ชื่อเจ้าของหอพัก: {{ form.owner.name || 'ไม่มีข้อมูล' }}</p>
+                <p v-if="form.owner" class="text-sm text-gray-600">เบอร์ติดต่อ: {{ form.owner.phone || 'ไม่มีข้อมูล' }}</p>
+                <p v-if="form.owner" class="text-sm text-gray-600">อีเมล: {{ form.owner.email || 'ไม่มีข้อมูล' }}</p>
                 <p class="text-sm text-gray-600">รายละเอียดเพิ่มเติม: {{ form.description || 'ไม่มีข้อมูล' }}</p>
                 <p class="text-sm text-gray-600">วันที่เข้าพัก: {{ formatDate(form.date_in || 'ไม่มีข้อมูล') }}</p>
                 <p class="text-sm text-gray-600">วันที่ออก: {{ formatDate(form.date_out|| 'ไม่มีข้อมูล') }}</p>
@@ -128,8 +160,6 @@ const checkIn = async (formId) => {
                <!-- ให้คะแนนแล้ว -->
               <p  v-if="form.status === 'success'">✔️ ผู้เข้าพักให้คะแนนแล้ว</p>
             </div>
-            
-
             <!-- ข้อความแสดงเมื่อ description มีคำว่า 'ยกเลิกการจอง' -->
             <div v-if="form.description.includes('ยกเลิกการจอง')" class="text-right text-gray-500 mt-4">
               ยกเลิกการจองแล้ว
@@ -137,9 +167,38 @@ const checkIn = async (formId) => {
           </li>
         </ul>
 
+        <!-- Pagination -->
+        <div class="flex justify-center items-center space-x-4 mt-6">
+          <button 
+            @click="goToPage(currentPage - 1)" 
+            :disabled="currentPage === 1" 
+            class="btn-pagination bg-orange-500 text-white hover:text-white hover:bg-orange-600 disabled:text-gray-400 disabled:bg-gray-200 py-2 px-4 rounded-md shadow-md transition duration-200">
+            «
+          </button>
+          
+          <span class="text-gray-700 font-semibold text-lg">หน้า {{ currentPage }} จาก {{ totalPages }}</span>
+          
+          <button 
+            @click="goToPage(currentPage + 1)" 
+            :disabled="currentPage === totalPages" 
+            class="btn-pagination bg-orange-500 text-white hover:text-white hover:bg-orange-600 disabled:text-gray-400 disabled:bg-gray-200 py-2 px-4 rounded-md shadow-md transition duration-200">
+            »
+          </button>
+        </div>
+
+
       </div>
     </div>
   </div>
+
+  <SuccessModal 
+    v-if="isModalOpen" 
+    :title="modalData.title" 
+    :message="modalData.message" 
+    :context="modalData.context" 
+    @close="isModalOpen = false"
+/>
+
 
 </template>
 

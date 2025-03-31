@@ -3,7 +3,7 @@ const clearAllToken = () => {
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("userRole")
     localStorage.removeItem("username")
-    console.log("Logout successful");
+    // console.log("Logout successful");
 }
 const API_ROOT = import.meta.env.VITE_API_ROOT;
   const clearToken = async () => {

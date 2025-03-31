@@ -113,10 +113,12 @@ const save = async () => {
 
     isModalSuccessVisible.value = true;
     modalProps.value = {
-      title: 'จัดการผู้ใช้สำเร็จ',
+      title: mode.value === 'add' 
+        ? 'เพิ่มบัญชีผู้ใช้สำเร็จ'
+        : `แก้ไขบัญชีผู้ใช้สำเร็จ`,
       message: mode.value === 'add'
-        ? 'เพิ่มผู้ใช้เรียบร้อยแล้ว'
-        : 'อัปเดตข้อมูลผู้ใช้เรียบร้อยแล้ว'
+        ? 'เพิ่มผู้ใช้ใหม่เข้าสู่ระบบเรียบร้อยแล้ว'
+        : `อัปเดตข้อมูลผู้ใช้ ID: ${params.id} เรียบร้อยแล้ว`
     };
 
   } catch (error) {

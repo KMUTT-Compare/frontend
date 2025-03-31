@@ -2,6 +2,7 @@
 import { useUIStore } from '@/stores/uiStore';
 import { ref, watch } from 'vue';
 import { validatePhone, validateEmail, validateName, validatePassword, validateUsername } from '@/composables/Validate/validateUserData';
+import SuccessModal from '../modals/SuccessModal.vue';
 const FETCH_API = import.meta.env.VITE_API_ROOT;
 const uiStore = useUIStore();
 
@@ -105,9 +106,19 @@ const register = async () => {
         });
 
         if (response.ok) {
-            alert('สมัครสมาชิกสำเร็จ!');
-            // ปิด popup และเปิดหน้า login
-            switchPopup();
+            modalData.value = {
+                title: `สมัครสมาชิกสำเร็จ`,
+                message: `คุณสามารถเข้าสู่ระบบได้แล้ว`,
+                context: 'home'
+                };
+                isModalOpen.value = true
+                // ตั้งเวลาให้ modal ปิดอัตโนมัติใน 5 วินาที แล้วค่อยเปิด login popup
+                setTimeout(() => {
+                    isModalOpen.value = false;
+                    uiStore.closeRegisPopup()
+                    uiStore.openLoginPopup()
+                }, 1600);
+
         } else {
             const errorData = await response.json();
                 // เช็คว่า message มาจาก backend ว่า "Username already exists"
@@ -127,6 +138,11 @@ const register = async () => {
         // console.error('Error:', error.message);
     }
 };
+
+
+// Success Modal
+const isModalOpen = ref(false)
+const modalData = ref({ title: '', message: '', context: '' });
 
 </script>
 
@@ -205,6 +221,13 @@ const register = async () => {
         </div>
     </div>
 </div>
+
+<SuccessModal 
+    v-if="isModalOpen" 
+    :title="modalData.title" 
+    :message="modalData.message" 
+    :context="modalData.context" 
+/>
 </template>
 
 <style scoped>
