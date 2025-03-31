@@ -1,12 +1,15 @@
 import { clearAllToken, clearToken } from './clearToken.js';
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 import { useUIStore } from '@/stores/uiStore';
+import { useAuthorize } from '@/stores/authorize';
 const uiStore = useUIStore();
+const useAuthor = useAuthorize();
+const { setRole } = useAuthor;
 
 const getNewToken = async () => {
   try {
     const refreshToken = localStorage.getItem('refreshToken');
-    console.log(localStorage.getItem('token'))
+    // console.log(localStorage.getItem('refreshToken'))
     if (!refreshToken) {
       clearAllToken();
       alert('Please login.');
@@ -26,6 +29,9 @@ const getNewToken = async () => {
       const data = await res.json();
       const newToken = data.accessToken;
       localStorage.setItem('token', newToken);
+      setRole(newToken)
+      
+      
       // console.log('Token refreshed successfully:', newToken);
     } else {
       clearAllToken();

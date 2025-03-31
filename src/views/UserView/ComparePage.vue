@@ -29,10 +29,10 @@ const getFacilityStatus = (facility, dormFacilities) => {
 // ฟังก์ชันที่ใช้เปรียบเทียบค่าระหว่างสองหอพัก
 const compareDorms = (dorm1, dorm2) => {
   return {
-    min_price: dorm1.min_price < dorm2.min_price,  // ถ้าราคาเริ่มต้นของหอพัก 1 ต่ำกว่าหอพัก 2
-    max_price: dorm1.max_price < dorm2.max_price,  // ถ้าราคาสูงสุดของหอพัก 1 สูงกว่าหอพัก 2
-    size: dorm1.size > dorm2.size,                // ถ้าขนาดห้องของหอพัก 1 ใหญ่กว่าหอพัก 2
-    distance: dorm1.distance < dorm2.distance      // ถ้าระยะทางของหอพัก 1 ใกล้กว่าหอพัก 2
+    min_price: dorm1.min_price <= dorm2.min_price,  // ถ้าราคาเริ่มต้นของหอพัก 1 ต่ำกว่าหอพัก 2
+    max_price: dorm1.max_price <= dorm2.max_price,  // ถ้าราคาสูงสุดของหอพัก 1 สูงกว่าหอพัก 2
+    size: dorm1.size >= dorm2.size,                // ถ้าขนาดห้องของหอพัก 1 ใหญ่กว่าหอพัก 2
+    distance: dorm1.distance <= dorm2.distance      // ถ้าระยะทางของหอพัก 1 ใกล้กว่าหอพัก 2
   };
 };
 
@@ -161,7 +161,10 @@ const prevPage = () => {
       <!-- Rating ที่จะอยู่มุมขวาบนของรูป -->
       <div class="absolute top-2 right-2 bg-white px-2 py-1 rounded-lg shadow-md flex items-center justify-center space-x-1">
         <img src="/star.png" alt="Star" class="w-6">
-        <strong class="text-gray-800">{{ compareItems[1]?.rating?.totalScore }}</strong>
+        <strong v-if="compareItems[1]?.rating?.totalScore && compareItems[1].rating.totalScore !== 0" class="text-gray-800">
+          {{ compareItems[1].rating.totalScore }}
+          </strong>
+          <strong v-else class="text-gray-800">ยังไม่มีคะแนน</strong>
       </div>
 
 

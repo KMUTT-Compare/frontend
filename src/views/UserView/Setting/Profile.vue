@@ -146,11 +146,7 @@ const updateProfile = async () => {
 
     // ✅ เช็คว่ามีการเปลี่ยน username ไหม
     if (oldUsername && oldUsername !== username.value) {
-      setTimeout(() => {
-        clearAllToken()
-        alert('กรุณาเข้าสู่ระบบใหม่อีกครั้ง')
-        uiStore.openLoginPopup()
-      }, 1500); // รอให้ข้อความ success แสดงก่อน logout
+      await getNewToken()
     }
 
     setTimeout(() => {
