@@ -147,7 +147,7 @@ const submitTransfer = async () => {
       }
     }
   } catch (error) {
-    console.error(error);
+    // console.error(error);
   }
 };
 
