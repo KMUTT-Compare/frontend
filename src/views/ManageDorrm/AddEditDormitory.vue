@@ -242,26 +242,34 @@ const uploadImage = async (file) => {
     });
 
     if (!response.ok) {
+      const index = selectedImages.value.findIndex(img => img.file === file);
+      if (index !== -1) {
+        selectedImages.value.splice(index, 1); // ลบไฟล์ออกจาก selectedImages.value
+      }
+
+      if (response.status === 413) {
+        alert("ไฟล์ใหญ่เกินไป! กรุณาอัปโหลดไฟล์ที่เล็กลง");
+      } else if (response.status === 400) {
+        alert("ประเภทไฟล์ไม่ถูกต้อง อนุญาตเฉพาะไฟล์ JPEG, GIF, PNG, BMP และ WEBP เท่านั้น");
+      }
+
       throw new Error('Upload failed');
     }
 
-    const data = await response.json();  // เซิร์ฟเวอร์ส่งข้อมูลที่เกี่ยวข้องกับไฟล์
+    const data = await response.json(); // เซิร์ฟเวอร์ส่งข้อมูลที่เกี่ยวข้องกับไฟล์
     data.forEach(image => {
-      const uploadedImageUrl = image.fileUrl;  // รับ URL ของภาพที่อัปโหลดจาก response
+      const uploadedImageUrl = image.fileUrl; // รับ URL ของภาพที่อัปโหลดจาก response
       const index = selectedImages.value.findIndex(img => img.file === file);
       if (index !== -1) {
-        selectedImages.value[index] = uploadedImageUrl;  // อัปเดต uploadedImageUrl
-        // console.log('Selected Image')
-        // console.log(selectedImages.value)
+        selectedImages.value[index] = uploadedImageUrl; // อัปเดต uploadedImageUrl
       }
     });
 
-  
-
   } catch (error) {
-    // console.error('Error uploading image:', error);
+    console.error('Error uploading image:', error);
   }
 };
+
 
 // ลบภาพจากเซิร์ฟเวอร์
 const deleteImage = async (imageUrl) => {
