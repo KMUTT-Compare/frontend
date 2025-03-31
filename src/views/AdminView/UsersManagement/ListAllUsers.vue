@@ -68,7 +68,10 @@ const deleteUser = async () => {
           alert('Access Denied!');
         } else if (res.status === 403) {
           alert('You cannot delete your own account.');
-        } else {
+        }else if (res.status === 400) {
+          alert("ยังมีหอพักอยู่ในบัญชี กรุณาจัดการหอพักก่อนลบบัญชี");
+        }
+        else {
           alert(`User ID ${userId} not found.`);
         }
         throw new Error('Cannot delete user!');
