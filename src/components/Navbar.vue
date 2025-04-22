@@ -165,27 +165,33 @@ const clickSupport = ()=>{
         </div>
   
       </div>
-  
-      <!-- Items bar -->
-      <div class="items-center justify-between w-full md:flex md:w-auto md:order-1 pl-32 ">
-        <ul class="flex flex-col pt-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:space-x-10 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-          <li  v-if="authStore.userRole === 'admin'"> 
-            <p @click="$router.push('/admin/dashboard')" class="cursor-pointer hover hover:bg-gray-100 active:bg-gray-200">แดชบอร์ด</p>
-          </li>
-          <li>
-            <p @click="$router.push('/')" class="cursor-pointer hover hover:bg-gray-100 active:bg-gray-200">หน้าหลัก</p>
-          </li>
-          <li  v-if="authStore.userRole === 'admin' || authStore.userRole === 'user'"> 
-            <p @click="$router.push('/favorites')" class="cursor-pointer hover hover:bg-gray-100 active:bg-gray-200">รายการโปรด</p>
-          </li>
-          <li>
-            <p @click="$router.push('/faq')" class="cursor-pointer hover hover:bg-gray-100 active:bg-gray-200">ช่วยเหลือ</p>
-          </li>
-          <li>
-            <p @click="$router.push('/contact')" class="cursor-pointer hover hover:bg-gray-100 active:bg-gray-200">ติดต่อเรา</p>
-          </li>
-        </ul>
-      </div>
+<!-- Items bar -->
+<div
+  id="navbar-sticky"
+  :class="[
+    'transition-all duration-300 ease-in-out md:static md:flex md:w-auto md:order-1',
+    isMenuOpen ? 'absolute top-full left-0 w-full bg-white shadow-lg z-30' : 'hidden'
+  ]"
+>
+  <ul class="flex flex-col md:flex-row md:space-x-10 font-medium border border-gray-100 md:border-0 rounded-lg md:rounded-none bg-gray-50 md:bg-white p-4 md:p-0">
+    <li v-if="authStore.userRole === 'admin'">
+      <p @click="isMenuOpen = false; $router.push('/admin/dashboard')" class="cursor-pointer hover:bg-gray-100 active:bg-gray-200">แดชบอร์ด</p>
+    </li>
+    <li>
+      <p @click="isMenuOpen = false; $router.push('/')" class="cursor-pointer hover:bg-gray-100 active:bg-gray-200">หน้าหลัก</p>
+    </li>
+    <li v-if="authStore.userRole === 'admin' || authStore.userRole === 'user'">
+      <p @click="isMenuOpen = false; $router.push('/favorites')" class="cursor-pointer hover:bg-gray-100 active:bg-gray-200">รายการโปรด</p>
+    </li>
+    <li>
+      <p @click="isMenuOpen = false; $router.push('/faq')" class="cursor-pointer hover:bg-gray-100 active:bg-gray-200">ช่วยเหลือ</p>
+    </li>
+    <li>
+      <p @click="isMenuOpen = false; $router.push('/contact')" class="cursor-pointer hover:bg-gray-100 active:bg-gray-200">ติดต่อเรา</p>
+    </li>
+  </ul>
+</div>
+
 
 
     </div>
@@ -233,6 +239,7 @@ const clickSupport = ()=>{
   
 
 <style scoped>
+
 /* Add any custom styles here */
 @media(min-width: 50px){
   .icon{

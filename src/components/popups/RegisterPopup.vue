@@ -17,7 +17,6 @@ const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 const phone = ref('');
-const isAccept = ref(false);
 
 const errors = ref({
     name: '',
@@ -25,8 +24,7 @@ const errors = ref({
     email: '',
     password: '',
     confirmPassword: '',
-    phone: '',
-    isAccept: ''
+    phone: ''
 });
 
 const touched = ref(false);
@@ -51,9 +49,6 @@ const validateConfirmPassword = () => {
   }
 };
 
-const validateIsAccept = () => {
-    errors.value.isAccept = isAccept.value ? '' : 'กรุณายอมรับเงื่อนไขก่อนสมัครสมาชิก';
-};
 
 watch([password, confirmPassword], () => {
     validateConfirmPassword(); // เรียกตรวจสอบรหัสผ่านทุกครั้งที่ newPassword หรือ confirmPassword เปลี่ยนค่า
@@ -197,16 +192,7 @@ const modalData = ref({ title: '', message: '', context: '' });
                     <input v-model="phone" type="text" class="input" placeholder="Phone">
                     <p v-if="errors.phone" class="error">{{ errors.phone }}</p>
 
-                    <div class="flex items-center mt-2 mb-2">
-                        <input v-model="isAccept" type="checkbox" class="w-4 h-4">
-                        <label class="ml-2 text-sm">
-                            ยอมรับ <a href="#" class="text-blue-600">ข้อตกลงการใช้งาน</a> และ 
-                            <a href="#" class="text-blue-600">นโยบายความเป็นส่วนตัว</a>
-                        </label>
-                    </div>
-                    <p v-if="errors.isAccept" class="error">{{ errors.isAccept }}</p>
-
-                    <button type="submit" class="btn">
+                    <button type="submit" class="btn mt-2">
                         สมัคร
                     </button>
                 </form>

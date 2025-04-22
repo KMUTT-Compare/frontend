@@ -14,7 +14,7 @@
             <p class="mt-3 text-gray-500 dark:text-gray-400">Chat to our friendly team.</p>
         </div>
 
-        <img class="object-cover w-full h-64 mt-10 rounded-lg lg:h-96" src="https://images.unsplash.com/photo-1568992688065-536aad8a12f6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1632&q=100" alt="">
+        <img class="object-cover w-full h-64 mt-10 rounded-lg lg:h-96" src="/images/jip.jpg" alt="">
         
         <div class="grid grid-cols-1 gap-12 mt-10 lg:grid-cols-3 sm:grid-cols-2 ">
             <div class="p-4 rounded-lg bg-orange-50 md:p-6 dark:bg-gray-800">

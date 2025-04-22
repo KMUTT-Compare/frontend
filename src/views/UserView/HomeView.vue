@@ -223,22 +223,6 @@ const filteredDormitories = computed(() => {
 
 <template>
 
-
-    <!-- Hero Section -->
-    <header class="hero">
-      <div class="background">
-        <img src="@/components/photos/dorm.jpg" alt="Dorm Hero" class="hero-image">
-      </div>
-      <div class="hero-content">
-        <!-- ส่วนหัวเรื่อง -->
-        <div class="text-5xl font-semibold">
-          <h2>Compare Dormitories</h2>
-        </div>
-      </div>
-    </header>
-
-
-
     <div class="w-full h-full flex flex-col items-center">
 
 
@@ -254,7 +238,7 @@ const filteredDormitories = computed(() => {
         </div>
 
         <!--------------------------- Price, Type, Distance -------------------------------------->
-        <div class="flex flex-row items-stretch gap-6 w-full pb-4">
+        <div class="flex flex-col lg:flex-row items-stretch gap-6 w-full pb-4">
 
           <!-- ราคา (ชิดซ้าย) -->
           <div class="flex flex-col space-y-4 flex-1 min-w-[250px] border border-gray-300 rounded-lg shadow-md p-4">
@@ -269,7 +253,7 @@ const filteredDormitories = computed(() => {
                     min="0"
                     max="20000"
                     step="100"
-                    class="w-24 text-sm border border-gray-300 rounded-md p-1 text-center"
+                    class="w-full sm:w-24 text-sm border border-gray-300 rounded-md p-1 text-center"
                   />
                 </div>
                 <input
@@ -378,12 +362,12 @@ const filteredDormitories = computed(() => {
 
 
       <!-- items (กึ่งกลาง) -->
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 w-full">
+      <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-4 w-full">
           <div
             v-if="filteredDormitories !== null && filteredDormitories.length !== 0"
             v-for="dorm in filteredDormitories"
             :key="dorm.dormId"
-            class="rounded-lg border-2 shadow-lg p-3 bg-white"
+            class="rounded-lg border-2 shadow-lg p-3 bg-white flex flex-col justify-between h-full min-h-[480px]"
           >
             <div class="w-full h-48 md:h-64 flex justify-center items-center">
               <div
@@ -393,47 +377,60 @@ const filteredDormitories = computed(() => {
               ></div>
             </div>
 
-            <div class="flex flex-col w-full p-3">
-              <div class="flex justify-between items-center">
-                <h1 @click="showDetail(dorm.dormId)" class="dormname cursor-pointer font-semibold">
-                  {{ dorm.dormName }}
-                </h1>
-                <div v-if="userRole !== 'guest'">
-                  <button
-                    @click="handleToggleFavorite(dorm.dormId)"
-                    class="p-2 rounded-full border border-gray-300 hover:bg-red-100 transition"
-                  >
-                    <span :class="isFavorite(dorm.dormId) ? 'text-red-500' : 'text-gray-500'">
-                      {{ isFavorite(dorm.dormId) ? '❤️' : '🤍' }}
-                    </span>
-                  </button>
-                </div>
-              </div>
+            <div class="flex flex-col w-full p-3 flex-1">
+  <!-- ส่วนบน: ชื่อ + ปุ่ม favorite -->
+  <div class="flex justify-between items-center">
+    <h1
+      @click="showDetail(dorm.dormId)"
+      class="dormname cursor-pointer font-semibold text-base sm:text-lg"
+      style="line-height: 1.6;"
+    >
+      {{ dorm.dormName }}
+    </h1>
+    <div v-if="userRole !== 'guest'">
+      <button
+        @click="handleToggleFavorite(dorm.dormId)"
+        class="p-2 rounded-full border border-gray-300 hover:bg-red-100 transition"
+      >
+        <span :class="isFavorite(dorm.dormId) ? 'text-red-500' : 'text-gray-500'">
+          {{ isFavorite(dorm.dormId) ? '❤️' : '🤍' }}
+        </span>
+      </button>
+    </div>
+  </div>
 
-              <h2 class="text-green-600 text-lg">
-                {{ formatPrice(dorm.min_price) }} - {{ formatPrice(dorm.max_price) }} บาท/เดือน
-              </h2>
-              <h2>ระยะทาง: <span>{{ dorm.distance }} กม.</span></h2>
-              <h2>
-                ประเภทหอพัก:
-                <span v-if="dorm.type === 'all'">รวม</span>
-                <span v-else-if="dorm.type === 'f'">หญิง</span>
-                <span v-else-if="dorm.type === 'm'">ชาย</span>
-                <span v-else>{{ dorm.type }}</span>
-              </h2>
-              <p class="text-sm text-gray-600">
-                ที่อยู่: {{ dorm.address.street }}, {{ dorm.address.subdistrict }}, {{ dorm.address.district }},
-                {{ dorm.address.province }} {{ dorm.address.postalCode }}
-              </p>
-              <div class="flex flex-row space-x-2 mt-5">
-                  <img class="w-6" src="/star.png" alt="">
-                  <h2>{{ dorm.rating.totalScore < 1 ? 'ยังไม่มีคะแนน' : dorm.rating.totalScore }}</h2>
-              </div>
+  <!-- ส่วนกลาง: รายละเอียดอื่นๆ -->
+  <div class="flex flex-col flex-grow mt-2">
+    <h2 class="text-green-600 text-lg">
+      {{ formatPrice(dorm.min_price) }} - {{ formatPrice(dorm.max_price) }} บาท/เดือน
+    </h2>
+    <h2>ระยะทาง: <span>{{ dorm.distance }} กม.</span></h2>
+    <h2>
+      ประเภทหอพัก:
+      <span v-if="dorm.type === 'all'">รวม</span>
+      <span v-else-if="dorm.type === 'f'">หญิง</span>
+      <span v-else-if="dorm.type === 'm'">ชาย</span>
+      <span v-else>{{ dorm.type }}</span>
+    </h2>
 
-              <div class="flex space-x-2 mt-2 justify-center pt-5 w-full">
-                <BorderButton @click="addDormToCompare(dorm.dormId)" context="เพิ่มลงในรายการเปรียบเทียบ" />
-              </div>
-            </div>
+    <!-- ที่อยู่ -->
+    <p class="text-sm text-gray-600 line-clamp-2">
+      ที่อยู่: {{ dorm.address.street }}, {{ dorm.address.subdistrict }}, {{ dorm.address.district }},
+      {{ dorm.address.province }} {{ dorm.address.postalCode }}
+    </p>
+
+    <div class="flex flex-row space-x-2 mt-5">
+      <img class="w-6" src="/star.png" alt="">
+      <h2>{{ dorm.rating.totalScore < 1 ? 'ยังไม่มีคะแนน' : dorm.rating.totalScore }}</h2>
+    </div>
+  </div>
+
+  <!-- ปุ่มเปรียบเทียบ -->
+  <div class="pt-5 w-full flex justify-center mt-auto">
+    <BorderButton @click="addDormToCompare(dorm.dormId)" context="เพิ่มลงในรายการเปรียบเทียบ" />
+  </div>
+</div>
+
           </div>
         </div>
 
@@ -605,39 +602,6 @@ input[type="range"]:focus {
 .icons img:hover  {
   transform: scale(1.02); /* ขยายขนาดเล็กน้อยเมื่อ hover */
   transition: transform 0.3s ease; /* เพิ่มการขยายขนาดอย่างนุ่มนวล */
-}
-
-.hero {
-  position: relative;
-  height: 20vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  overflow: hidden;
-  color: #eeeeee;
-  text-shadow: 4px 4px 6px rgba(0, 0, 0, 0.7); 
-}
-
-
-.hero .background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 200px;
-  z-index: -1;
-}
-
-.hero .hero-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: brightness(0.7); /* Darken the image for better text contrast */
-}
-
-.hero-content {
-  z-index: 1;
 }
 
 

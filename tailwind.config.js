@@ -13,6 +13,7 @@ export default {
   },
   plugins: [
     require("daisyui"),
+    require('@tailwindcss/line-clamp'),
     require('flowbite/plugin')({
       charts: true,
   }),

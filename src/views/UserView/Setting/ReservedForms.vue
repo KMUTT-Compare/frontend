@@ -166,8 +166,8 @@ const submitRating = async () => {
 
 <template>
   <div class="flex flex-row w-full justify-center p-20">
-    <Sidebar />
-    <div class="pl-2 w-1/2 h-full">
+    <Sidebar class="hidden lg:block w-64" />
+    <div class="pl-0 lg:pl-2 w-full lg:w-1/2 h-full">
       <div class="p-6 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
         <h1 class="font-bold text-3xl mb-8">ฟอร์มที่ส่งแล้ว</h1>
 

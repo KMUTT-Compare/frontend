@@ -12,13 +12,11 @@ const uiStore = useUIStore()
 const API_ROOT = import.meta.env.VITE_API_ROOT;
 
 const loading = ref(false);
+const loadingPass = ref(false);
 const successMessage = ref('');
+const successMessagePass = ref('');
 const errorMessage = ref('');  // เพิ่ม errorMessage
-
-
-const showOldPassword = ref(false);
-const showNewPassword = ref(false);
-const showConfirmPassword = ref(false);
+const errorMessagePass = ref('');
 
 // ข้อมูลผู้ใช้
 const username = ref('');
@@ -171,9 +169,9 @@ const updateProfile = async () => {
 const changePassword = async () => {
   if (!validatePasswordField()) return;
 
-  loading.value = true;
-  successMessage.value = '';
-  errorMessage.value = ''; // เคลียร์ข้อความ error ก่อนการอัปเดต
+  loadingPass.value = true;
+  successMessagePass.value = '';
+  errorMessagePass.value = ''; // เคลียร์ข้อความ error ก่อนการอัปเดต
 
   try {
     const response = await fetch(`${API_ROOT}/change-password`, {
@@ -189,31 +187,29 @@ const changePassword = async () => {
     });
 
     if (!response.ok) {
-      errorMessage.value = '❌ รหัสผ่านเดิมไม่ถูกต้อง';
+      errorMessagePass.value = '❌ รหัสผ่านเดิมไม่ถูกต้อง';
       throw new Error('ไม่สามารถอัปเดตข้อมูลได้');
     }
 
-    loading.value = false;
-    successMessage.value = '✅ เปลี่ยนรหัสผ่านสำเร็จ';
+    loadingPass.value = false;
+    successMessagePass.value = '✅ เปลี่ยนรหัสผ่านสำเร็จ';
 
     setTimeout(() => {
-      successMessage.value = '';
+      successMessagePass.value = '';
     }, 3000);
 
   } catch (error) {
-    loading.value = false;
+    loadingPass.value = false;
     // ข้อความ error จะถูกแสดงจากข้อผิดพลาดใน try-catch
   }
 };
 
-
-const isEditUsername = ref(false)
 </script>
 
 <template>
   <div class="flex flex-row w-full justify-center p-20">
-    <Sidebar />
-    <div class="pl-2 flex flex-col w-1/2 h-full rounded-xl">
+    <Sidebar class="hidden lg:block w-64" />
+    <div class="pl-0 lg:pl-2 w-full lg:w-1/2 h-full">
       <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
         <div class="flex flex-col space-y-6">
           
@@ -258,51 +254,57 @@ const isEditUsername = ref(false)
           </div>
           <span v-if="errors.phone" class="pl-32 text-red-500 text-sm mt-1">{{ errors.phone }}</span>
 
-          <button @click="updateProfile" :disabled="!validateData()"  class="ml-32 btn bg-orange-500 text-white hover:bg-orange-600 w-9/12">บันทึกข้อมูล</button>
+          <button @click="updateProfile" :disabled="!validateData()" class="ml-0 sm:ml-32 btn bg-orange-500 text-white hover:bg-orange-600 w-full sm:w-9/12 mx-auto sm:mx-0">บันทึกข้อมูล</button>
 
+          <!-- แสดงข้อความ Success -->
+          <div v-if="successMessagePass" class="bg-green-200 text-green-800 p-3 rounded-lg mb-4">
+            {{ successMessagePass }}
+          </div>
+
+          <!-- แสดงแถบ Loading ถ้าอยู่ในสถานะกำลังโหลด -->
+          <div v-if="loading" class="bg-blue-200 text-blue-800 p-3 rounded-lg mb-4">
+            กำลังบันทึก...
+          </div>
+
+          <!-- แสดงข้อความ Error ถ้าไม่สำเร็จ -->
+          <div v-if="errorMessagePass" class="bg-red-200 text-red-800 p-3 rounded-lg mb-4">
+            {{ errorMessagePass }}
+          </div>
+          
           <h1 class="text-3xl">เปลี่ยนรหัสผ่าน</h1>
           <div class="flex flex-row items-center relative">
             <p for="oldPassword" class="w-32 text-lg">รหัสผ่านปัจจุบัน:</p>
             <input 
-              :type="showOldPassword ? 'text' : 'password'" 
+              type="password" 
               v-model="oldPassword" 
               class="input-style pr-10" 
               placeholder="รหัสผ่านปัจจุบัน" 
             />
-            <button type="button" class="toggle-btn" @click="showOldPassword = !showOldPassword">
-              👁
-            </button>
           </div>
 
           <div class="flex flex-row items-center relative">
             <p for="newPassword" class="w-32 text-lg">รหัสผ่านใหม่:</p>
             <input 
-              :type="showNewPassword ? 'text' : 'password'" 
+              type="password" 
               v-model="newPassword" 
               class="input-style pr-10" 
               placeholder="รหัสผ่านใหม่" 
             />
-            <button type="button" class="toggle-btn" @click="showNewPassword = !showNewPassword">
-              👁
-            </button>
           </div>
 
           <div class="flex flex-row items-center relative">
             <p for="confirmPassword" class="w-32 text-lg">ยืนยันรหัสผ่าน:</p>
             <input 
-              :type="showConfirmPassword ? 'text' : 'password'" 
+              type='password'
               v-model="confirmPassword" 
               class="input-style pr-10" 
               placeholder="ยืนยันรหัสผ่าน" 
             />
-            <button type="button" class="toggle-btn" @click="showConfirmPassword = !showConfirmPassword">
-              👁
-            </button>
           </div>
 
           <span v-if="errors.confirmPassword" class="text-red-500 text-sm mt-1">{{ errors.confirmPassword }}</span>
 
-          <button @click="changePassword" class="ml-32 btn bg-orange-500 text-white hover:bg-orange-600 w-9/12">เปลี่ยนรหัสผ่าน</button>
+          <button @click="changePassword" class="ml-0 sm:ml-32 btn bg-orange-500 text-white hover:bg-orange-600 w-full sm:w-9/12 mx-auto sm:mx-0">เปลี่ยนรหัสผ่าน</button>
         </div>
       </div>
     </div>

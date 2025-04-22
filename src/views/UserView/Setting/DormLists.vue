@@ -157,9 +157,9 @@ const submitTransfer = async () => {
 
 <template>
   <div class="flex flex-row w-full justify-center p-20">
-    <Sidebar />
+    <Sidebar class="hidden lg:block w-64" />
 
-    <div class="pl-2 w-1/2 h-full flex rounded-xl">
+    <div class="pl-0 lg:pl-2 w-full lg:w-1/2 h-full">
       <div class="w-full flex flex-col items-center justify-center">
 
         <div class="flex flex-row items-center w-full space-x-2 mb-2">
@@ -169,51 +169,33 @@ const submitTransfer = async () => {
             <SortComponent :dormitories="dormitories" />
           </div>
         </div>
-        <div v-if="filteredDormitories?.length > 0" class="flex flex-col">
-          <div v-for="dorm in filteredDormitories" :key="dorm.dormId" class="holding-items">
-            <div class="items rounded-lg border-2 flex flex-row h-full">
-              <div class="flex h-full justify-center items-center h-full w-full">
-                <img :src="dorm.image[0] || '/images/no_image.jpg'" class="h-full bg-cover bg-center rounded-lg object-cover" alt="Dormitory Image" />
-              </div>
 
-              <div class="flex flex-col w-full h-full p-3 justify-center">
-                <div class="item">
-                  <div class="icons flex flex-row justify-between items-center">
-                    <!-- ชื่อหอพัก -->
-                    <div class="flex justify-start w-full">
-                      <h1 class="cursor-pointer" @click="showDetail(dorm.dormId)">{{ dorm.dormName }}</h1>
-                    </div>
+        <div v-if="filteredDormitories.length > 0" class="space-y-4">
+          <div v-for="dorm in filteredDormitories" :key="dorm.dormId" class="bg-white border rounded-2xl shadow-md overflow-hidden p-4">
 
-                    <!-- ไอคอน Edit -->
-                    <div  @click="editDormitory(dorm.dormId)" class="flex-shrink-0 cursor-pointer">
-                      <img src="../../../components/icons/edit.png" alt="Edit Icon" />
-                    </div>
-                    
-                    <!-- ไอคอน Trash -->
-                    <div @click="showDeleteModal(dorm.dormId)" class="flex-shrink-0 cursor-pointer">
-                      <img src="../../../components/icons/trash.png" alt="Trash Icon" />
-                    </div>
+          <div class="flex flex-col md:flex-row">
+            <img :src="dorm.image[0] || '/images/no_image.jpg'" class="w-full md:w-1/3 h-48 md:h-auto object-cover" />
+            <div class="flex flex-col justify-between p-4 w-full">
+              <div>
+                <div class="flex justify-between items-center mb-2">
+                  <h1 class="text-lg font-bold text-orange-500 cursor-pointer" @click="showDetail(dorm.dormId)">{{ dorm.dormName }}</h1>
+                  <div class="flex space-x-2">
+                    <img @click="editDormitory(dorm.dormId)" src="../../../components/icons/edit.png" class="w-6 cursor-pointer" />
+                    <img @click="showDeleteModal(dorm.dormId)" src="../../../components/icons/trash.png" class="w-6 cursor-pointer" />
                   </div>
-
-                  <h2><span style="color: green; font-size: larger;">{{ formatPrice(dorm.min_price) }} - {{ formatPrice(dorm.max_price) }}</span> บาท/เดือน</h2>
-                  <h2>ระยะทาง <span>{{ dorm.distance }} กม.</span></h2>
-                  <h2>
-                    ประเภทหอพัก:
-                    <span v-if="dorm.type === 'all'">รวม</span>
-                    <span v-else-if="dorm.type === 'f'">หญิง</span>
-                    <span v-else-if="dorm.type === 'm'">ชาย</span>
-                    <span v-else>{{ dorm.type }}</span>
-                  </h2>
-                  <p>ที่อยู่: {{ dorm.address.street }}, {{ dorm.address.subdistrict }}, {{ dorm.address.district }}, {{ dorm.address.province }} {{ dorm.address.postalCode }}</p>
-                  <BorderButton @click="openPopup(dorm.dormId)" class="mt-20" context="โอนย้ายหอพัก" />
                 </div>
+                <p class="text-green-600 font-semibold">{{ formatPrice(dorm.min_price) }} - {{ formatPrice(dorm.max_price) }} บาท/เดือน</p>
+                <p>ระยะทาง: {{ dorm.distance }} กม.</p>
+                <p>ประเภทหอพัก: <span>{{ dorm.type === 'all' ? 'รวม' : dorm.type === 'f' ? 'หญิง' : dorm.type === 'm' ? 'ชาย' : dorm.type }}</span></p>
+                <p class="text-sm text-gray-600">ที่อยู่: {{ dorm.address.street }}, {{ dorm.address.subdistrict }}, {{ dorm.address.district }}, {{ dorm.address.province }} {{ dorm.address.postalCode }}</p>
               </div>
-              
+              <BorderButton @click="openPopup(dorm.dormId)" class="mt-4 w-full sm:w-auto" context="โอนย้ายหอพัก" />
             </div>
           </div>
         </div>
-        <div v-if="dormitories.length === 0" class="text-center text-gray-600 mt-5">ยังไม่มีหอพักที่ประกาศไว้</div>
       </div>
+      <div v-else class="text-center text-gray-600 mt-5">ยังไม่มีหอพักที่ประกาศไว้</div>
+    </div>
     </div>
   </div>
 
