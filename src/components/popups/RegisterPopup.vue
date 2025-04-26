@@ -80,7 +80,6 @@ watch([password], () => {
 const register = async () => {
     // ตรวจสอบ validation ก่อน
     validateData()
-    validateIsAccept();
 
     // ถ้ามี error ในฟอร์ม ให้ return ออกก่อน
     if (Object.values(errors.value).some(error => error)) return;
